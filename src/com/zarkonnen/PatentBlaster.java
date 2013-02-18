@@ -22,11 +22,14 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 public class PatentBlaster implements Game {
+	public static final boolean DEMO = false;
+	
 	public static final int NUM_IMAGES = 6;
 	public static final int NUM_VOICES = 14;
 	public static final int FPS = 60;
 	public static final Fount FOUNT = new Fount("LiberationMono18", 12, 12, 24);
-	
+	public static final String[] IMG_NAMES = {"Elephant", "Bear", "Bat", "Mummy", "Tongue", "Brain-Thing"};
+		
 	public static void main(String[] args) {
 		int response = JOptionPane.showOptionDialog(null, "Patent Blaster", "Choose Display Engine", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, new String[] {"Java2D (Slow, No Sound)", "LibGDX", "Slick (Recommended)"}, "Slick (Recommended)");
 		
@@ -77,6 +80,7 @@ public class PatentBlaster implements Game {
 	ScreenMode chosenMode = null;
 	ScreenMode hoverMode = null;
 	public static boolean lowGraphics = false;
+	public static DifficultyLevel difficultyLevel = DifficultyLevel.BRUTAL;
 	boolean showFPS = false;
 	
 	public static int shotDivider() { return lowGraphics ? 4 : 1; }
@@ -151,7 +155,7 @@ public class PatentBlaster implements Game {
 			if (setupCreatures.isEmpty()) {
 				cooldown = 10;
 				for (int i = 0; i < 4; i++) {
-					Creature c = Creature.make(System.currentTimeMillis() + i * 32980, 5, NUM_IMAGES, false, true, false);
+					Creature c = Creature.make(System.currentTimeMillis() + i * 32980, difficultyLevel.playerLevel, NUM_IMAGES, false, true, false);
 					setupCreatures.add(c);
 				}
 			}
@@ -206,8 +210,13 @@ public class PatentBlaster implements Game {
 				for (int i = 0; i < 3; i++) {
 					Item it = null;
 					attempt = 0;
-					do {
+					lp: do {
 						it = Item.make(System.currentTimeMillis() + i * 90238 + attempt++ * 1299, power, NUM_IMAGES);
+						for (Object i2 : shopItems) {
+							if (i2 instanceof Item && ((Item) i2).samePowersAs(it)) {
+								continue lp;
+							}
+						}
 					} while (attempt < 50 && !l.player.isUseful(it));
 					shopItems.add(it);
 				}
@@ -384,6 +393,15 @@ public class PatentBlaster implements Game {
 			showEquipment(d, sm, FOUNT, textBGTint);
 			d.text("SHOP: Select one item to get.", FOUNT, 10, sm.height - 10 - FOUNT.height);
 		} else {
+			// Background texture
+			if (!lowGraphics && l.background != -1) {
+				for (int y = -l.backgroundH; y < (Level.LVL_H + 1) * Level.GRID_SIZE + 300; y += l.backgroundH) {
+					for (int x = -l.backgroundW; x < (Level.LVL_W + 1) * Level.GRID_SIZE; x += l.backgroundW) {
+						d.blit("background_" + l.background, x + scrollX, y + scrollY);
+					}
+				}
+			}
+			
 			for (int y = 0; y < l.grid.length; y++) {
 				for (int x = 0; x < l.grid[0].length; x++) {
 					if (l.grid[y][x] == 2) {
@@ -467,7 +485,7 @@ public class PatentBlaster implements Game {
 			});
 			i++;
 		}
-		if (shopItems.isEmpty() && !l.player.changedGun && l.player.weapons.size() > 1 && l.player.weapons.size() < 5) {
+		if (shopItems.isEmpty() && !l.player.changedGun && l.player.weapons.size() > 1 && l.player.weapons.size() < 5 && l.player.showingWeaponSwitchInfo++ < FPS * 10) {
 			d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "Press Q and E or the number keys to switch weapons.", FOUNT, 20 + i * 40, 20);
 		}
 		i = 0;

@@ -2,7 +2,7 @@ package com.zarkonnen;
 
 public class Util {
 	public static double powerLvl(int power) {
-		return 2 + power + 0.2 * power * power;
+		return PatentBlaster.difficultyLevel.base + power * PatentBlaster.difficultyLevel.linear + power * power * PatentBlaster.difficultyLevel.quadratic;
 	}
 	
 	public static final double BASE_HP = 8;

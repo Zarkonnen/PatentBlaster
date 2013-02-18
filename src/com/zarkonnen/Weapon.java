@@ -45,7 +45,7 @@ public class Weapon implements HasDesc {
 	}
 	
 	public double dps() {
-		return 1.0 * dmg / reload * PatentBlaster.FPS * (swarm ? 8 : 1);
+		return dmg * 1.0 / reload * PatentBlaster.FPS * (swarm ? 8 : 1);
 	}
 	
 	public static Weapon make(long seed, int power, int numImages) {
@@ -94,6 +94,15 @@ public class Weapon implements HasDesc {
 		return w;
 	}
 	
+	String accuracy() {
+		if (jitter == 0) { return "  Perfect accuracy.\n"; }
+		if (jitter < 0.05) { return "  Highly accurate.\n"; }
+		if (jitter < 0.1) { return "  Accurate.\n"; }
+		if (jitter < 0.2) { return ""; }
+		if (jitter < 0.3) { return "  Inaccurate.\n"; }
+		return "  Highly inaccurate.\n";
+	}
+	
 	@Override
 	public String desc() {
 		StringBuilder sb = new StringBuilder();
@@ -103,8 +112,8 @@ public class Weapon implements HasDesc {
 		sb.append("  Reload: ").append(round(reload * 1.0 / PatentBlaster.FPS, 2)).append("sec (").append(round(dps(), 0)).append(" DPS)\n");
 		sb.append("  Shot Speed: ").append(round(shotSpeed, 1)).append("\n");
 		sb.append("  Range: ").append(round(range(), 0)).append("\n");
-		sb.append("  Inaccuracy: ").append(round(jitter * 100, 0)).append("\n");
-		sb.append("  Shot Size: ").append(round(shotSize, 0)).append("\n");
+		sb.append(accuracy());
+		//sb.append("  Shot Size: ").append(round(shotSize, 0)).append("\n");
 		if (knockback) {
 			sb.append("  Knockback.\n");
 		}
@@ -185,7 +194,7 @@ public class Weapon implements HasDesc {
 		t.jitter = jitter * 0.7;
 		t.name = "Tiny " + name;
 		t.reload = reload;
-		t.shotLife = shotLife / 2;
+		t.shotLife = shotLife * 2 / 3;
 		t.shotSize = shotSize / 2 + 1;
 		t.tint = tint;
 		t.shotSpeed = shotSpeed;

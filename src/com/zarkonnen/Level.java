@@ -32,14 +32,21 @@ public class Level implements MusicDone {
 	public int power;
 	public int shotsFired = 0;
 	public boolean moved = false;
+	public int background = -1;
+	public int backgroundW = 512;
+	public int backgroundH;
 	
 	public static final String[] MUSICS = { "DST-1990", "DST-4Tran", "DST-ClubNight", "DST-CreepAlong", "DST-Cv-X", "DST-AngryMod" };
+	public static final int[] BACKGROUND_HS = {406, 452, 512, 512, 256, 308};
+	public static final int NUM_BACKGROUNDS = 6;
 	
 	public Level(long seed, int power, Creature player) {
 		this.power = power;
 		this.player = player;
 		r = new Random(seed);
 		music = MUSICS[r.nextInt(MUSICS.length)];
+		background = r.nextBoolean() ? -1 :  r.nextInt(NUM_BACKGROUNDS);
+		backgroundH = background > -1 ? BACKGROUND_HS[background] : 512;
 		grid = new int[LVL_H][LVL_W];
 		gridH = new int[LVL_W];
 		for (int i = 0; i < LVL_H; i++) {
@@ -97,7 +104,10 @@ public class Level implements MusicDone {
 	public boolean won() {
 		if (!monsters.isEmpty()) { return false; }
 		if (!goodies.isEmpty()) { return false; }
-		if (!shots.isEmpty()) { return false; }
+		if (!texts.isEmpty()) { return false; }
+		for (Shot s : shots) {
+			if (s.doNotEndLevel()) { return false; }
+		}
 		return true;
 	}
 	

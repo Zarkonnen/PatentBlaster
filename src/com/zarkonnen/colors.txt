@@ -1,0 +1,678 @@
+255 246 246 1 Pinkish white
+255 226 226 2 Very pale pink
+255 194 194 3 Pale pink
+255 158 158 4 Light pink
+255 101 101 5 Light brilliant red
+255 0 0 6 Luminous vivid red
+231 218 218 7 Pinkish gray
+231 184 184 8 Pale, grayish pink
+231 139 139 9 Pink
+231 81 81 10 Brilliant red
+231 0 0 11 Vivid red
+168 156 156 12 Reddish gray
+168 125 125 13 Grayish red
+168 74 74 14 Moderate red
+168 0 0 15 Strong red
+89 83 83 16 Reddish brownish gray
+89 66 66 17 Dark grayish reddish brown
+89 39 39 18 Reddish brown
+89 0 0 19 Deep reddish brown
+29 26 26 20 Reddish brownish black
+29 17 17 21 Very reddish brown
+29 0 0 22 Very deep reddish brown
+255 201 194 23 Pale scarlet
+255 170 158 24 Very light scarlet
+255 120 101 25 Light brilliant scarlet
+255 32 0 26 Luminous vivid scarlet
+231 150 139 27 Light scarlet
+231 100 81 28 Brilliant scarlet
+231 29 0 29 Vivid scarlet
+168 85 74 30 Moderate scarlet
+168 21 0 31 Strong scarlet
+89 45 39 32 Dark scarlet
+89 11 0 33 Deep scarlet
+255 233 226 34 Very pale vermilion
+255 209 194 35 Pale vermilion
+255 182 158 36 Very light vermilion
+255 139 101 37 Light brilliant vermilion
+255 64 0 38 Luminous vivid vermilion
+231 196 184 39 Pale, light grayish vermilion
+231 162 139 40 Light vermilion
+231 119 81 41 Brilliant vermilion
+231 58 0 42 Vivid vermilion
+168 136 125 43 Grayish vermilion
+168 97 74 44 Moderate vermilion
+168 42 0 45 Strong vermilion
+89 72 66 46 Dark grayish vermilion
+89 52 39 47 Dark vermilion
+89 22 0 48 Deep vermilion
+255 217 194 49 Pale tangelo
+255 194 158 50 Very light tangelo
+255 159 101 51 Light brilliant tangelo
+255 96 0 52 Luminous vivid tangelo
+231 174 139 53 Light tangelo
+231 137 81 54 Brilliant tangelo
+231 87 0 55 Vivid tangelo
+168 109 74 56 Moderate tangelo
+168 63 0 57 Strong tangelo
+89 58 39 58 Dark tangelo
+89 33 0 59 Deep tangelo
+255 240 226 60 Very pale orange
+255 224 194 61 Pale orange
+255 207 158 62 Very light orange
+255 178 101 63 Light brilliant orange
+255 128 0 64 Luminous vivid orange
+231 208 184 65 Pale, light grayish brown
+231 185 139 66 Light orange
+231 156 81 67 Brilliant orange
+231 116 0 68 Vivid orange
+168 147 125 69 Grayish brown
+168 121 74 70 Moderate orange
+168 84 0 71 Strong orange
+89 78 66 72 Dark grayish brown
+89 64 39 73 Brown
+89 45 0 74 Deep brown
+29 23 17 75 Very brown
+29 14 0 76 Very deep brown
+255 232 194 77 Pale gamboge
+255 219 158 78 Very light gamboge
+255 197 101 79 Light brilliant gamboge
+255 159 0 80 Luminous vivid gamboge
+231 197 139 81 Light gamboge
+231 175 81 82 Brilliant gamboge
+231 145 0 83 Vivid gamboge
+168 133 74 84 Moderate gamboge
+168 105 0 85 Strong gamboge
+89 70 39 86 Dark gamboge
+89 56 0 87 Deep gamboge
+255 248 226 88 Very pale amber
+255 240 194 89 Pale amber
+255 231 158 90 Very light amber
+255 216 101 91 Light brilliant amber
+255 191 0 92 Luminous vivid amber
+231 220 184 93 Pale, light grayish amber
+231 208 139 94 Light amber
+231 194 81 95 Brilliant amber
+231 174 0 96 Vivid amber
+168 158 125 97 Grayish amber
+168 145 74 98 Moderate amber
+168 126 0 99 Strong amber
+89 84 66 100 Dark grayish amber
+89 77 39 101 Dark amber
+89 67 0 102 Deep amber
+255 247 194 103 Pale gold
+255 243 158 104 Very light gold
+255 236 101 105 Light brilliant gold
+255 223 0 106 Luminous vivid gold
+231 220 139 107 Light gold
+231 213 81 108 Brilliant gold
+231 202 0 109 Vivid gold
+168 156 74 110 Moderate gold
+168 147 0 111 Strong gold
+89 83 39 112 Dark gold
+89 78 0 113 Deep gold
+255 255 246 114 Yellowish white
+255 255 226 115 Very pale yellow
+255 255 194 116 Pale yellow
+255 255 158 117 Very light yellow
+255 255 101 118 Light brilliant yellow
+255 255 0 119 Luminous vivid yellow
+231 231 218 120 Light yellowish gray
+231 231 184 121 Pale, light grayish olive
+231 231 139 122 Light yellow
+231 231 81 123 Brilliant yellow
+231 231 0 124 Vivid yellow
+168 168 156 125 Yellowish gray
+168 168 125 126 Grayish olive
+168 168 74 127 Moderate olive
+168 168 0 128 Strong olive
+89 89 83 129 Dark olivish gray
+89 89 66 130 Dark grayish olive
+89 89 39 131 Dark olive
+89 89 0 132 Deep olive
+29 29 26 133 Yellowish black
+29 29 17 134 Very dark olive
+29 29 0 135 Very deep olive
+247 255 194 136 Pale apple green
+243 255 158 137 Very light apple green
+236 255 101 138 Light brilliant apple green
+223 255 0 139 Luminous vivid apple green
+220 231 139 140 Light apple green
+213 231 81 141 Brilliant apple green
+202 231 0 142 Vivid apple green
+156 168 74 143 Moderate apple green
+147 168 0 144 Strong apple green
+83 89 39 145 Dark apple green
+78 89 0 146 Deep apple green
+248 255 226 147 Very pale lime green
+240 255 194 148 Pale lime green
+231 255 158 149 Very light lime green
+216 255 101 150 Light brilliant lime green
+191 255 0 151 Luminous vivid lime green
+220 231 184 152 Pale, light grayish lime green
+208 231 139 153 Light lime green
+194 231 81 154 Brilliant lime green
+174 231 0 155 Vivid lime green
+158 168 125 156 Grayish lime green
+145 168 74 157 Moderate lime green
+126 168 0 158 Strong lime green
+84 89 66 159 Dark grayish lime green
+77 89 39 160 Dark lime green
+67 89 0 161 Deep lime green
+232 255 194 162 Pale spring bud
+219 255 158 163 Very light spring bud
+197 255 101 164 Light brilliant spring bud
+159 255 0 165 Luminous vivid spring bud
+197 231 139 166 Light spring bud
+175 231 81 167 Brilliant spring bud
+145 231 0 168 Vivid spring bud
+133 168 74 169 Moderate spring bud
+105 168 0 170 Strong spring bud
+70 89 39 171 Dark spring bud
+56 89 0 172 Deep spring bud
+240 255 226 173 Very pale chartreuse green
+224 255 194 174 Pale chartreuse green
+207 255 158 175 Very light chartreuse green
+178 255 101 176 Light brilliant chartreuse green
+128 255 0 177 Luminous vivid chartreuse green
+208 231 184 178 Pale, light grayish chartreuse green
+185 231 139 179 Light chartreuse green
+156 231 81 180 Brilliant chartreuse green
+116 231 0 181 Vivid chartreuse green
+147 168 125 182 Grayish chartreuse green
+121 168 74 183 Moderate chartreuse green
+84 168 0 184 Strong chartreuse green
+78 89 66 185 Dark grayish chartreuse green
+64 89 39 186 Dark chartreuse green
+45 89 0 187 Deep chartreuse green
+23 29 17 188 Very dark chartreuse green
+14 29 0 189 Very deep chartreuse green
+217 255 194 190 Pale pistachio
+194 255 158 191 Very light pistachio
+159 255 101 192 Light brilliant pistachio
+96 255 0 193 Luminous vivid pistachio
+174 231 139 194 Light pistachio
+137 231 81 195 Brilliant pistachio
+87 231 0 196 Vivid pistachio
+109 168 74 197 Moderate pistachio
+63 168 0 198 Strong pistachio
+58 89 39 199 Dark pistachio
+33 89 0 200 Deep pistachio
+233 255 226 201 Very pale harlequin
+209 255 194 202 Pale harlequin
+182 255 158 203 Very light harlequin
+139 255 101 204 Light brilliant harlequin
+64 255 0 205 Luminous vivid harlequin
+196 231 184 206 Pale, light grayish harlequin
+162 231 139 207 Light harlequin
+119 231 81 208 Brilliant harlequin
+58 231 0 209 Vivid harlequin
+136 168 125 210 Grayish harlequin
+97 168 74 211 Moderate harlequin
+42 168 0 212 Strong harlequin
+72 89 66 213 Dark grayish harlequin
+52 89 39 214 Dark harlequin
+22 89 0 215 Deep harlequin
+201 255 194 216 Pale sap green
+170 255 158 217 Very light sap green
+120 255 101 218 Light brilliant sap green
+32 255 0 219 Luminous vivid sap green
+150 231 139 220 Light sap green
+100 231 81 221 Brilliant sap green
+29 231 0 222 Vivid sap green
+85 168 74 223 Moderate sap green
+21 168 0 224 Strong sap green
+45 89 39 225 Dark sap green
+11 89 0 226 Deep sap green
+246 255 246 227 Greenish white
+226 255 226 228 Very pale green
+194 255 194 229 Pale green
+158 255 158 230 Very light green
+101 255 101 231 Light brilliant green
+0 255 0 232 Luminous vivid green
+218 231 218 233 Light greenish gray
+184 231 184 234 Pale, light grayish green
+139 231 139 235 Light green
+81 231 81 236 Brilliant green
+0 231 0 237 Vivid green
+156 168 156 238 Greenish gray
+125 168 125 239 Grayish green
+74 168 74 240 Moderate green
+0 168 0 241 Strong green
+83 89 83 242 Dark greenish gray
+66 89 66 243 Dark grayish green
+39 89 39 244 Dark green
+0 89 0 245 Deep green
+26 29 26 246 Greenish black
+17 29 17 247 Very dark green
+0 29 0 248 Very deep green
+194 255 201 249 Pale emerald green
+158 255 170 250 Very light emerald green
+101 255 120 251 Light brilliant emerald green
+0 255 32 252 Luminous vivid emerald green
+139 231 150 253 Light emerald green
+81 231 100 254 Brilliant emerald green
+0 231 29 255 Vivid emerald green
+74 168 85 256 Moderate emerald green
+0 168 21 257 Strong emerald green
+39 89 45 258 Dark emerald green
+0 89 11 259 Deep emerald green
+226 255 233 260 Very pale malachite green
+194 255 209 261 Pale malachite green
+158 255 182 262 Very light malachite green
+101 255 139 263 Light brilliant malachite green
+0 255 64 264 Luminous vivid malachite green
+184 231 196 265 Pale, light grayish malachite green
+139 231 162 266 Light malachite green
+81 231 119 267 Brilliant malachite green
+0 231 58 268 Vivid malachite green
+125 168 136 269 Grayish malachite green
+74 168 97 270 Moderate malachite green
+0 168 42 271 Strong malachite green
+66 89 72 272 Dark grayish malachite green
+39 89 52 273 Dark malachite green
+0 89 22 274 Deep malachite green
+194 255 217 275 Pale sea green
+158 255 194 276 Very light sea green
+101 255 159 277 Light brilliant sea green
+0 255 96 278 Luminous vivid sea green
+139 231 174 279 Light sea green
+81 231 137 280 Brilliant sea green
+0 231 87 281 Vivid sea green
+74 168 109 282 Moderate sea green
+0 168 63 283 Strong sea green
+39 89 58 284 Dark sea green
+0 89 33 285 Deep sea green
+226 255 240 286 Very pale spring green
+194 255 224 287 Pale spring green
+158 255 207 288 Very light spring green
+101 255 178 289 Light brilliant spring green
+0 255 128 290 Luminous vivid spring green
+184 231 208 291 Pale, light grayish spring green
+139 231 185 292 Light spring green
+81 231 156 293 Brilliant spring green
+0 231 116 294 Vivid spring green
+125 168 147 295 Grayish spring green
+74 168 121 296 Moderate spring green
+0 168 84 297 Strong spring green
+66 89 78 298 Dark grayish spring green
+39 89 64 299 Dark spring green
+0 89 45 300 Deep spring green
+17 29 23 301 Very dark spring green
+0 29 14 302 Very deep spring green
+194 255 232 303 Pale aquamarine
+158 255 219 304 Very light aquamarine
+101 255 197 305 Light brilliant aquamarine
+0 255 159 306 Luminous vivid aquamarine
+139 231 197 307 Light aquamarine
+81 231 175 308 Brilliant aquamarine
+0 231 145 309 Vivid aquamarine
+74 168 133 310 Moderate aquamarine
+0 168 105 311 Strong aquamarine
+39 89 70 312 Dark aquamarine
+0 89 56 313 Deep aquamarine
+226 255 248 314 Very pale turquoise
+194 255 240 315 Pale turquoise
+158 255 231 316 Very light turquoise
+101 255 216 317 Light brilliant turquoise
+0 255 191 318 Luminous vivid turquoise
+184 231 220 319 Pale, light grayish turquoise
+139 231 208 320 Light turquoise
+81 231 194 321 Brilliant turquoise
+0 231 174 322 Vivid turquoise
+125 168 158 323 Grayish turquoise
+74 168 145 324 Moderate turquoise
+0 168 126 325 Strong turquoise
+66 89 84 326 Dark grayish turquoise
+39 89 77 327 Dark turquoise
+0 89 67 328 Deep turquoise
+194 255 247 329 Pale opal
+158 255 243 330 Very light opal
+101 255 236 331 Light brilliant opal
+0 255 223 332 Luminous vivid opal
+139 231 220 333 Light opal
+81 231 213 334 Brilliant opal
+0 231 202 335 Vivid opal
+74 168 156 336 Moderate opal
+0 168 147 337 Strong opal
+39 89 83 338 Dark opal
+0 89 78 339 Deep opal
+246 255 255 340 Cyanish white
+226 255 255 341 Very pale cyan
+194 255 255 342 Pale cyan
+158 255 255 343 Very light cyan
+101 255 255 344 Light brilliant cyan
+0 255 255 345 Luminous vivid cyan
+218 231 231 346 Light cyanish gray
+184 231 231 347 Pale, light grayish cyan
+139 231 231 348 Light cyan
+81 231 231 349 Brilliant cyan
+0 231 231 350 Vivid cyan
+156 168 168 351 Cyanish gray
+125 168 168 352 Grayish cyan
+74 168 168 353 Moderate cyan
+0 168 168 354 Strong cyan
+83 89 89 355 Dark cyanish gray
+66 89 89 356 Dark grayish cyan
+39 89 89 357 Dark cyan
+0 89 89 358 Deep cyan
+26 29 29 359 Cyanish black
+17 29 29 360 Very dark cyan
+0 29 29 361 Very deep cyan
+194 247 255 362 Pale arctic blue
+158 243 255 363 Very light arctic blue
+101 236 255 364 Light brilliant arctic blue
+0 223 255 365 Luminous vivid arctic blue
+139 220 231 366 Light arctic blue
+81 213 231 367 Brilliant arctic blue
+0 202 231 368 Vivid arctic blue
+74 156 168 369 Moderate arctic blue
+0 147 168 370 Strong arctic blue
+39 83 89 371 Dark arctic blue
+0 78 89 372 Deep arctic blue
+226 248 255 373 Very pale cerulean
+194 240 255 374 Pale cerulean
+158 231 255 375 Very light cerulean
+101 216 255 376 Light brilliant cerulean
+0 191 255 377 Luminous vivid cerulean
+184 220 231 378 Pale, light grayish cerulean
+139 208 231 379 Light cerulean
+81 194 231 380 Brilliant cerulean
+0 174 231 381 Vivid cerulean
+125 158 168 382 Grayish cerulean
+74 145 168 383 Moderate cerulean
+0 126 168 384 Strong cerulean
+66 84 89 385 Dark grayish cerulean
+39 77 89 386 Dark cerulean
+0 67 89 387 Deep cerulean
+194 232 255 388 Pale cornflower blue
+158 219 255 389 Very light cornflower blue
+101 197 255 390 Light brilliant cornflower blue
+0 159 255 391 Luminous vivid cornflower blue
+139 197 231 392 Light cornflower blue
+81 175 231 393 Brilliant cornflower blue
+0 145 231 394 Vivid cornflower blue
+74 133 168 395 Moderate cornflower blue
+0 105 168 396 Strong cornflower blue
+39 70 89 397 Dark cornflower blue
+0 56 89 398 Deep cornflower blue
+226 240 255 399 Very pale azure
+194 224 255 400 Pale azure
+158 207 255 401 Very light azure
+101 178 255 402 Light brilliant azure
+0 128 255 403 Luminous vivid azure
+184 208 231 404 Pale, light grayish azure
+139 185 231 405 Light azure
+81 156 231 406 Brilliant azure
+0 116 231 407 Vivid azure
+125 147 168 408 Grayish azure
+74 121 168 409 Moderate azure
+0 84 168 410 Strong azure
+66 78 89 411 Dark grayish azure
+39 64 89 412 Dark azure
+0 45 89 413 Deep azure
+17 23 29 414 Very dark azure
+0 14 29 415 Very deep azure
+194 217 255 416 Pale cobalt blue
+158 194 255 417 Very light cobalt blue
+101 159 255 418 Light brilliant cobalt blue
+0 96 255 419 Luminous vivid cobalt blue
+139 174 231 420 Light cobalt blue
+81 137 231 421 Brilliant cobalt blue
+0 87 231 422 Vivid cobalt blue
+74 109 168 423 Moderate cobalt blue
+0 63 168 424 Strong cobalt blue
+39 58 89 425 Dark cobalt blue
+0 33 89 426 Deep cobalt blue
+226 233 255 427 Very pale sapphire blue
+194 209 255 428 Pale sapphire blue
+158 182 255 429 Very light sapphire blue
+101 139 255 430 Light brilliant sapphire blue
+0 64 255 431 Luminous vivid sapphire blue
+184 196 231 432 Pale, light grayish sapphire blue
+139 162 231 433 Light sapphire blue
+81 119 231 434 Brilliant sapphire blue
+0 58 231 435 Vivid sapphire blue
+125 136 168 436 Grayish sapphire blue
+74 97 168 437 Moderate sapphire blue
+0 42 168 438 Strong sapphire blue
+66 72 89 439 Dark grayish sapphire blue
+39 52 89 440 Dark sapphire blue
+0 22 89 441 Deep sapphire blue
+194 201 255 442 Pale phthalo blue
+158 170 255 443 Very light phthalo blue
+101 120 255 444 Light brilliant phthalo blue
+0 32 255 445 Luminous vivid phthalo blue
+139 150 231 446 Light phthalo blue
+81 100 231 447 Brilliant phthalo blue
+0 29 231 448 Vivid phthalo blue
+74 85 168 449 Moderate phthalo blue
+0 21 168 450 Strong phthalo blue
+39 45 89 451 Dark phthalo blue
+0 11 89 452 Deep phthalo blue
+246 246 255 453 Bluish white
+226 226 255 454 Very pale blue
+194 194 255 455 Pale blue
+158 158 255 456 Very light blue
+101 101 255 457 Light brilliant blue
+0 0 255 458 Luminous vivid blue
+218 218 231 459 Light bluish gray
+184 184 231 460 Pale, light grayish blue
+139 139 231 461 Light blue
+81 81 231 462 Brilliant blue
+0 0 231 463 Vivid blue
+156 156 168 464 Bluish gray
+125 125 168 465 Grayish blue
+74 74 168 466 Moderate blue
+0 0 168 467 Strong blue
+83 83 89 468 Dark bluish gray
+66 66 89 469 Dark grayish blue
+39 39 89 470 Dark blue
+0 0 89 471 Deep blue
+26 26 29 472 Bluish black
+17 17 29 473 Very dark blue
+0 0 29 474 Very deep blue
+201 194 255 475 Pale persian blue
+170 158 255 476 Very light persian blue
+120 101 255 477 Light brilliant persian blue
+32 0 255 478 Luminous vivid persian blue
+150 139 231 479 Light persian blue
+100 81 231 480 Brilliant persian blue
+29 0 231 481 Vivid persian blue
+85 74 168 482 Moderate persian blue
+21 0 168 483 Strong persian blue
+45 39 89 484 Dark persian blue
+11 0 89 485 Deep persian blue
+233 226 255 486 Very pale indigo
+209 194 255 487 Pale indigo
+182 158 255 488 Very light indigo
+139 101 255 489 Light brilliant indigo
+64 0 255 490 Luminous vivid indigo
+196 184 231 491 Pale, light grayish indigo
+162 139 231 492 Light indigo
+119 81 231 493 Brilliant indigo
+58 0 231 494 Vivid indigo
+136 125 168 495 Grayish indigo
+97 74 168 496 Moderate indigo
+42 0 168 497 Strong indigo
+72 66 89 498 Dark grayish indigo
+52 39 89 499 Dark indigo
+22 0 89 500 Deep indigo
+217 194 255 501 Pale blue violet
+194 158 255 502 Very light blue violet
+159 101 255 503 Light brilliant blue violet
+96 0 255 504 Luminous vivid blue violet
+174 139 231 505 Light blue violet
+137 81 231 506 Brilliant blue violet
+87 0 231 507 Vivid blue violet
+109 74 168 508 Moderate blue violet
+63 0 168 509 Strong blue violet
+58 39 89 510 Dark blue violet
+33 0 89 511 Deep blue violet
+240 226 255 512 Very pale violet
+224 194 255 513 Pale violet
+207 158 255 514 Very light violet
+178 101 255 515 Light brilliant violet
+128 0 255 516 Luminous vivid violet
+208 184 231 517 Pale, light grayish violet
+185 139 231 518 Light violet
+156 81 231 519 Brilliant violet
+116 0 231 520 Vivid violet
+147 125 168 521 Grayish violet
+121 74 168 522 Moderate violet
+84 0 168 523 Strong violet
+78 66 89 524 Dark grayish violet
+64 39 89 525 Dark violet
+45 0 89 526 Deep violet
+23 17 29 527 Very dark violet
+14 0 29 528 Very deep violet
+232 194 255 529 Pale purple
+219 158 255 530 Very light purple
+197 101 255 531 Light brilliant purple
+159 0 255 532 Luminous vivid purple
+197 139 231 533 Light purple
+175 81 231 534 Brilliant purple
+145 0 231 535 Vivid purple
+133 74 168 536 Moderate purple
+105 0 168 537 Strong purple
+70 39 89 538 Dark purple
+56 0 89 539 Deep purple
+248 226 255 540 Very pale mulberry
+240 194 255 541 Pale mulberry
+231 158 255 542 Very light mulberry
+216 101 255 543 Light brilliant mulberry
+191 0 255 544 Luminous vivid mulberry
+220 184 231 545 Pale, light grayish mulberry
+208 139 231 546 Light mulberry
+194 81 231 547 Brilliant mulberry
+174 0 231 548 Vivid mulberry
+158 125 168 549 Grayish mulberry
+145 74 168 550 Moderate mulberry
+126 0 168 551 Strong mulberry
+84 66 89 552 Dark grayish mulberry
+77 39 89 553 Dark mulberry
+67 0 89 554 Deep mulberry
+247 194 255 555 Pale heliotrope
+243 158 255 556 Very light heliotrope
+236 101 255 557 Light brilliant heliotrope
+223 0 255 558 Luminous vivid heliotrope
+220 139 231 559 Light heliotrope
+213 81 231 560 Brilliant heliotrope
+202 0 231 561 Vivid heliotrope
+156 74 168 562 Moderate heliotrope
+147 0 168 563 Strong heliotrope
+83 39 89 564 Dark heliotrope
+78 0 89 565 Deep heliotrope
+255 246 255 566 Magentaish white
+255 226 255 567 Very pale magenta
+255 194 255 568 Pale magenta
+255 158 255 569 Very light magenta
+255 101 255 570 Light brilliant magenta
+255 0 255 571 Luminous vivid magenta
+231 218 231 572 Light magentaish gray
+231 184 231 573 Pale, light grayish magenta
+231 139 231 574 Light magenta
+231 81 231 575 Brilliant magenta
+231 0 231 576 Vivid magenta
+168 156 168 577 Magentaish gray
+168 125 168 578 Grayish magenta
+168 74 168 579 Moderate magenta
+168 0 168 580 Strong magenta
+89 83 89 581 Dark magentaish gray
+89 66 89 582 Dark grayish magenta
+89 39 89 583 Dark magenta
+89 0 89 584 Deep magenta
+29 26 29 585 Magentaish black
+29 17 29 586 Very dark magenta
+29 0 29 587 Very deep magenta
+255 194 247 588 Pale orchid
+255 158 243 589 Very light orchid
+255 101 236 590 Light brilliant orchid
+255 0 223 591 Luminous vivid orchid
+231 139 220 592 Light orchid
+231 81 213 593 Brilliant orchid
+231 0 202 594 Vivid orchid
+168 74 156 595 Moderate orchid
+168 0 147 596 Strong orchid
+89 39 83 597 Dark orchid
+89 0 78 598 Deep orchid
+255 226 248 599 Very pale fuchsia
+255 194 240 600 Pale fuchsia
+255 158 231 601 Very light fuchsia
+255 101 216 602 Light brilliant fuchsia
+255 0 191 603 Luminous vivid fuchsia
+231 184 220 604 Pale, light grayish fuchsia
+231 139 208 605 Light fuchsia
+231 81 194 606 Brilliant fuchsia
+231 0 174 607 Vivid fuchsia
+168 125 158 608 Grayish fuchsia
+168 74 145 609 Moderate fuchsia
+168 0 126 610 Strong fuchsia
+89 66 84 611 Dark grayish fuchsia
+89 39 77 612 Dark fuchsia
+89 0 67 613 Deep fuchsia
+255 194 232 614 Pale cerise
+255 158 219 615 Very light cerise
+255 101 197 616 Light brilliant cerise
+255 0 159 617 Luminous vivid cerise
+231 139 197 618 Light cerise
+231 81 175 619 Brilliant cerise
+231 0 145 620 Vivid cerise
+168 74 133 621 Moderate cerise
+168 0 105 622 Strong cerise
+89 39 70 623 Dark cerise
+89 0 56 624 Deep cerise
+255 226 240 625 Very pale rose
+255 194 224 626 Pale rose
+255 158 207 627 Very light rose
+255 101 178 628 Light brilliant rose
+255 0 128 629 Luminous vivid rose
+231 184 208 630 Pale, light grayish rose
+231 139 185 631 Light rose
+231 81 156 632 Brilliant rose
+231 0 116 633 Vivid rose
+168 125 147 634 Grayish rose
+168 74 121 635 Moderate rose
+168 0 84 636 Strong rose
+89 66 78 637 Dark grayish rose
+89 39 64 638 Dark rose
+89 0 45 639 Deep rose
+29 17 23 640 Very dark rose
+29 0 14 641 Very deep rose
+255 194 217 642 Pale raspberry
+255 158 194 643 Very light raspberry
+255 101 159 644 Light brilliant raspberry
+255 0 96 645 Luminous vivid raspberry
+231 139 174 646 Light raspberry
+231 81 137 647 Brilliant raspberry
+231 0 87 648 Vivid raspberry
+168 74 109 649 Moderate raspberry
+168 0 63 650 Strong raspberry
+89 39 58 651 Dark raspberry
+89 0 33 652 Deep raspberry
+255 226 233 653 Very pale crimson
+255 194 209 654 Pale crimson
+255 158 182 655 Very light crimson
+255 101 139 656 Light brilliant crimson
+255 0 64 657 Luminous vivid crimson
+231 184 196 658 Pale, light grayish crimson
+231 139 162 659 Light crimson
+231 81 119 660 Brilliant crimson
+231 0 58 661 Vivid crimson
+168 125 136 662 Grayish crimson
+168 74 97 663 Moderate crimson
+168 0 42 664 Strong crimson
+89 66 72 665 Dark grayish crimson
+89 39 52 666 Dark crimson
+89 0 22 667 Deep crimson
+255 194 201 668 Pale amaranth
+255 158 170 669 Very light amaranth
+255 101 120 670 Light brilliant amaranth
+255 0 32 671 Luminous vivid amaranth
+231 139 150 672 Light amaranth
+231 81 100 673 Brilliant amaranth
+231 0 29 674 Vivid amaranth
+168 74 85 675 Moderate amaranth
+168 0 21 676 Strong amaranth
+89 39 45 677 Dark amaranth
+89 0 11 678 Deep amaranth

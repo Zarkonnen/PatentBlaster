@@ -153,6 +153,8 @@ public class Shot extends Entity {
 						bleeder.weapon.jitter += 0.15;
 						bleeder.speed /= 3;
 						bleeder.reviens = false;
+						bleeder.isZombie = true;
+						bleeder.resistance = null;
 						Item zombieVirus = new Item();
 						zombieVirus.name = "Zombie Virus";
 						zombieVirus.eating = 0.05;

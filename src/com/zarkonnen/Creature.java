@@ -93,6 +93,9 @@ public class Creature extends Entity implements HasDesc {
 	
 	public Item stolenItem = null;
 	public Weapon stolenWeapon = null;
+	public int showingWeaponSwitchInfo;
+	public boolean isZombie;
+	public Creature lastShooter;
 	
 	public boolean fireproof() {
 		return resistance(Element.FIRE) >= 0.5;
@@ -225,6 +228,9 @@ public class Creature extends Entity implements HasDesc {
 	
 	public void explode(Level l) {
 		sound(frozen > 0 || jar ? "shatter" : "squelch", l);
+		if (playerControlled && lastShooter != null) {
+			l.texts.add(new FloatingText("KILLED BY " + lastShooter.name().toUpperCase(), x + w / 2, y));
+		}
 		if (explodes) {
 			sound("explode", l);
 		}
@@ -310,7 +316,7 @@ public class Creature extends Entity implements HasDesc {
 				
 		if (splitsIntoFour) {
 			for (int i = 0; i < 4; i++) {
-				Creature tiny = makeTinyVersion();
+				Creature tiny = makeTinyVersion(l);
 				tiny.x = x + w * (i % 2);
 				tiny.y = y + h * (i / 2) * 0.9;
 				tiny.dx = dx;
@@ -322,7 +328,7 @@ public class Creature extends Entity implements HasDesc {
 		}
 		if (jar) {
 			for (int i = 0; i < 6; i++) {
-				Creature tiny = makeTinyVersion();
+				Creature tiny = makeTinyVersion(l);
 				tiny.x = x + w / 4 + l.r.nextDouble() * w / 2;
 				tiny.y = y + h / 4 + l.r.nextDouble() * h / 2.1;
 				tiny.dx = l.r.nextDouble() * 8 - 4;
@@ -361,7 +367,7 @@ public class Creature extends Entity implements HasDesc {
 		return true;
 	}
 	
-	public Creature makeTinyVersion() {
+	public Creature makeTinyVersion(Level l) {
 		Creature t = new Creature();
 		t.canSeeStats = canSeeStats;
 		t.charges = charges;
@@ -387,6 +393,7 @@ public class Creature extends Entity implements HasDesc {
 		t.animCycleLength = animCycleLength / 2 + 2;
 		t.alwaysOnFire = alwaysOnFire;
 		t.thief = thief;
+		t.flyHeightBonus = l.r.nextInt(Level.GRID_SIZE);
 		return t;
 	}
 	
@@ -539,8 +546,8 @@ public class Creature extends Entity implements HasDesc {
 										}
 									}
 									if (rmm == MoveMode.FLY) {
-										if (Math.abs(ypd + (charges ? 0 : ABOVE_PREF + flyHeightBonus)) > ts + w) {
-											if (ypd + (charges ? 0 : ABOVE_PREF + flyHeightBonus) > 0) {
+										if (Math.abs(ypd + (charges && !xFar ? 0 : ABOVE_PREF + flyHeightBonus)) > ts + w) {
+											if (ypd + (charges && !xFar ? 0 : ABOVE_PREF + flyHeightBonus) > 0) {
 												dy = -ts;
 											} else {
 												dy = ts;
@@ -630,6 +637,7 @@ public class Creature extends Entity implements HasDesc {
 		if (onFire > 0) {
 			if (!alwaysOnFire) { hp *= 0.995; }
 			onFire--;
+			lastShooter = fireShooter;
 			if (fireSoundTimer++ % (PatentBlaster.FPS * 2) == 0 && Math.abs(x + w / 2 - l.player.x - l.player.w / 2) < 700) {
 				sound("on_fire", l);
 			}
@@ -663,7 +671,7 @@ public class Creature extends Entity implements HasDesc {
 						Shot s = new Shot(Clr.WHITE, w / 20 + 1, false, 50 + l.r.nextInt(200), x + w / 2, y + h / 2, l.r.nextDouble() * 8 - 4, l.r.nextDouble() * 8 - 4, 1.0, null, false, false, false, 0, 0, 0);
 						l.shotsToAdd.add(s);
 					}
-					Creature baby = makeTinyVersion();
+					Creature baby = makeTinyVersion(l);
 					baby.heal();
 					baby.x = x + w / 2 - baby.w / 2;
 					baby.y = y + h / 2 - baby.h / 2;
@@ -746,6 +754,7 @@ public class Creature extends Entity implements HasDesc {
 			}
 		}
 		
+		lastShooter = shot.shooter;
 		hp -= dmg;
 		if (flees && hp < totalMaxHP() / 2) {
 			fleeing = true;
@@ -952,24 +961,70 @@ public class Creature extends Entity implements HasDesc {
 		return 1 - dmg;
 	}
 	
+	public String name() {
+		String n = PatentBlaster.IMG_NAMES[img];
+		if (resistance != null) {
+			n = resistance.name() + "-" + n;
+		}
+		if (thief) {
+			n = "Thief-" + n;
+		}
+		if (isZombie) {
+			n = "Zombie-" + n;
+		}
+		if (resistance == null) {
+			n = Colors.getName(tint) + " " + n;
+		}
+		if (alwaysOnFire) {
+			n = "Burning " + n;
+		}
+		if (explodes) {
+			n = "Exploding " + n;
+		}
+		if (reproduces) {
+			n = "Reproducing " + n;
+		}
+		switch (realMoveMode()) {
+			case CANTER:
+				n = "Cantering " + n;
+				break;
+			case HOP:
+				n = "Hopping " + n;
+				break;
+			case HOVER:
+				n = "Hovering " + n;
+				break;
+			case FLY:
+				n = "Flying " + n;
+				break;
+		}
+		if (n.equals(PatentBlaster.IMG_NAMES[img])) {
+			n = "Perfectly Normal " + n;
+		}
+		return n;
+	}
+	
 	@Override
 	public String desc() {
 		StringBuilder sb = new StringBuilder();
+		sb.append(name().toUpperCase()).append(", ");
 		if (resistance != null) {
 			sb.append("[").append(resistance.tint).append("]").append(resistance.name()).append("[]");
 		} else {
 			sb.append("Normal");
 		}
 		sb.append(" Creature\n");
-		sb.append("HP: ").append(hp).append("/").append(totalMaxHP()).append("\n");
+		sb.append("HP: ").append(hp).append("/").append(totalMaxHP());
 		if (baseHPRegen() != 0) {
-			sb.append("Regeneration: ").append(round(baseHPRegen() * PatentBlaster.FPS, 1)).append("/sec\n");
+			sb.append(" + ").append(round(baseHPRegen() * PatentBlaster.FPS, 1)).append("/sec\n");
+		} else {
+			sb.append("\n");
 		}
 		if (totalEating() > 0) {
 			sb.append("Eating flesh gives you ").append(round(totalEating() * 100 * 50, 0)).append("% of the victim's HP\n");
 		}
 		sb.append("Speed: ").append(round(totalSpeed(), 1)).append("\n");
-		sb.append("Move mode: ").append(realMoveMode().name()).append("\n");
+		//sb.append("Move mode: ").append(realMoveMode().name()).append("\n");
 		for (Element e : Element.values()) {
 			double r = resistance(e);
 			if (r > 0) {

@@ -53,7 +53,7 @@ public class Names {
 							while ((l = br.readLine()) != null) {
 								if (l.contains(BEFORE)) {
 									String txt = l.split(BEFORE)[1].split(AFTER)[0];
-									if (txt.length() > 3 && txt.matches("[a-zA-Z0-9 .,-/()!?_'\"@$]+")) {
+									if (txt.length() > 3 && txt.length() < 24 && txt.matches("[a-zA-Z0-9 .,-/()!?_'\"@$]+")) {
 										names.add(txt);
 									}
 								}

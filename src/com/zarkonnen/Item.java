@@ -171,4 +171,19 @@ public class Item implements HasDesc {
 		it.resurrect = resurrect;
 		return it;
 	}
+
+	boolean samePowersAs(Item it) {
+		return
+				fly == it.fly &&
+				givesInfo == it.givesInfo &&
+				resurrect == it.resurrect &&
+				shield == it.shield &&
+				eating == it.eating &&
+				speedMult == it.speedMult &&
+				hpBonus == it.hpBonus &&
+				hpRegen == it.hpRegen &&
+				resistance == it.resistance &&
+				resistanceVs == it.resistanceVs &&
+				vampireMult == it.vampireMult;
+	}
 }
