@@ -104,10 +104,10 @@ public class Weapon implements HasDesc {
 	}
 	
 	@Override
-	public String desc() {
+	public String desc(Clr textTint) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(" ").append(name.toUpperCase()).append("");
-		sb.append(", [").append(element.tint).append("]").append(element.name()).append("[] Weapon\n");
+		sb.append(", [").append(element.tint.mix(0.3, textTint)).append("]").append(element.name()).append("[] Weapon\n");
 		sb.append("  Damage: ").append(dmg * (swarm ? 8 : 1)).append("\n");
 		sb.append("  Reload: ").append(round(reload * 1.0 / PatentBlaster.FPS, 2)).append("sec (").append(round(dps(), 0)).append(" DPS)\n");
 		sb.append("  Shot Speed: ").append(round(shotSpeed, 1)).append("\n");

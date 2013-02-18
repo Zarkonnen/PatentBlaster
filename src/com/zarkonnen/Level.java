@@ -45,7 +45,7 @@ public class Level implements MusicDone {
 		this.player = player;
 		r = new Random(seed);
 		music = MUSICS[r.nextInt(MUSICS.length)];
-		background = r.nextBoolean() ? -1 :  r.nextInt(NUM_BACKGROUNDS);
+		background = r.nextInt(NUM_BACKGROUNDS);
 		backgroundH = background > -1 ? BACKGROUND_HS[background] : 512;
 		grid = new int[LVL_H][LVL_W];
 		gridH = new int[LVL_W];

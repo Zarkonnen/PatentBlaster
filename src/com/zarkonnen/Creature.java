@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.Random;
 import static com.zarkonnen.PatentBlaster.round;
 import static com.zarkonnen.Util.*;
+import java.util.Collections;
 
 public class Creature extends Entity implements HasDesc {
 	public static final double HOP_BONUS = 3.5;
@@ -96,6 +97,8 @@ public class Creature extends Entity implements HasDesc {
 	public int showingWeaponSwitchInfo;
 	public boolean isZombie;
 	public Creature lastShooter;
+	
+	public long seed;
 	
 	public boolean fireproof() {
 		return resistance(Element.FIRE) >= 0.5;
@@ -578,7 +581,7 @@ public class Creature extends Entity implements HasDesc {
 						items.add(it);
 						stolenItem = it;
 						sound("steal", l);
-						l.texts.add(new FloatingText("STOLEN: " + it.desc(), x + w / 2, y));
+						l.texts.add(new FloatingText("STOLEN: " + it.desc(Clr.WHITE), x + w / 2, y));
 					} else {
 						int index = l.player.weapons.size() - 1;
 						Weapon weap = l.player.weapons.get(index);
@@ -593,7 +596,7 @@ public class Creature extends Entity implements HasDesc {
 							weapon = stolenWeapon;
 						}
 						sound("steal", l);
-						l.texts.add(new FloatingText("STOLEN: " + weap.desc(), x + w / 2, y));
+						l.texts.add(new FloatingText("STOLEN: " + weap.desc(Clr.WHITE), x + w / 2, y));
 					}
 				}
 				if (Math.abs(xpd) < 512 + w) {
@@ -804,6 +807,7 @@ public class Creature extends Entity implements HasDesc {
 	public static Creature make(long seed, int power, int numImages, boolean boss, boolean player, boolean allowFinalForm) {
 		Random r = new Random(seed);
 		Creature c = new Creature();
+		c.seed = seed;
 		Weapon w = Weapon.make(seed, power, numImages);
 		c.weapon = w;
 		c.weapons.add(w);
@@ -998,18 +1002,32 @@ public class Creature extends Entity implements HasDesc {
 				n = "Flying " + n;
 				break;
 		}
+		if (w < 50) {
+			n = "Tiny " + n;
+		} else if (w < 60) {
+			n = "Small " + n;
+		} else if (w > 70) {
+			n = "Big " + n;
+		} else if (w > 100) {
+			n = "Huge " + n;
+		} else if (w > 150) {
+			n = "Gigantic " + n;
+		}
 		if (n.equals(PatentBlaster.IMG_NAMES[img])) {
 			n = "Perfectly Normal " + n;
 		}
-		return n;
+		return "Pat " + (Math.abs(seed % 10000) + 233) + ", " + n;
 	}
 	
 	@Override
-	public String desc() {
+	public String desc(Clr textTint) {
+		return desc(textTint, 0);
+	}
+	
+	public String desc(Clr textTint, int numNums) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(name().toUpperCase()).append(", ");
 		if (resistance != null) {
-			sb.append("[").append(resistance.tint).append("]").append(resistance.name()).append("[]");
+			sb.append("[").append(resistance.tint.mix(0.3, textTint)).append("]").append(resistance.name()).append("[]");
 		} else {
 			sb.append("Normal");
 		}
@@ -1028,7 +1046,7 @@ public class Creature extends Entity implements HasDesc {
 		for (Element e : Element.values()) {
 			double r = resistance(e);
 			if (r > 0) {
-				sb.append("[").append(e.tint).append("]").append(e.name()).append("[] Resistance: ").append(round(r * 100, 0)).append("%\n");
+				sb.append("[").append(e.tint.mix(0.3, textTint)).append("]").append(e.name()).append("[] Resistance: ").append(round(r * 100, 0)).append("%\n");
 			}
 		}
 		if (fireproof()) { sb.append("Can't catch fire.\n"); }
@@ -1046,11 +1064,34 @@ public class Creature extends Entity implements HasDesc {
 		if (finalForm != null) { sb.append("Resurrects into a new form.\n"); }
 		if (splitsIntoFour) { sb.append("Splits into four smaller creatures.\n"); }
 		if (jar) { sb.append("Creature jar.\n"); }
-		sb.append(weapon.desc());
+		sb.append(weapon.desc(textTint));
 		for (Item it : items) {
-			sb.append(it.desc());
+			sb.append(it.desc(textTint));
 		}
-		return sb.toString();
+		if (numNums == 0) {
+			return sb.toString();
+		} else {
+			String[] lines = sb.toString().split("\n");
+			ArrayList<Integer> indices = new ArrayList<Integer>();
+			for (int i = 0; i < lines.length - 1; i++) {
+				indices.add(i);
+			}
+			Random r = new Random(seed);
+			Collections.shuffle(indices, r);
+			Collections.sort(indices.subList(0, numNums));
+			int i = 0;
+			for (; i < numNums && i < indices.size(); i++) {
+				lines[indices.get(i)] = (i + 1) + ": " + lines[indices.get(i)];
+			}
+			for (; i < indices.size(); i++) {
+				lines[indices.get(i)] = "   " + lines[indices.get(i)];
+			}
+			sb = new StringBuilder();
+			for (String s : lines) {
+				sb.append(s).append("\n");
+			}
+			return sb.toString();
+		}
 	}
 
 	boolean canFly() {

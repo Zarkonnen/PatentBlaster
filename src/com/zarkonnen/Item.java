@@ -108,10 +108,10 @@ public class Item implements HasDesc {
 	}
 	
 	@Override
-	public String desc() {
+	public String desc(Clr textTint) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(" ").append(name.toUpperCase()).append("\n");
-		sb.append("[").append(tint.mix(0.5, Clr.WHITE).toString()).append("]");
+		sb.append("[").append(tint.mix(0.3, textTint).toString()).append("]");
 		if (resistanceVs != null) {
 			sb.append("  ").append(round(resistance * 100, 0)).append("% resistance to ").append(resistanceVs.name()).append("\n");
 		}

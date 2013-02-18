@@ -29,6 +29,9 @@ public class PatentBlaster implements Game {
 	public static final int FPS = 60;
 	public static final Fount FOUNT = new Fount("LiberationMono18", 12, 12, 24);
 	public static final String[] IMG_NAMES = {"Elephant", "Bear", "Bat", "Mummy", "Tongue", "Brain-Thing"};
+	public static final int[] IMG_NUMS = { 4, 4, 4, 4, 4, 4 };
+	
+	public static final Clr PAPER = new Clr(230, 230, 225);
 		
 	public static void main(String[] args) {
 		int response = JOptionPane.showOptionDialog(null, "Patent Blaster", "Choose Display Engine", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, new String[] {"Java2D (Slow, No Sound)", "LibGDX", "Slick (Recommended)"}, "Slick (Recommended)");
@@ -285,7 +288,7 @@ public class PatentBlaster implements Game {
 		info = "";
 		hit(in);
 		if (info.equals("") && l.player.newThingTimer < 8 * FPS && l.player.newThing != null) {
-			info = l.player.newThing.desc();
+			info = l.player.newThing.desc(Clr.WHITE);
 		}
 	}
 	
@@ -332,7 +335,7 @@ public class PatentBlaster implements Game {
 		
 		if (setup) {
 			if (!setupCreatures.isEmpty()) {
-				for (int i = 0; i < 4; i++) {
+				/*for (int i = 0; i < 4; i++) {
 					final Creature c = setupCreatures.get(i);
 					int xs = sm.width / 2 * (i % 2);
 					int ys = sm.height / 2 * (i / 2);
@@ -355,7 +358,54 @@ public class PatentBlaster implements Game {
 					d.blit("units/" + c.img, c.tint, xs + sm.width / 4 - c.w / 2, ys + 60, c.w, c.h);
 					d.text(c.desc(), smount, xs + 20, ys + 80 + c.h);
 				}
-				d.text("Select the creature you want to play as.", FOUNT, 10, 10);
+				d.text("Select the creature you want to play as.", FOUNT, 10, 10);*/
+				
+				int spacing = 12;
+				
+				if (lowGraphics) {
+					d.rect(PAPER, 0, 0, sm.width, sm.height);
+				} else {
+					for (int y = 0; y < sm.width; y += 600) {
+						for (int x = 0; x < sm.height; x += 600) {
+							d.blit("paper.jpg", x, y);
+						}
+					}
+				}
+				
+				Rect titleR = d.textSize("SELECT YOUR CREATURE", FOUNT, spacing, spacing);
+				d.text("[BLACK]SELECT YOUR CREATURE", FOUNT, spacing, spacing);
+				
+				int yOffset = spacing * 2 + (int) titleR.height;
+				int availableH = sm.height - yOffset;
+				int xOffset = spacing * 2;
+				int availableW = sm.width - spacing;
+				int tileH = availableH / 2;
+				int tileW = availableW / 2;
+				for (int tileY = 0; tileY < 2; tileY++) {
+					for (int tileX = 0; tileX < 2; tileX++) {
+						final Creature c = setupCreatures.get(tileY * 2 + tileX);
+						Rect tileR = new Rect(xOffset + tileX * tileW, yOffset + tileY * tileH, tileW, tileH);
+						boolean hover = tileR.contains(curs);
+						d.text("[BLACK]" + c.name().toUpperCase(), FOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH);
+						Clr t = !hover ? c.tint.mix(0.9, PAPER) : c.tint;
+						d.blit("units/" + c.img, t, xOffset + tileX * tileW + tileW / 2 - 60, yOffset + tileY * tileH + 30, 120, 120);
+						d.text("[BLACK][default=BLACK]" + c.desc(Clr.BLACK, IMG_NUMS[c.img]), smount, xOffset + tileX * tileW, yOffset + tileY * tileH + 150, (int) (tileW - 10));
+						d.hook(tileR.x, tileR.y, tileR.width, tileR.height, new Hook(Hook.Type.MOUSE_1) {
+
+							@Override
+							public void run(Input in, Pt p) {
+								if (cooldown != 0) { return; }
+								l = new Level(System.currentTimeMillis() + 10981, power = 1, c);
+								l.player.makePlayerAble();
+								l.player.heal();
+								l.player.weapon.reloadLeft = 10;
+								nextLvlTime = 0;
+								setupCreatures.clear();
+								setup = false;
+							}
+						});
+					}
+				}
 			}
 		} else if (!shopItems.isEmpty()) {
 			for (int i = 0; i < 4; i++) {
@@ -383,11 +433,11 @@ public class PatentBlaster implements Game {
 				if (o instanceof Weapon) {
 					Weapon c = ((Weapon) o);
 					d.blit("units/" + c.img, c.tint, xs + sm.width / 4 - 20, ys + 60, 40, 40);
-					d.text(c.desc(), smount, xs + 20, ys + 80 + 40);
+					d.text(c.desc(Clr.WHITE), smount, xs + 20, ys + 80 + 40);
 				} else {
 					Item c = ((Item) o);
 					d.blit("units/" + c.img, c.tint, xs + sm.width / 4 - 20, ys + 60, 40, 40);
-					d.text(c.desc(), smount, xs + 20, ys + 80 + 40);
+					d.text(c.desc(Clr.WHITE), smount, xs + 20, ys + 80 + 40);
 				}
 			}
 			showEquipment(d, sm, FOUNT, textBGTint);
@@ -436,7 +486,7 @@ public class PatentBlaster implements Game {
 			d.blit("units/" + l.player.img, l.player.tint, 15, 55, 30, 30, new Hook(Hook.Type.HOVER) {
 				@Override
 				public void run(Input in, Pt p) {
-					info = l.player.desc();
+					info = l.player.desc(Clr.WHITE);
 				}
 			});
 			showEquipment(d, sm, FOUNT, textBGTint);
@@ -455,8 +505,8 @@ public class PatentBlaster implements Game {
 			sz = d.textSize("W or up arrow to jump", FOUNT);
 			d.text(textBGTint + "W or up arrow to jump", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.height / 2 - 50);
 		}
-		d.rect(l != null && l.player.weapon.reloadLeft == 0 ? Clr.WHITE : Clr.RED, curs.x - 1, curs.y - 8, 2, 16);
-		d.rect(l != null && l.player.weapon.reloadLeft == 0 ? Clr.WHITE : Clr.RED, curs.x - 8, curs.y - 1, 16, 2);
+		d.rect(l != null && l.player.hp > 0 && l.player.weapon.reloadLeft == 0 ? Clr.WHITE : Clr.RED, curs.x - 1, curs.y - 8, 2, 16);
+		d.rect(l != null && l.player.hp > 0 && l.player.weapon.reloadLeft == 0 ? Clr.WHITE : Clr.RED, curs.x - 8, curs.y - 1, 16, 2);
 		if (l != null && l.power == 1 && l.moved) {
 			if (l.shotsFired == 0) {
 				Pt sz = d.textSize("Click to shoot", FOUNT);
@@ -480,7 +530,7 @@ public class PatentBlaster implements Game {
 				@Override
 				public void run(Input in, Pt p) {
 					hoverWeapon = w;
-					info = w.desc() + (l.player.weapons.size() > 1 && !shopItems.isEmpty() ? "Hit delete to delete weapon from inventory." : "");
+					info = w.desc(Clr.WHITE) + (l.player.weapons.size() > 1 && !shopItems.isEmpty() ? "Hit delete to delete weapon from inventory." : "");
 				}
 			});
 			i++;
@@ -497,7 +547,7 @@ public class PatentBlaster implements Game {
 			d.blit("units/" + it.img, it.tint, 15 + i * spacing, sm.height - 45, 30, 30, new Hook(Hook.Type.HOVER) {
 				@Override
 				public void run(Input in, Pt p) {
-					info = it.desc();
+					info = it.desc(Clr.WHITE);
 				}
 			});
 			i++;
