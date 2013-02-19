@@ -398,15 +398,55 @@ public class PatentBlaster implements Game {
 				}
 			}
 		} else if (!shopItems.isEmpty()) {
-			for (int i = 0; i < 4; i++) {
-				final Object o = shopItems.get(i);
-				int xs = sm.width / 2 * (i % 2);
-				int ys = sm.height / 2 * (i / 2);
-				if (new Rect(xs, ys, sm.width / 2, sm.height / 2).contains(curs)) {
-					d.rect(new Clr(64, 64, 64), xs + 10, ys + 10, sm.width / 2 - 20, sm.height / 2 - 20, new Hook(Hook.Type.MOUSE_1) {
+			int spacing = 12;
+			if (lowGraphics) {
+				d.rect(PAPER, 0, 0, sm.width, sm.height);
+			} else {
+				for (int y = 0; y < sm.width; y += 600) {
+					for (int x = 0; x < sm.height; x += 600) {
+						d.blit("paper.jpg", x, y);
+					}
+				}
+			}
+
+			Rect titleR = d.textSize("SHOP: PICK ONE NEW ITEM", FOUNT, spacing, spacing);
+			d.text("[BLACK]SHOP: PICK ONE NEW ITEM", FOUNT, spacing, spacing);
+
+			int yOffset = spacing * 2 + (int) titleR.height;
+			int availableH = sm.height - yOffset;
+			int xOffset = spacing * 2;
+			int availableW = sm.width - spacing;
+			int tileH = availableH / 2;
+			int tileW = availableW / 2;
+			for (int tileY = 0; tileY < 2; tileY++) {
+				for (int tileX = 0; tileX < 2; tileX++) {
+					final Object o = shopItems.get(tileY * 2 + tileX);
+					String name = "";
+					String desc = "";
+					int img = 0;
+					Clr tint = Clr.BLACK;
+					if (o instanceof Weapon) {
+						name = ((Weapon) o).name();
+						desc = ((Weapon) o).desc(Clr.BLACK, false);
+						img = ((Weapon) o).img;
+						tint = ((Weapon) o).tint;
+					} else if (o instanceof Item) {
+						name = ((Item) o).name();
+						desc = ((Item) o).desc(Clr.BLACK, false);
+						img = ((Item) o).img;
+						tint = ((Item) o).tint;
+					} 
+					Rect tileR = new Rect(xOffset + tileX * tileW, yOffset + tileY * tileH, tileW, tileH);
+					boolean hover = tileR.contains(curs);
+					d.text("[BLACK]" + name.toUpperCase(), FOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH);
+					Clr t = !hover ? tint.mix(0.9, PAPER) : tint;
+					d.blit("units/" + img, t, xOffset + tileX * tileW, yOffset + tileY * tileH + 35);
+					d.text("[BLACK][default=BLACK]" + desc, FOUNT, xOffset + tileX * tileW - 24, yOffset + tileY * tileH + 220, (int) (tileW - 10));
+					d.hook(tileR.x, tileR.y, tileR.width, tileR.height, new Hook(Hook.Type.MOUSE_1) {
 
 						@Override
 						public void run(Input in, Pt p) {
+							if (cooldown != 0) { return; }
 							if (o instanceof Weapon) {
 								l.player.weapon = (Weapon) o;
 								l.player.weapons.add((Weapon) o);
@@ -420,18 +460,7 @@ public class PatentBlaster implements Game {
 						}
 					});
 				}
-				if (o instanceof Weapon) {
-					Weapon c = ((Weapon) o);
-					d.blit("units/" + c.img, c.tint, xs + sm.width / 4 - 20, ys + 60, 40, 40);
-					d.text(c.desc(Clr.WHITE), smount, xs + 20, ys + 80 + 40);
-				} else {
-					Item c = ((Item) o);
-					d.blit("units/" + c.img, c.tint, xs + sm.width / 4 - 20, ys + 60, 40, 40);
-					d.text(c.desc(Clr.WHITE), smount, xs + 20, ys + 80 + 40);
-				}
 			}
-			showEquipment(d, sm, FOUNT, textBGTint);
-			d.text("SHOP: Select one item to get.", FOUNT, 10, sm.height - 10 - FOUNT.height);
 		} else {
 			// Background texture
 			if (!lowGraphics && l.background != -1) {

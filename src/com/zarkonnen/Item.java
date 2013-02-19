@@ -23,6 +23,7 @@ public class Item implements HasDesc {
 	public double eating = 0;
 	public boolean resurrect;
 	public int creatureHPBonus = 0;
+	public long seed;
 	
 	public void tick(Level l, Creature owner) {
 		if (shieldReload > 0) {
@@ -36,6 +37,7 @@ public class Item implements HasDesc {
 	public static Item make(long seed, int power, int numImages) {
 		Random r = new Random(seed);
 		Item i = new Item();
+		i.seed = seed;
 		int type = r.nextInt(1000) % (Math.min(power * 2 + 1, power > 9 ? 10 : 9));
 		switch (type) {
 			case 0:
@@ -107,10 +109,18 @@ public class Item implements HasDesc {
 		return i;
 	}
 	
+	public String name() {
+		return "Pat " + (Math.abs(seed % 10000) + 1934) + ", " + name;
+	}
+	
 	@Override
 	public String desc(Clr textTint) {
+		return desc(textTint, true);
+	}
+	
+	public String desc(Clr textTint, boolean showName) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("").append(name.toUpperCase()).append("\n");
+		if (showName) { sb.append("").append(name.toUpperCase()).append("\n"); }
 		sb.append("[").append(tint.mix(0.4, textTint).toString()).append("]");
 		if (resistanceVs != null) {
 			sb.append("  ").append(round(resistance * 100, 0)).append("% resistance to ").append(resistanceVs.name()).append("\n");

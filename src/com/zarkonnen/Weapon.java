@@ -35,6 +35,7 @@ public class Weapon implements HasDesc {
 	public boolean homing;
 	public boolean swarm;
 	public String name;
+	public long seed;
 	
 	public void tick() {
 		if (reloadLeft > 0) { reloadLeft--; }
@@ -51,6 +52,7 @@ public class Weapon implements HasDesc {
 	public static Weapon make(long seed, int power, int numImages) {
 		Random r = new Random(seed);
 		Weapon w = new Weapon();
+		w.seed = seed;
 		w.element = Element.values()[r.nextInt(Element.values().length)];
 		double dmg = BASE_DMG * w.element.dmgMult;
 		w.reload = MIN_RELOAD + r.nextInt(MAX_RELOAD - MIN_RELOAD);
@@ -124,11 +126,23 @@ public class Weapon implements HasDesc {
 		}
 	}
 	
+	public String name() {
+		return "Pat " + (Math.abs(seed % 10000) + 1934) + ", " + name;
+	}
+	
 	@Override
 	public String desc(Clr textTint) {
+		return desc(textTint, true);
+	}
+		
+	public String desc(Clr textTint, boolean showName) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("").append(name.toUpperCase()).append("");
-		sb.append(", [").append(element.tint.mix(0.4, textTint)).append("]").append(element.name()).append("[] Weapon\n");
+		if (showName) {
+			sb.append("").append(name.toUpperCase()).append("");
+			sb.append(", [").append(element.tint.mix(0.4, textTint)).append("]").append(element.name()).append("[] Weapon\n");
+		} else {
+			sb.append("  [").append(element.tint.mix(0.4, textTint)).append("]").append(element.name()).append("[] Weapon\n");
+		}
 		sb.append("  ").append(dmg * (swarm ? 8 : 1));
 		sb.append(" damage every ").append(round(reload * 1.0 / PatentBlaster.FPS, 2)).append("sec (").append(round(dps(), 0)).append(" DPS)\n");
 		sb.append("  ").append(round(shotSpeed, 1));
