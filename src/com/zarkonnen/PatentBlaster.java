@@ -213,6 +213,7 @@ public class PatentBlaster implements Game {
 			}
 			nextLvlTime++;
 			if (nextLvlTime >= 140) {
+				l.player.newThing = null;
 				l = new Level(System.currentTimeMillis(), ++power, l.player);
 				l.player.heal();
 				nextLvlTime = 0;
@@ -470,12 +471,7 @@ public class PatentBlaster implements Game {
 			/*if (l.tick < 1000) {
 				d.text(l.player.desc(), new Fount("LiberationMono18", 12, 12, 24), 20, 20);
 			}*/
-			d.blit("units/" + l.player.img, l.player.tint, 15, 55, 30, 30, new Hook(Hook.Type.HOVER) {
-				@Override
-				public void run(Input in, Pt p) {
-					info = l.player.desc(Clr.WHITE);
-				}
-			});
+			
 			showEquipment(d, sm, FOUNT, textBGTint);
 			Pt ts = d.textSize("Level " + power, FOUNT);
 			d.text("Level " + power, FOUNT, sm.width - ts.x - 10, 10);
@@ -509,6 +505,13 @@ public class PatentBlaster implements Game {
 	
 	private void showEquipment(Draw d, ScreenMode sm, Fount fount, String textBGTint) {
 		int i = 0;
+		d.blit("units/" + l.player.img, l.player.tint, 15 + i * 40, 15, 30, 30, new Hook(Hook.Type.HOVER) {
+			@Override
+			public void run(Input in, Pt p) {
+				info = l.player.desc(Clr.WHITE);
+			}
+		});
+		i = 2;
 		for (final Weapon w : l.player.weapons) {
 			if (w == l.player.weapon) {
 				d.rect(Clr.WHITE, 10 + i * 40, 10, 40, 40);
@@ -520,6 +523,9 @@ public class PatentBlaster implements Game {
 					info = w.desc(Clr.WHITE) + (l.player.weapons.size() > 1 && !shopItems.isEmpty() ? "Hit delete to delete weapon from inventory." : "");
 				}
 			});
+			if (i < 11 && l.player.weapons.size() > 1) {
+				d.text(textBGTint + (i - 1), FOUNT, 15 + i * 40, 15);
+			}
 			i++;
 		}
 		if (shopItems.isEmpty() && !l.player.changedGun && l.player.weapons.size() > 1 && l.player.weapons.size() < 5 && l.player.showingWeaponSwitchInfo++ < FPS * 10) {
