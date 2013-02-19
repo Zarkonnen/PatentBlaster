@@ -61,11 +61,11 @@ public class Shot extends Entity {
 		this.tint = w.element.tint;
 		this.w = w.shotSize;
 		this.h = w.shotSize;
-		this.x = shooter.x /*+ shooter.w / 2*/ - w.shotSize / 2 + (shooter.flipped ? (1 - PatentBlaster.IMG_SHOOT_X[shooter.img]) : PatentBlaster.IMG_SHOOT_X[shooter.img]) * shooter.w;
-		this.y = shooter.y /*+ shooter.h / 2*/ - w.shotSize / 2 + PatentBlaster.IMG_SHOOT_Y[shooter.img] * shooter.h;
+		this.x = shooter.x - w.shotSize / 2 + (shooter.flipped ? (1 - PatentBlaster.IMG_SHOOT_X[shooter.img]) : PatentBlaster.IMG_SHOOT_X[shooter.img]) * shooter.w;
+		this.y = shooter.y - w.shotSize / 2 + PatentBlaster.IMG_SHOOT_Y[shooter.img] * shooter.h;
 		popOnWorldHit = true;
 		gravityMult = 0;
-		double dtx = tx - (shooter.x + shooter.w / 2), dty = ty - (shooter.y + shooter.h / 2);
+		double dtx = tx - x, dty = ty - y;
 		double dtx2 = dtx + dty * (l.r.nextDouble() - 0.5) * w.jitter;
 		dty += dtx * (l.r.nextDouble() - 0.5) * w.jitter;
 		dtx = dtx2;
@@ -165,10 +165,12 @@ public class Shot extends Entity {
 					if (revenant) {
 						// Make bleeder into zombie.
 						bleeder.tint = new Clr(100, 130, 90);
-						bleeder.maxHP *= 3;
+						bleeder.maxHP *= 2.7;
 						bleeder.weapon.element = Element.ACID;
 						bleeder.weapon.shotSpeed /= 2;
+						bleeder.weapon.shotLife *= 1.2;
 						bleeder.weapon.jitter += 0.15;
+						bleeder.weapon.dmg *= 1.5;
 						bleeder.speed /= 3;
 						bleeder.reviens = false;
 						bleeder.isZombie = true;
@@ -237,22 +239,25 @@ public class Shot extends Entity {
 			}
 			return;
 		}
-		if (beingEatenBy != null && lifeLeft <= 20) {
+		if (beingEatenBy != null) {
 			collides = false;
 			gravityMult = 0;
 			dx = 0;
 			dy = 0;
-			x = returnFromX * lifeLeft / 20.0 + beingEatenBy.mouthX() * (20 - lifeLeft) / 20.0;
-			y = returnFromY * lifeLeft / 20.0 + beingEatenBy.mouthY() * (20 - lifeLeft) / 20.0;
+			if (lifeLeft <= 20) {
+				x = returnFromX * lifeLeft / 20.0 + beingEatenBy.mouthX() * (20 - lifeLeft) / 20.0;
+				y = returnFromY * lifeLeft / 20.0 + beingEatenBy.mouthY() * (20 - lifeLeft) / 20.0;
+			}
 		}
 		if (lifeLeft-- <= 0) {
 			killMe = true;
 			if (beingEatenBy != null) {
-				beingEatenBy.hp += bleeder.totalMaxHP() * sourceHPTransfer + eatHPGain;
 				beingEatenBy.maxHP += bleeder.maxHP * sourceMaxHPTransfer;
+				beingEatenBy.hp += Math.max(1, bleeder.totalMaxHP() * sourceHPTransfer) + eatHPGain;
 				if (sourceThingsTransfer) {
 					beingEatenBy.items.addAll(bleeder.items);
 					beingEatenBy.weapons.addAll(bleeder.weapons);
+					l.texts.add(new FloatingText("ABSORB", beingEatenBy.x + beingEatenBy.w / 2, beingEatenBy.y));
 				}
 				if (sourceColorTransfer > 0) {
 					beingEatenBy.tint = beingEatenBy.tint.mix(sourceColorTransfer, bleeder.tint);

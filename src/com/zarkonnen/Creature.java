@@ -42,6 +42,7 @@ public class Creature extends Entity implements HasDesc {
 	public boolean reviens;
 	public boolean jar;
 	public boolean thief;
+	public boolean absorber;
 	public MoveMode moveMode;
 	
 	public boolean unsplorted = false;
@@ -104,6 +105,8 @@ public class Creature extends Entity implements HasDesc {
 	public boolean evadingLeft;
 	
 	public int eatSoundTimer = 0;
+	
+	public int absorbTimer = 0;
 	
 	public boolean fireproof() {
 		return resistance(Element.FIRE) >= 0.5;
@@ -176,6 +179,18 @@ public class Creature extends Entity implements HasDesc {
 	
 	public double mouthY() {
 		return y + w * PatentBlaster.IMG_MOUTH_Y[img];
+	}
+	
+	public double gunX() {
+		if (flipped) {
+			return x + w * (1 - PatentBlaster.IMG_SHOOT_X[img]);
+		} else {
+			return x + w * PatentBlaster.IMG_SHOOT_X[img];
+		}
+	}
+	
+	public double gunY() {
+		return y + w * PatentBlaster.IMG_SHOOT_Y[img];
 	}
 	
 	@Override
@@ -522,6 +537,40 @@ public class Creature extends Entity implements HasDesc {
 			if (!playerControlled && l.player.hp > 0) {
 				if (voiceTimer > 0) { voiceTimer--; }
 				double xpd = x + w / 2 - l.player.x - l.player.w / 2;
+				
+				if (absorbTimer > 0) { absorbTimer--; }
+				// Absorbing.
+				if (absorber && Math.abs(xpd) < 400 && absorbTimer == 0) {
+					for (Creature victim : l.monsters) {
+						if (victim == this) { continue; }
+						if (victim.frozen > 0) { continue; }
+						if (victim.onFire > 0) { continue; }
+						if (victim.hp <= 0) { continue; }
+						if (victim.w >= w) { continue; }
+						if (victim.reviens) { continue; }
+						if (victim.resurrects) { continue; }
+						if (victim.finalForm != null) { continue; }
+						if (victim.explodes) { continue; }
+						if (victim.jar) { continue; }
+						double dsq = (x + w / 2 - victim.x - victim.w / 2) * (x + w / 2 - victim.x - victim.w / 2) + (y + h / 2 - victim.y - victim.h / 2) * (y + h / 2 - victim.y - victim.h / 2);
+						if (dsq < 250 * 250) {
+							victim.dropItem = false;
+							victim.dropWeapon = false;
+							ArrayList<Shot> blood = victim.explode(l);
+							victim.killMe = true;
+							int i = 0;
+							for (Shot s : blood) {
+								s.eat(this, 1.0 / blood.size(), 1.0 / blood.size(), 0.4 / blood.size(), false);
+								s.tint = victim.tint.mix(0.4, Clr.WHITE);
+								s.lifeLeft = 40 + i++ * 4;
+							}
+							blood.get(0).sourceThingsTransfer = true;
+							absorbTimer = PatentBlaster.FPS * 3;
+							break;
+						}
+					}
+				}
+				
 				if (fleeing) { // Run away!
 					xpd *= -1;
 					if (xpd == 0) { xpd = -1; } // Just go away.
@@ -756,6 +805,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public int takeDamage(Level l, Shot shot) {
+		if (hp <= 0) { return 0; }
 		Weapon src = shot.weapon;
 		int dmg = (int) (src.dmg * shot.dmgMultiplier);
 		if (jar) {
@@ -800,11 +850,15 @@ public class Creature extends Entity implements HasDesc {
 				l.soundRequests.add(new SoundRequest(jar ? "jarhit" : "splt", shot.x, shot.y, spltVolume));
 			}
 		} else {
-			bloodShots = explode(l);
+			if (!reviens && !resurrects && finalForm == null) {
+				bloodShots = explode(l);
+			} else {
+				explode(l); // Shots not edible.
+			}
 			killMe = true;
 		}
 		double tv = shot.shooter.totalVamp();
-		if (dmg * tv >= 1 & shot.shooter.hp > 0 && shot.shooter.hp < shot.shooter.totalMaxHP()) {
+		if (!bloodShots.isEmpty() && dmg * tv >= 1 & shot.shooter.hp > 0 && shot.shooter.hp < shot.shooter.totalMaxHP()) {
 			for (Shot s : bloodShots) {
 				s.eat(shot.shooter, 0, 0, 0, false);
 			}
@@ -958,6 +1012,13 @@ public class Creature extends Entity implements HasDesc {
 			c.thief = true;
 			hp *= 0.8;
 		}
+		if (!player && !PatentBlaster.DEMO && !c.jar && r.nextInt((boss ? 10 : 100) / power + (boss ? 3 : 10)) == 0) {
+			c.absorber = true;
+			c.hp *= 0.85;
+		}
+		if (boss) {
+			c.hp *= 1.5;
+		}
 		
 		int red = 0, green = 0, blue = 0;
 		while (red + green + blue < 200) {
@@ -1041,6 +1102,9 @@ public class Creature extends Entity implements HasDesc {
 		if (reproduces) {
 			n = "Reproducing " + n;
 		}
+		if (absorber) {
+			n = "Absorbing " + n;
+		}
 		switch (realMoveMode()) {
 			case CANTER:
 				n = "Cantering " + n;
@@ -1115,6 +1179,7 @@ public class Creature extends Entity implements HasDesc {
 		if (trackingAim) { sb.append("Tracking Aim.\n"); }
 		if (trackingAim) { sb.append("Thief.\n"); }
 		if (randomShootDelay) { sb.append("Random Shoot Delay.\n"); }
+		if (absorber) { sb.append("Absorbs other creatures.\n"); }
 		if (reviens) { sb.append("Reviens.\n"); }
 		if (resurrects) { sb.append("Resurrects.\n"); }
 		if (finalForm != null) { sb.append("Resurrects into a new form.\n"); }
