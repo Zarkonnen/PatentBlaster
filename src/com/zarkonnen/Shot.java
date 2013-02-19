@@ -24,6 +24,12 @@ public class Shot extends Entity {
 	public Creature target;
 	public int frozenAmt = 0;
 	public Clr thawedTint;
+	public Creature beingEatenBy;
+	public double sourceHPTransfer;
+	public double sourceMaxHPTransfer;
+	public double sourceColorTransfer;
+	public boolean sourceThingsTransfer;
+	public int eatHPGain;
 	
 	public Shot(Level l, Creature hoverer) {
 		this.hoverer = hoverer;
@@ -128,6 +134,18 @@ public class Shot extends Entity {
 		return reform || finalForm || revenant;
 	}
 	
+	public void eat(Creature eater, double sourceHPTransfer, double sourceMaxHPTransfer, double sourceColorTransfer, boolean sourceThingsTransfer) {
+		this.beingEatenBy = eater;
+		this.sourceHPTransfer = sourceHPTransfer;
+		this.sourceMaxHPTransfer = sourceMaxHPTransfer;
+		this.sourceColorTransfer = sourceColorTransfer;
+		this.sourceThingsTransfer = sourceThingsTransfer;
+		this.lifeLeft = 20;
+		this.returnFromX = x;
+		this.returnFromY = y;
+		this.tint = new Clr(this.tint.r, this.tint.g, this.tint.b, 50);
+	}
+	
 	@Override
 	public void tick(Level l) {
 		if (frozenAmt > 0) {
@@ -219,9 +237,31 @@ public class Shot extends Entity {
 			}
 			return;
 		}
-		
+		if (beingEatenBy != null && lifeLeft <= 20) {
+			collides = false;
+			gravityMult = 0;
+			dx = 0;
+			dy = 0;
+			x = returnFromX * lifeLeft / 20.0 + beingEatenBy.mouthX() * (20 - lifeLeft) / 20.0;
+			y = returnFromY * lifeLeft / 20.0 + beingEatenBy.mouthY() * (20 - lifeLeft) / 20.0;
+		}
 		if (lifeLeft-- <= 0) {
 			killMe = true;
+			if (beingEatenBy != null) {
+				beingEatenBy.hp += bleeder.totalMaxHP() * sourceHPTransfer + eatHPGain;
+				beingEatenBy.maxHP += bleeder.maxHP * sourceMaxHPTransfer;
+				if (sourceThingsTransfer) {
+					beingEatenBy.items.addAll(bleeder.items);
+					beingEatenBy.weapons.addAll(bleeder.weapons);
+				}
+				if (sourceColorTransfer > 0) {
+					beingEatenBy.tint = beingEatenBy.tint.mix(sourceColorTransfer, bleeder.tint);
+				}
+				if (beingEatenBy.eatSoundTimer == 0) {
+					beingEatenBy.sound("eat", l);
+					beingEatenBy.eatSoundTimer = PatentBlaster.FPS;
+				}
+			}
 		}
 		if (sprayProbability > 0 && l.r.nextDouble() < sprayProbability / PatentBlaster.shotDivider()) {
 			l.shotsToAdd.add(new Shot(l, this));

@@ -118,18 +118,10 @@ public class Level implements MusicDone {
 		}
 		player.tick(this);
 		if (player.hp > 0) {
-			boolean playerAte = false;
 			if (tick % PatentBlaster.FPS / 6 == 0 && player.totalEating() > 0) {
-				for (Iterator<Shot> it2 = shots.iterator(); it2.hasNext();) {
-					Shot s = it2.next();
-					if (eatTest(player, s)) {
-						playerAte = true;
-						it2.remove();
-					}
+				for (Shot s : shots) {
+					eatTest(player, s);
 				}
-			}
-			if (playerAte) {
-				soundRequests.add(new SoundRequest("eat", player.x + player.w / 2, player.y + player.h, 1.0));
 			}
 			physics(player);
 		}
@@ -137,12 +129,8 @@ public class Level implements MusicDone {
 		for (Iterator<Creature> it = monsters.iterator(); it.hasNext();) {
 			Creature c = it.next();
 			if (tick % (PatentBlaster.FPS / 6) == cIndex++ % PatentBlaster.FPS / 6 && c.totalEating() > 0) {
-				for (Iterator<Shot> it2 = shots.iterator(); it2.hasNext();) {
-					Shot s = it2.next();
+				for (Shot s : shots) {
 					eatTest(c, s);
-					if (s.killMe) {
-						it2.remove();
-					}
 				}
 			}
 			c.tick(this);
@@ -272,14 +260,11 @@ public class Level implements MusicDone {
 				e1.y + e1.h > e2.y;
 	}
 	
-	private boolean eatTest(Creature c, Shot s) {
-		if (c.frozen == 0 && s.bleeder != null && s.bleeder != c && s.frozenAmt == 0 && !s.reform && !s.finalForm && (s.bleeder.resistance == null || s.bleeder.resistance == c.resistance) && c.totalEating() > 0 && intersects(c, s))
+	private void eatTest(Creature c, Shot s) {
+		if (s.beingEatenBy == null && c.frozen == 0 && s.bleeder != null && s.bleeder != c && !s.bleeder.jar && s.frozenAmt == 0 && !s.reform && !s.finalForm && !s.revenant && (s.bleeder.resistance == null || s.bleeder.resistance == c.resistance) && c.totalEating() > 0 && intersects(c, s))
 		{
-			s.killMe = true;
-			c.hp += s.bleeder.totalMaxHP() * c.totalEating();
-			return c == player;
+			s.eat(c, c.totalEating(), 0, 0, false);
 		}
-		return false;
 	}
 
 	private boolean hitTest(Creature c, Shot s) {

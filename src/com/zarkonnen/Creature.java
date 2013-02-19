@@ -103,6 +103,8 @@ public class Creature extends Entity implements HasDesc {
 	public int evading;
 	public boolean evadingLeft;
 	
+	public int eatSoundTimer = 0;
+	
 	public boolean fireproof() {
 		return resistance(Element.FIRE) >= 0.5;
 	}
@@ -164,6 +166,18 @@ public class Creature extends Entity implements HasDesc {
 		return a;
 	}
 	
+	public double mouthX() {
+		if (flipped) {
+			return x + w * (1 - PatentBlaster.IMG_MOUTH_X[img]);
+		} else {
+			return x + w * PatentBlaster.IMG_MOUTH_X[img];
+		}
+	}
+	
+	public double mouthY() {
+		return y + w * PatentBlaster.IMG_MOUTH_Y[img];
+	}
+	
 	@Override
 	public void draw(Draw d, Level l, double scrollX, double scrollY) {
 		if (hp <= 0) { return; }
@@ -205,16 +219,17 @@ public class Creature extends Entity implements HasDesc {
 			d.rect(weapon.reloadLeft == 0 ? Clr.WHITE : Clr.LIGHT_GREY, x + scrollX, y + scrollY + h - 8, w, 6);
 			Clr c = Clr.GREEN;
 			int tmh = totalMaxHP();
-			if (hp < tmh / 2) {
+			int adjHP = Math.min(hp, tmh);
+			if (adjHP < tmh / 2) {
 				c = Clr.YELLOW;
-				if (hp < tmh / 4) {
+				if (adjHP < tmh / 4) {
 					c = new Clr(255, 127, 0);
-					if (hp < tmh / 8) {
+					if (adjHP < tmh / 8) {
 						c = Clr.RED;
 					}
 				}
 			}
-			d.rect(c, x + scrollX + 1, y + scrollY + h - 7, (w - 2) * hp / tmh, 4);
+			d.rect(c, x + scrollX + 1, y + scrollY + h - 7, (w - 2) * adjHP / tmh, 4);
 			if (heat > tmh / 16 && heat < tmh / 4 && !fireproof() && onFire == 0) {
 				d.rect(weapon.reloadLeft == 0 ? Clr.WHITE : Clr.LIGHT_GREY, x + scrollX, y + scrollY + h - 13, w, 6);
 				d.rect(Element.FIRE.tint, x + scrollX + 1, y + scrollY + h - 12, (w - 2) * (heat) * 4 / tmh, 4);
@@ -232,7 +247,8 @@ public class Creature extends Entity implements HasDesc {
 		return Clr.RED;
 	}
 	
-	public void explode(Level l) {
+	public ArrayList<Shot> explode(Level l) {
+		hp = -1;
 		sound(frozen > 0 || jar ? "shatter" : "squelch", l);
 		if (playerControlled && lastShooter != null) {
 			l.texts.add(new FloatingText("KILLED BY " + lastShooter.name().toUpperCase(), x + w / 2, y));
@@ -253,6 +269,7 @@ public class Creature extends Entity implements HasDesc {
 		boolean[][] grid = grid();
 		boolean[][] reformGrid = grid;
 		int skipAmt = finalForm != null || doesResurrect() || reviens ? 1 : PatentBlaster.shotDivider();
+		ArrayList<Shot> bloodShots = new ArrayList<Shot>();
 		ArrayList<Pair<Integer, Integer>> reformPoints = new ArrayList<Pair<Integer, Integer>>();
 		if (finalForm != null && !doesResurrect()) {
 			reformGrid = finalForm.grid();
@@ -277,7 +294,7 @@ public class Creature extends Entity implements HasDesc {
 						double sy = y + by * h / Grids.GRID_SZ;
 						double tx = x + reformPoints.get(reformGridIndex).a * w / Grids.GRID_SZ;
 						double ty = y + reformPoints.get(reformGridIndex).b * h / Grids.GRID_SZ;
-						l.shotsToAdd.add(new Shot(blood, w / Grids.GRID_SZ, false, 120 + l.r.nextInt(80), sx, sy, (l.r.nextDouble() - 0.5) * gibsSpeedMult, (l.r.nextDouble() - 0.5) * gibsSpeedMult, 1.0, this, doesResurrect(), reviens, finalForm != null, tx, ty, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
+						bloodShots.add(new Shot(blood, w / Grids.GRID_SZ, false, 120 + l.r.nextInt(80), sx, sy, (l.r.nextDouble() - 0.5) * gibsSpeedMult, (l.r.nextDouble() - 0.5) * gibsSpeedMult, 1.0, this, doesResurrect(), reviens, finalForm != null, tx, ty, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
 						reformGridIndex += skipAmt;
 					}
 				}
@@ -289,9 +306,11 @@ public class Creature extends Entity implements HasDesc {
 			double sy = y + h / 2;
 			double tx = x + reformPoints.get(reformGridIndex).a * w / Grids.GRID_SZ;
 			double ty = y + reformPoints.get(reformGridIndex).b * h / Grids.GRID_SZ;
-			l.shotsToAdd.add(new Shot(blood, w / Grids.GRID_SZ, false, 120 + l.r.nextInt(80), sx, sy, (l.r.nextDouble() - 0.5) * gibsSpeedMult, (l.r.nextDouble() - 0.5) * gibsSpeedMult, 1.0, this, doesResurrect(), reviens, finalForm != null, tx, ty, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
+			bloodShots.add(new Shot(blood, w / Grids.GRID_SZ, false, 120 + l.r.nextInt(80), sx, sy, (l.r.nextDouble() - 0.5) * gibsSpeedMult, (l.r.nextDouble() - 0.5) * gibsSpeedMult, 1.0, this, doesResurrect(), reviens, finalForm != null, tx, ty, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
 			reformGridIndex += skipAmt;
 		}
+		
+		l.shotsToAdd.addAll(bloodShots);
 		
 		if (dropItem && !doesResurrect() && !reviens && !items.isEmpty() && l.player.isUseful(items.get(0))) {
 			l.goodies.add(new Goodie(this, items.get(0)));
@@ -352,6 +371,8 @@ public class Creature extends Entity implements HasDesc {
 				for (Shot s : l.shots) { s.immune.add(tiny); }
 			}
 		}
+		
+		return bloodShots;
 	}
 	
 	public boolean isUseful(Weapon w) {
@@ -430,6 +451,7 @@ public class Creature extends Entity implements HasDesc {
 			return;
 		}
 		if (frozen == 0) {
+			if (eatSoundTimer > 0) { eatSoundTimer--; }
 			if (fuse) {
 				if (fuseTimer-- == 0) {
 					sound("fuse", l);
@@ -759,13 +781,15 @@ public class Creature extends Entity implements HasDesc {
 		}
 		ticksSinceHit = 0;
 		
+		ArrayList<Shot> bloodShots = new ArrayList<Shot>();
 		if (hp - dmg > 0) {
 			Clr blood = bloodClr();
 			if (resistance != null) { blood = resistance.tint; }
 			int nBlood = 20 * dmg / totalMaxHP() / PatentBlaster.shotDivider() + 1;
 			for (int i = 0; i < nBlood; i++) {
-				l.shotsToAdd.add(new Shot(blood, w / 10, false, 120 + l.r.nextInt(80), shot.x + shot.w / 2 - w / 20, shot.y + shot.h / 2 - h / 20, l.r.nextDouble() * 4 - 2, l.r.nextDouble() * 4 - 2, 1.0, this, false, false, false, 0, 0, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
+				bloodShots.add(new Shot(blood, w / 10, false, 120 + l.r.nextInt(80), shot.x + shot.w / 2 - w / 20, shot.y + shot.h / 2 - h / 20, l.r.nextDouble() * 4 - 2, l.r.nextDouble() * 4 - 2, 1.0, this, false, false, false, 0, 0, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
 			}
+			l.shotsToAdd.addAll(bloodShots);
 			if (src.knockback && !massive) {
 				dx += shot.dx;
 				dy += shot.dy;
@@ -775,6 +799,16 @@ public class Creature extends Entity implements HasDesc {
 			if (spltVolume > 0.1) {
 				l.soundRequests.add(new SoundRequest(jar ? "jarhit" : "splt", shot.x, shot.y, spltVolume));
 			}
+		} else {
+			bloodShots = explode(l);
+			killMe = true;
+		}
+		double tv = shot.shooter.totalVamp();
+		if (dmg * tv >= 1 & shot.shooter.hp > 0 && shot.shooter.hp < shot.shooter.totalMaxHP()) {
+			for (Shot s : bloodShots) {
+				s.eat(shot.shooter, 0, 0, 0, false);
+			}
+			bloodShots.get(0).eatHPGain = (int) (dmg * tv);
 		}
 		
 		lastShooter = shot.shooter;
@@ -800,22 +834,21 @@ public class Creature extends Entity implements HasDesc {
 			dx = 0;
 			dy = 0;
 		}
-		if (shot.shooter.hp > 0) {
-			shot.shooter.vamp(dmg);
-		}
 		return dmg;
-	}
-	
-	public void vamp(int dmg) {
-		for (Item it : items) {
-			hp += it.vampireMult * dmg;
-		}
 	}
 	
 	public double totalEating() {
 		double e = eating;
 		for (Item it : items) {
 			e += it.eating;
+		}
+		return Math.min(1, e);
+	}
+	
+	public double totalVamp() {
+		double e = 0;
+		for (Item it : items) {
+			e += it.vampireMult;
 		}
 		return Math.min(1, e);
 	}
@@ -1060,6 +1093,9 @@ public class Creature extends Entity implements HasDesc {
 		}
 		if (totalEating() > 0) {
 			sb.append("Eating flesh gives you ").append(round(totalEating() * 100 * 50, 0)).append("% of the victim's HP\n");
+		}
+		if (totalVamp() > 0) {
+			sb.append(round(totalVamp() * 100, 0)).append("% of damage gained as HP\n");
 		}
 		sb.append("Speed: ").append(round(totalSpeed(), 1)).append("\n");
 		//sb.append("Move mode: ").append(realMoveMode().name()).append("\n");

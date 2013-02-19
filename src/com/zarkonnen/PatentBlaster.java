@@ -19,8 +19,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class PatentBlaster implements Game {
-	public static final boolean DEMO = true;
-	public static final int DEMO_LEVELS = 3;
+	public static final boolean DEMO = false;
+	public static final int DEMO_LEVELS = 4;
 	
 	public static final int NUM_IMAGES = DEMO ? 3 : 5;
 	public static final int NUM_VOICES = DEMO ? 3 : 14;
@@ -28,8 +28,10 @@ public class PatentBlaster implements Game {
 	public static final Fount FOUNT = new Fount("LiberationMono18", 12, 12, 24);
 	public static final String[] IMG_NAMES = {"Bat", "Bear", "Elephant", "Brain-Thing", "Mummy", "Tongue"};
 	public static final int[] IMG_NUMS = { 1, 3, 3, 3, 1, 2 };
-	public static final double[] IMG_SHOOT_X = { 0.44, 0.46, 0.18, 0.55, 0.49, 0.48 };
-	public static final double[] IMG_SHOOT_Y = { 0.61, 0.65, 0.53, 0.08, 0.12, 0.74 };
+	public static final double[] IMG_SHOOT_X = { 0.44, 0.46, 0.18, 0.55, 0.49, 0.50 };
+	public static final double[] IMG_SHOOT_Y = { 0.61, 0.65, 0.53, 0.08, 0.12, 0.58 };
+	public static final double[] IMG_MOUTH_X = { 0.44, 0.50, 0.10, 0.53, 0.48, 0.48 };
+	public static final double[] IMG_MOUTH_Y = { 0.61, 0.43, 0.85, 0.57, 0.24, 0.77 };
 	
 	public static final Clr PAPER = new Clr(230, 230, 225);
 			

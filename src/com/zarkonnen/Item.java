@@ -36,6 +36,7 @@ public class Item implements HasDesc {
 	public static Item make(long seed, int power, int numImages) {
 		Random r = new Random(seed);
 		Item i = new Item();
+		i.vampireMult = 1.0; // qqDPS
 		int type = r.nextInt(1000) % (Math.min(power * 2 + 1, power > 9 ? 10 : 9));
 		switch (type) {
 			case 0:
