@@ -300,8 +300,10 @@ public class PatentBlaster implements Game {
 		scrollY = in.mode().height * 2 / 3 - l.player.y - l.player.h / 2;
 		info = "";
 		hit(in);
-		if (info.equals("") && l.player.newThingTimer < 8 * FPS && l.player.newThing != null) {
+		if (info.equals("") && l.player.newThingTimer < 6 * FPS && l.player.newThing != null) {
 			info = l.player.newThing.desc(Clr.WHITE);
+		} else {
+			l.player.newThing = null;
 		}
 	}
 	
@@ -516,7 +518,11 @@ public class PatentBlaster implements Game {
 			if (w == l.player.weapon) {
 				d.rect(Clr.WHITE, 10 + i * 40, 10, 40, 40);
 			}
-			d.blit("units/" + w.img, w.tint, 15 + i * 40, 15, 30, 30, new Hook(Hook.Type.HOVER) {
+			Clr t = w.tint;
+			if (w == l.player.newThing) {
+				t = (l.tick / 20) % 2 == 0 ? Clr.WHITE : t;
+			}
+			d.blit("units/" + w.img, t, 15 + i * 40, 15, 30, 30, new Hook(Hook.Type.HOVER) {
 				@Override
 				public void run(Input in, Pt p) {
 					hoverWeapon = w;
@@ -537,7 +543,11 @@ public class PatentBlaster implements Game {
 			spacing = Math.max(1, sm.width / (l.player.items.size()));
 		}
 		for (final Item it : l.player.items) {
-			d.blit("units/" + it.img, it.tint, 15 + i * spacing, sm.height - 45, 30, 30, new Hook(Hook.Type.HOVER) {
+			Clr t = it.tint;
+			if (it == l.player.newThing) {
+				t = (l.tick / 20) % 2 == 0 ? Clr.WHITE : t;
+			}
+			d.blit("units/" + it.img, t, 15 + i * spacing, sm.height - 45, 30, 30, new Hook(Hook.Type.HOVER) {
 				@Override
 				public void run(Input in, Pt p) {
 					info = it.desc(Clr.WHITE);

@@ -242,7 +242,11 @@ public class Creature extends Entity implements HasDesc {
 		}
 		if (explodes) {
 			for (int i = 0; i < 20; i++) {
-				shoot(x + w / 2 - 0.5 + l.r.nextDouble(), y + h / 2 - 0.5 + l.r.nextDouble(), l);
+				double dir = l.r.nextDouble() * 2 * Math.PI;
+				Shot s = shoot(x + w / 2 + Math.cos(dir) * 100, y + h / 2 + Math.sin(dir) * 100, l);
+				s.dx *= 0.5 + l.r.nextDouble();
+				s.dy *= 0.5 + l.r.nextDouble();
+				s.gravityMult = 0.3;
 			}
 		}
 		Clr blood = bloodClr();
@@ -263,6 +267,8 @@ public class Creature extends Entity implements HasDesc {
 		
 		int reformGridIndex = 0;
 		
+		double gibsSpeedMult = explodes ? 5 : 1;
+		
 		for (int by = 0; by < Grids.GRID_SZ; by += skipAmt) {
 			for (int bx = 0; bx < Grids.GRID_SZ; bx += skipAmt) {
 				if (grid[by][bx]) {
@@ -271,7 +277,7 @@ public class Creature extends Entity implements HasDesc {
 						double sy = y + by * h / Grids.GRID_SZ;
 						double tx = x + reformPoints.get(reformGridIndex).a * w / Grids.GRID_SZ;
 						double ty = y + reformPoints.get(reformGridIndex).b * h / Grids.GRID_SZ;
-						l.shotsToAdd.add(new Shot(blood, w / Grids.GRID_SZ, false, 120 + l.r.nextInt(80), sx, sy, l.r.nextDouble() - 0.5, l.r.nextDouble() - 0.5, 1.0, this, doesResurrect(), reviens, finalForm != null, tx, ty, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
+						l.shotsToAdd.add(new Shot(blood, w / Grids.GRID_SZ, false, 120 + l.r.nextInt(80), sx, sy, (l.r.nextDouble() - 0.5) * gibsSpeedMult, (l.r.nextDouble() - 0.5) * gibsSpeedMult, 1.0, this, doesResurrect(), reviens, finalForm != null, tx, ty, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
 						reformGridIndex += skipAmt;
 					}
 				}
@@ -283,7 +289,7 @@ public class Creature extends Entity implements HasDesc {
 			double sy = y + h / 2;
 			double tx = x + reformPoints.get(reformGridIndex).a * w / Grids.GRID_SZ;
 			double ty = y + reformPoints.get(reformGridIndex).b * h / Grids.GRID_SZ;
-			l.shotsToAdd.add(new Shot(blood, w / Grids.GRID_SZ, false, 120 + l.r.nextInt(80), sx, sy, l.r.nextDouble() - 0.5, l.r.nextDouble() - 0.5, 1.0, this, doesResurrect(), reviens, finalForm != null, tx, ty, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
+			l.shotsToAdd.add(new Shot(blood, w / Grids.GRID_SZ, false, 120 + l.r.nextInt(80), sx, sy, (l.r.nextDouble() - 0.5) * gibsSpeedMult, (l.r.nextDouble() - 0.5) * gibsSpeedMult, 1.0, this, doesResurrect(), reviens, finalForm != null, tx, ty, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
 			reformGridIndex += skipAmt;
 		}
 		
@@ -702,21 +708,24 @@ public class Creature extends Entity implements HasDesc {
 		heat *= 0.986;
 	}
 	
-	public void shoot(double tx, double ty, Level l) {
+	public Shot shoot(double tx, double ty, Level l) {
 		if (weapon.reloadLeft == 0) {
 			l.soundRequests.add(new SoundRequest(weapon.element.shotSound, x + w / 2, y + h / 2, 1.0));
 		}
 		weapon.reloadLeft = weapon.reload;
 		if (weapon.swarm) {
+			Shot s = null;
 			for (int i = 0; i < 8; i++) {
-				Shot s = new Shot(l, weapon, this, tx, ty);
+				s = new Shot(l, weapon, this, tx, ty);
 				s.dx = (l.r.nextDouble() * 2 - 1) * weapon.shotSpeed;
 				s.dy = (l.r.nextDouble() * 2 - 1) * weapon.shotSpeed;
 				l.shotsToAdd.add(s);
 			}
+			return s;
 		} else {
 			Shot s = new Shot(l, weapon, this, tx, ty);
 			l.shotsToAdd.add(s);
+			return s;
 		}
 	}
 	

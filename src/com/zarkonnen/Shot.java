@@ -63,8 +63,8 @@ public class Shot extends Entity {
 		double dtx2 = dtx + dty * (l.r.nextDouble() - 0.5) * w.jitter;
 		dty += dtx * (l.r.nextDouble() - 0.5) * w.jitter;
 		dtx = dtx2;
-		dx = w.shotSpeed * dtx / (Math.abs(dtx) + Math.abs(dty) + 0.001);
-		dy = w.shotSpeed * dty / (Math.abs(dtx) + Math.abs(dty) + 0.001);
+		dx = w.shotSpeed * dtx / (Math.sqrt(dtx * dtx + dty * dty) + 0.001);
+		dy = w.shotSpeed * dty / (Math.sqrt(dtx * dtx + dty * dty) + 0.001);
 		lifeLeft = w.shotLife;
 		immune.add(shooter);
 		switch (w.element) {
