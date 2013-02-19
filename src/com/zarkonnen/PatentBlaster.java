@@ -7,6 +7,7 @@ import com.zarkonnen.catengine.Fount;
 import com.zarkonnen.catengine.Frame;
 import com.zarkonnen.catengine.Game;
 import com.zarkonnen.catengine.Hook;
+import com.zarkonnen.catengine.Hook.Type;
 import com.zarkonnen.catengine.Hooks;
 import com.zarkonnen.catengine.Input;
 import com.zarkonnen.catengine.SlickEngine;
@@ -17,6 +18,9 @@ import com.zarkonnen.catengine.util.ScreenMode;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import static com.zarkonnen.catengine.util.Utils.*;
+import java.util.List;
 
 public class PatentBlaster implements Game {
 	public static final boolean DEMO = false;
@@ -26,6 +30,7 @@ public class PatentBlaster implements Game {
 	public static final int NUM_VOICES = DEMO ? 3 : 14;
 	public static final int FPS = 60;
 	public static final Fount FOUNT = new Fount("LiberationMono18", 12, 12, 24);
+	public static final Fount SMOUNT = new Fount("Courier12", 8, 7, 15);
 	public static final String[] IMG_NAMES = {"Bat", "Bear", "Elephant", "Brain-Thing", "Mummy", "Tongue"};
 	public static final int[] IMG_NUMS = { 1, 3, 3, 3, 1, 2 };
 	public static final double[] IMG_SHOOT_X = { 0.44, 0.46, 0.18, 0.55, 0.49, 0.50 };
@@ -79,15 +84,44 @@ public class PatentBlaster implements Game {
 	int cooldown = 0;
 	Weapon hoverWeapon;
 	boolean paused = false;
-	boolean intro = true;
-	int introCooldown = 30;
-	int introTimeout = PatentBlaster.FPS * 6;
+	boolean mainMenu = true;
 	ArrayList<ScreenMode> availableModes = new ArrayList<ScreenMode>();
 	ScreenMode chosenMode = null;
 	ScreenMode hoverMode = null;
 	public static boolean lowGraphics = false;
-	public static DifficultyLevel difficultyLevel = DifficultyLevel.EASY;
 	boolean showFPS = false;
+	String menuHover = "FISHCAKES";
+	boolean showCredits;
+	Pair<String, Pair<String, String>> inputMappingToDo = null;
+	boolean secondaryInputMapping;
+	
+	// Prefs stuff
+	public static DifficultyLevel difficultyLevel = DifficultyLevel.EASY;
+	public static final HashMap<String, String> keyBindings = new HashMap<String, String>();
+	
+	public static final List<Pair<String, Pair<String, String>>> KEY_NAMES = l(
+		p("Move left     ", p("A", "LEFT")),
+		p("Move right    ", p("D", "RIGHT")),
+		p("Move up / jump", p("W", "UP")),
+		p("Move down     ", p("S", "DOWN")),
+		p("Prev weapon   ", p("Q", (String) null)),
+		p("Next weapon   ", p("E", (String) null)),
+		p("Pause         ", p("P", (String) null)),
+		p("Show FPS      ", p("F", (String) null))
+	);
+	
+	static {
+		for (Pair<String, Pair<String, String>> n : KEY_NAMES) {
+			keyBindings.put(n.b.a, n.b.a);
+			if (n.b.b != null) {
+				keyBindings.put(n.b.b, n.b.b);
+			}
+		}
+	}
+	
+	public static String key(String normal) {
+		return keyBindings.get(normal);
+	}
 	
 	public static int shotDivider() { return lowGraphics ? 4 : 1; }
 	
@@ -114,7 +148,11 @@ public class PatentBlaster implements Game {
 	@Override
 	public void input(Input in) {
 		if (in.keyDown("ESCAPE") || in.keyDown("ESC") || in.keyDown("⎋")) {
-			in.quit();
+			if (mainMenu) {
+				in.quit();
+			} else {
+				mainMenu = true;
+			}
 			return;
 		}
 		
@@ -142,19 +180,27 @@ public class PatentBlaster implements Game {
 			in.playMusic(Level.MUSICS[0], 0.25, null);
 		}
 		curs = in.cursor();
-		if (intro) {
-			if (in.clickButton() != 0 || introTimeout-- <= 0) {
-				intro = false;
-			}
-			return;
-		}
-		if (introCooldown > 0) { introCooldown--; return; }
 		if (cooldown > 0) { cooldown--; }
 		hoverWeapon = null;
 		
 		if (cooldown == 0 && in.keyDown("F")) {
 			showFPS = !showFPS;
 			cooldown = 10;
+		}
+		
+		menuHover = "FISHCAKES";
+		
+		if (mainMenu) {
+			if (inputMappingToDo != null) {
+				String newMapping = in.lastKeyPressed();
+				if (newMapping != null) {
+					keyBindings.put(secondaryInputMapping ? inputMappingToDo.b.b : inputMappingToDo.b.a, newMapping);
+					inputMappingToDo = null;
+					secondaryInputMapping = false;
+				}
+			}
+			hit(in);
+			return;
 		}
 		
 		if (setup) {
@@ -182,7 +228,7 @@ public class PatentBlaster implements Game {
 			return;
 		}
 		
-		if (cooldown == 0 && in.keyDown("P")) {
+		if (cooldown == 0 && in.keyDown(key("P"))) {
 			paused = !paused;
 			cooldown = 10;
 		}
@@ -244,16 +290,16 @@ public class PatentBlaster implements Game {
 				if (l.player.canFly()) {
 					l.player.dx = 0;
 					l.player.dy = 0;
-					if ((in.keyDown("UP") || in.keyDown("W"))) {
+					if ((in.keyDown(key("UP")) || in.keyDown(key("W")))) {
 						l.player.dy = -l.player.totalSpeed();
 						l.moved = true;
 					}
-					if ((in.keyDown("DOWN") || in.keyDown("S"))) {
+					if ((in.keyDown(key(("DOWN"))) || in.keyDown(key("S")))) {
 						l.player.dy = l.player.totalSpeed();
 						l.moved = true;
 					}
 				} else {
-					if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (in.keyDown("UP") || in.keyDown("W"))) {
+					if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (in.keyDown(key("UP")) || in.keyDown(key("W")))) {
 						l.player.dy = -l.player.totalSpeed() - Creature.HOP_BONUS;
 						l.moved = true;
 					}
@@ -261,12 +307,12 @@ public class PatentBlaster implements Game {
 				if (l.player.ticksSinceBottom == 1) {
 					l.player.dx = 0;
 				}
-				if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (in.keyDown("LEFT") || in.keyDown("A"))) {
+				if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (in.keyDown(key("LEFT")) || in.keyDown(key("A")))) {
 					l.player.dx = -l.player.totalSpeed();
 					l.player.flipped = false;
 					l.moved = true;
 				}
-				if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (in.keyDown("RIGHT") || in.keyDown("D"))) {
+				if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (in.keyDown(key("RIGHT")) || in.keyDown(key("D")))) {
 					l.player.dx = l.player.totalSpeed();
 					l.player.flipped = true;
 					l.moved = true;
@@ -284,12 +330,12 @@ public class PatentBlaster implements Game {
 			}
 		}
 		if (cooldown == 0) {
-			if (in.keyDown("Q") && l.player.weapons.indexOf(l.player.weapon) > 0) {
+			if (in.keyDown(key("Q")) && l.player.weapons.indexOf(l.player.weapon) > 0) {
 				l.player.weapon = l.player.weapons.get(l.player.weapons.indexOf(l.player.weapon) - 1);
 				cooldown = 15;
 				l.player.changedGun = true;
 			}
-			if (in.keyDown("E") && l.player.weapons.indexOf(l.player.weapon) < l.player.weapons.size() - 1) {
+			if (in.keyDown(key("E")) && l.player.weapons.indexOf(l.player.weapon) < l.player.weapons.size() - 1) {
 				l.player.weapon = l.player.weapons.get(l.player.weapons.indexOf(l.player.weapon) + 1);
 				cooldown = 15;
 				l.player.changedGun = true;
@@ -309,6 +355,25 @@ public class PatentBlaster implements Game {
 	
 	boolean doRender = false;
 
+	String hl(String s, boolean enabled) {
+		return (s.equals(menuHover) ? "[RED]" : (enabled ? "[333333]" : "[666666]")) + s + "[]";
+	}
+	
+	void menuItem(final String s, boolean enabled, StringBuilder sb, HashMap<String, Hook> hs, final Hook hk) {
+		hs.put(s, new Hook(hk.types[0], Hook.Type.HOVER) {
+			@Override
+			public void run(Input in, Pt p, Hook.Type type) {
+				if (hk.ofType(type)) {
+					hk.run(in, p, type);
+				}
+				if (type == Hook.Type.HOVER) {
+					menuHover = s;
+				}
+			}
+		});
+		sb.append(hl(s, enabled));
+	}
+	
 	@Override
 	public void render(Frame f) {
 		//if (lowGraphics && (doRender = !doRender)) { return; } // Go down to 30 FPS for low gfx.
@@ -326,13 +391,13 @@ public class PatentBlaster implements Game {
 				Rect r = d.textSize(m.toString(), FOUNT, 120, y);
 				d.hook(r.x, r.y, r.width, r.height, new Hook(Hook.Type.MOUSE_1) {
 					@Override
-					public void run(Input in, Pt p) {
+					public void run(Input in, Pt p, Hook.Type type) {
 						chosenMode = m;
 					}
 				});
 				d.hook(r.x, r.y, r.width, r.height, new Hook(Hook.Type.HOVER) {
 					@Override
-					public void run(Input in, Pt p) {
+					public void run(Input in, Pt p, Hook.Type type) {
 						hoverMode = m;
 					}
 				});
@@ -341,14 +406,106 @@ public class PatentBlaster implements Game {
 			return;
 		}
 		
-		if (intro) {
-			d.text(introTxt, FOUNT, 100, 50);
-			return;
-		}
-		
-		Fount smount = new Fount("Courier12", 8, 7, 15);
-		
-		if (setup) {
+		if (mainMenu) {
+			if (lowGraphics) {
+				d.rect(PAPER, 0, 0, sm.width, sm.height);
+			} else {
+				for (int y = 0; y < sm.width; y += 600) {
+					for (int x = 0; x < sm.height; x += 600) {
+						d.blit("paper.jpg", x, y);
+					}
+				}
+			}
+			
+			int spacing = 12;
+			
+			Rect titleR = d.textSize("PATENT BLASTER" + (DEMO ? " DEMO" : ""), FOUNT, spacing, spacing);
+			d.text("[BLACK]PATENT BLASTER" + (DEMO ? " DEMO" : ""), FOUNT, spacing, spacing);
+			d.rect(Clr.BLACK, 0, spacing + 18, sm.width * 3 / 4, 2);
+			
+			int y = (int) (titleR.y + titleR.height + spacing * 2);
+			
+			// Play game                  Left        A <-
+			//                            Right       D ->
+			// Easy Medium Hard Brutal    Up          W ^
+			//                            Down        S v
+			// Credits                    Prev Weapon Q
+			//                            Next Weapon E
+			// Quit                       Music       <--->
+			//                            Sounds      <--->
+			
+			d.hook(0, 0, sm.width, sm.height, new Hook(Hook.Type.MOUSE_1) {
+				@Override
+				public void run(Input in, Pt p, Type type) {
+					inputMappingToDo = null;
+				}
+			});
+			StringBuilder menu = new StringBuilder();
+			menu.append("[default=BLACK][BLACK]");
+			HashMap<String, Hook> hoox = new HashMap<String, Hook>();
+			menuItem("PLAY", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+				@Override
+				public void run(Input in, Pt p, Hook.Type type) {
+					mainMenu = false;
+					setup = true;
+				}
+			});
+			menu.append("\n\n");
+			for (final DifficultyLevel dl : DifficultyLevel.values()) {
+				menuItem(dl.name(), dl == difficultyLevel, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+					@Override
+					public void run(Input in, Pt p, Hook.Type type) {
+						difficultyLevel = dl;
+					}
+				});
+				menu.append(" ");
+			}
+			menu.append("\n\n");
+			menuItem("CREDITS", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+				@Override
+				public void run(Input in, Pt p, Hook.Type type) {
+					showCredits = true;
+				}
+			});
+			menu.append("\n\n");
+			menuItem("QUIT", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+				@Override
+				public void run(Input in, Pt p, Hook.Type type) {
+					in.quit();
+				}
+			});
+			menu.append("\n\nKey bindings:\n");
+			for (final Pair<String, Pair<String, String>> kb : KEY_NAMES) {
+				menu.append(kb.a).append("  ");
+				menu.append(kb.equals(inputMappingToDo) && !secondaryInputMapping ? "[bg=550000]" : "");
+				menuItem(" _" + key(kb.b.a) + "_ ", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+					@Override
+					public void run(Input in, Pt p, Type type) {
+						inputMappingToDo = kb;
+						secondaryInputMapping = false;
+					}
+				});
+				menu.append("[bg=]");
+				if (kb.b.b != null) {
+					int gap = 7 - key(kb.b.a).length();
+					for (int i = 0; i < gap; i++) {
+						menu.append(" ");
+					}
+					menu.append(kb.equals(inputMappingToDo) && secondaryInputMapping ? "[bg=550000]" : "");
+					menuItem(" _" + key(kb.b.b) + "_ ", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+						@Override
+						public void run(Input in, Pt p, Type type) {
+							inputMappingToDo = kb;
+							secondaryInputMapping = true;
+						}
+					});
+					menu.append("[bg=]");
+				}
+				menu.append("\n");
+			}
+			
+			d.text(menu.toString(), FOUNT, spacing, y, hoox);
+		} else if (setup) {
 			if (!setupCreatures.isEmpty()) {
 				int spacing = 12;
 				
@@ -381,11 +538,11 @@ public class PatentBlaster implements Game {
 						d.text("[BLACK]" + c.name().toUpperCase(), FOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH);
 						Clr t = !hover ? c.tint.mix(0.9, PAPER) : c.tint;
 						d.blit("units/" + c.img + "_drawing", t, xOffset + tileX * tileW, yOffset + tileY * tileH + 35);
-						d.text("[BLACK][default=BLACK]" + c.desc(Clr.BLACK, IMG_NUMS[c.img]), smount, xOffset + tileX * tileW, yOffset + tileY * tileH + 150, (int) (tileW - 10));
+						d.text("[BLACK][default=BLACK]" + c.desc(Clr.BLACK, IMG_NUMS[c.img]), SMOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH + 150, (int) (tileW - 10));
 						d.hook(tileR.x, tileR.y, tileR.width, tileR.height, new Hook(Hook.Type.MOUSE_1) {
 
 							@Override
-							public void run(Input in, Pt p) {
+							public void run(Input in, Pt p, Hook.Type type) {
 								if (cooldown != 0) { return; }
 								l = new Level(System.currentTimeMillis() + 10981, power = 1, c);
 								l.player.makePlayerAble();
@@ -398,6 +555,19 @@ public class PatentBlaster implements Game {
 						});
 					}
 				}
+				Rect backR = d.textSize("(Back to Menu)", FOUNT, spacing, spacing);
+				d.text((menuHover.equals("BACKTOMAIN") ? "[RED]" : "[GREY]") + "(Back to Menu)", FOUNT, sm.width - spacing - pgR.width - spacing - backR.width, spacing);
+				d.hook(sm.width - spacing - pgR.width - spacing - backR.width, spacing, backR.width, backR.height, new Hook(Hook.Type.MOUSE_1, Hook.Type.HOVER) {
+					@Override
+					public void run(Input in, Pt p, Hook.Type type) {
+						if (type == Hook.Type.HOVER) {
+							menuHover = "BACKTOMAIN";
+						} else {
+							mainMenu = true;
+							cooldown = 10;
+						}
+					}
+				});
 			}
 		} else if (!shopItems.isEmpty()) {
 			int spacing = 12;
@@ -449,7 +619,7 @@ public class PatentBlaster implements Game {
 					d.hook(tileR.x, tileR.y, tileR.width, tileR.height, new Hook(Hook.Type.MOUSE_1) {
 
 						@Override
-						public void run(Input in, Pt p) {
+						public void run(Input in, Pt p, Hook.Type type) {
 							if (cooldown != 0) { return; }
 							if (o instanceof Weapon) {
 								l.player.weapon = (Weapon) o;
@@ -517,14 +687,15 @@ public class PatentBlaster implements Game {
 		}
 		
 		if (l != null && !l.moved && l.power == 1 && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
-			d.text(textBGTint + "D or -> to move right", FOUNT, sm.width / 2 + 50, sm.height * 2 / 3 - FOUNT.height / 2);
-			Pt sz = d.textSize("A or <- to move left", FOUNT);
-			d.text(textBGTint + "A or <- to move left", FOUNT, sm.width / 2 - 50 - sz.x, sm.height * 2 / 3 - FOUNT.height / 2);
-			sz = d.textSize("W or up arrow to jump", FOUNT);
-			d.text(textBGTint + "W or up arrow to jump", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.height / 2 - 50);
+			d.text(textBGTint + key("D") + " or " + key("RIGHT") + " to move right", FOUNT, sm.width / 2 + 50, sm.height * 2 / 3 - FOUNT.height / 2);
+			Pt sz = d.textSize(key("A") + " or " + key("LEFT") + " to move left", FOUNT);
+			d.text(textBGTint + key("A") + " or " + key("LEFT") + " to move left", FOUNT, sm.width / 2 - 50 - sz.x, sm.height * 2 / 3 - FOUNT.height / 2);
+			sz = d.textSize(key("W") + " or " + key("UP") + " to jump", FOUNT);
+			d.text(textBGTint + key("W") + " or " + key("UP") + " to jump", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.height / 2 - 50);
 		}
-		d.rect(l != null && l.player.hp > 0 && l.player.weapon.reloadLeft == 0 ? Clr.WHITE : Clr.RED, curs.x - 1, curs.y - 8, 2, 16);
-		d.rect(l != null && l.player.hp > 0 && l.player.weapon.reloadLeft == 0 ? Clr.WHITE : Clr.RED, curs.x - 8, curs.y - 1, 16, 2);
+		Clr recC = !setup && !mainMenu && l != null && shopItems.isEmpty() && l.player.hp > 0 && l.player.weapon.reloadLeft == 0 ? Clr.WHITE : Clr.RED;
+		d.rect(recC, curs.x - 1, curs.y - 8, 2, 16);
+		d.rect(recC, curs.x - 8, curs.y - 1, 16, 2);
 		if (l != null && l.power == 1 && l.moved && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
 			if (l.shotsFired == 0) {
 				Pt sz = d.textSize("Click to shoot", FOUNT);
@@ -542,7 +713,7 @@ public class PatentBlaster implements Game {
 		int i = 0;
 		d.blit("units/" + l.player.img, l.player.tint, 15 + i * 40, 15, 30, 30, new Hook(Hook.Type.HOVER) {
 			@Override
-			public void run(Input in, Pt p) {
+			public void run(Input in, Pt p, Hook.Type type) {
 				info = l.player.desc(Clr.WHITE);
 			}
 		});
@@ -557,7 +728,7 @@ public class PatentBlaster implements Game {
 			}
 			d.blit("units/" + w.img, t, 15 + i * 40, 15, 30, 30, new Hook(Hook.Type.HOVER) {
 				@Override
-				public void run(Input in, Pt p) {
+				public void run(Input in, Pt p, Hook.Type type) {
 					hoverWeapon = w;
 					info = w.desc(Clr.WHITE) + (l.player.weapons.size() > 1 && !shopItems.isEmpty() ? "Hit delete to delete weapon from inventory." : "");
 				}
@@ -568,7 +739,7 @@ public class PatentBlaster implements Game {
 			i++;
 		}
 		if (shopItems.isEmpty() && !l.player.changedGun && l.player.weapons.size() > 1 && l.player.weapons.size() < 5 && l.player.showingWeaponSwitchInfo++ < FPS * 10) {
-			d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "Press Q and E or the number keys to switch weapons.", FOUNT, 20 + i * 40, 20);
+			d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "Press " + key("Q") + " and " + key("E") + " or the number keys to switch weapons.", FOUNT, 20 + i * 40, 20);
 		}
 		i = 0;
 		int spacing = 40;
@@ -582,7 +753,7 @@ public class PatentBlaster implements Game {
 			}
 			d.blit("units/" + it.img, t, 15 + i * spacing, sm.height - 45, 30, 30, new Hook(Hook.Type.HOVER) {
 				@Override
-				public void run(Input in, Pt p) {
+				public void run(Input in, Pt p, Hook.Type type) {
 					info = it.desc(Clr.WHITE);
 				}
 			});
