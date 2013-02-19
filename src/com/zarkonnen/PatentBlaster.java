@@ -9,8 +9,6 @@ import com.zarkonnen.catengine.Game;
 import com.zarkonnen.catengine.Hook;
 import com.zarkonnen.catengine.Hooks;
 import com.zarkonnen.catengine.Input;
-import com.zarkonnen.catengine.Java2DEngine;
-import com.zarkonnen.catengine.LibgdxDesktopEngine;
 import com.zarkonnen.catengine.SlickEngine;
 import com.zarkonnen.catengine.util.Clr;
 import com.zarkonnen.catengine.util.Pt;
@@ -19,7 +17,6 @@ import com.zarkonnen.catengine.util.ScreenMode;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import javax.swing.JOptionPane;
 
 public class PatentBlaster implements Game {
 	public static final boolean DEMO = true;
@@ -37,7 +34,7 @@ public class PatentBlaster implements Game {
 	public static final Clr PAPER = new Clr(230, 230, 225);
 			
 	public static void main(String[] args) {
-		int response = JOptionPane.showOptionDialog(null, "Patent Blaster", "Choose Display Engine", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, new String[] {"Java2D (Slow, No Sound)", "LibGDX", "Slick (Recommended)"}, "Slick (Recommended)");
+		/*int response = JOptionPane.showOptionDialog(null, "Patent Blaster", "Choose Display Engine", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, new String[] {"Java2D (Slow, No Sound)", "LibGDX", "Slick (Recommended)"}, "Slick (Recommended)");
 		
 		Engine e = null;
 		if (response >= 0) {
@@ -55,12 +52,13 @@ public class PatentBlaster implements Game {
 		}
 		if (e == null) { return; }
 		lowGraphics = response == 0;
-		//Engine 
+		*/
+		Engine e = new SlickEngine("Patent Blaster", "/com/zarkonnen/images/", "/com/zarkonnen/sounds/", FPS);
 		e.setup(new PatentBlaster());
 		e.runUntil(Condition.ALWAYS);
-		if (!(e instanceof LibgdxDesktopEngine)) {
+		/*if (!(e instanceof LibgdxDesktopEngine)) {
 			e.destroy();
-		}
+		}*/
 	}
 	
 	Hooks h = new Hooks();
