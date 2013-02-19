@@ -114,7 +114,9 @@ public class Level implements MusicDone {
 	public void tick(Input in) {
 		if (tick > 1 && !musicPlaying) {
 			musicPlaying = true;
-			in.playMusic(music, 0.25, this);
+			if (PatentBlaster.musicVolume > 0) {
+				in.playMusic(music, PatentBlaster.musicVolume * 1.0 / 9, this);
+			}
 		}
 		player.tick(this);
 		if (player.hp > 0) {
@@ -192,11 +194,13 @@ public class Level implements MusicDone {
 			if (ft.killMe) { it.remove(); }
 		}
 		ScreenMode sMode = in.mode();
-		for (SoundRequest sr : soundRequests) {
-			double sx = (sr.x - player.x - player.w / 2) / sMode.width * 2;
-			double sy = (sr.y - player.y - player.h / 2) / sMode.height * 2;
-			//System.out.println(sx + "/" + sy);
-			in.play(sr.sound, 1.0, sr.volume, sx, sy);
+		if (PatentBlaster.soundVolume > 0) {
+			for (SoundRequest sr : soundRequests) {
+				double sx = (sr.x - player.x - player.w / 2) / sMode.width * 2;
+				double sy = (sr.y - player.y - player.h / 2) / sMode.height * 2;
+				//System.out.println(sx + "/" + sy);
+				in.play(sr.sound, 1.0, sr.volume * PatentBlaster.soundVolume * 1.0 / 9, sx, sy);
+			}
 		}
 		soundRequests.clear();
 		tick++;

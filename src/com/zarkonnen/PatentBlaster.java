@@ -98,6 +98,8 @@ public class PatentBlaster implements Game {
 	// Prefs stuff
 	public static DifficultyLevel difficultyLevel = DifficultyLevel.EASY;
 	public static final HashMap<String, String> keyBindings = new HashMap<String, String>();
+	public static int soundVolume = 9;
+	public static int musicVolume = 2;
 	
 	public static final List<Pair<String, Pair<String, String>>> KEY_NAMES = l(
 		p("Move left     ", p("A", "LEFT")),
@@ -148,10 +150,11 @@ public class PatentBlaster implements Game {
 	@Override
 	public void input(Input in) {
 		if (in.keyDown("ESCAPE") || in.keyDown("ESC") || in.keyDown("⎋")) {
-			if (mainMenu) {
+			if (mainMenu && cooldown == 0) {
 				in.quit();
 			} else {
 				mainMenu = true;
+				cooldown = 15;
 			}
 			return;
 		}
@@ -177,7 +180,7 @@ public class PatentBlaster implements Game {
 			in.setMode(chosenMode);
 			screened = true;
 			in.setCursorVisible(false);
-			in.playMusic(Level.MUSICS[0], 0.25, null);
+			if (musicVolume > 0) { in.playMusic(Level.MUSICS[0], musicVolume * 1.0 / 9, null); }
 		}
 		curs = in.cursor();
 		if (cooldown > 0) { cooldown--; }
@@ -355,11 +358,16 @@ public class PatentBlaster implements Game {
 	
 	boolean doRender = false;
 
-	String hl(String s, boolean enabled) {
-		return (s.equals(menuHover) ? "[RED]" : (enabled ? "[333333]" : "[666666]")) + s + "[]";
+	String hl(String prefix, String s, boolean enabled) {
+		return ((prefix + s).equals(menuHover) ? "[RED]" : (enabled ? "[333333]" : "[666666]")) + s + "[]";
 	}
 	
 	void menuItem(final String s, boolean enabled, StringBuilder sb, HashMap<String, Hook> hs, final Hook hk) {
+		menuItem("", s, enabled, sb, hs, hk);
+	}
+		
+	
+	void menuItem(final String prefix, final String s, boolean enabled, StringBuilder sb, HashMap<String, Hook> hs, final Hook hk) {
 		hs.put(s, new Hook(hk.types[0], Hook.Type.HOVER) {
 			@Override
 			public void run(Input in, Pt p, Hook.Type type) {
@@ -367,11 +375,11 @@ public class PatentBlaster implements Game {
 					hk.run(in, p, type);
 				}
 				if (type == Hook.Type.HOVER) {
-					menuHover = s;
+					menuHover = prefix + s;
 				}
 			}
 		});
-		sb.append(hl(s, enabled));
+		sb.append(hl(prefix, s, enabled));
 	}
 	
 	@Override
@@ -443,16 +451,30 @@ public class PatentBlaster implements Game {
 			StringBuilder menu = new StringBuilder();
 			menu.append("[default=BLACK][BLACK]");
 			HashMap<String, Hook> hoox = new HashMap<String, Hook>();
-			menuItem("PLAY", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+			menuItem("play", "PLAY", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 				@Override
 				public void run(Input in, Pt p, Hook.Type type) {
 					mainMenu = false;
 					setup = true;
 				}
 			});
+			menu.append(" ");
+			menuItem("credits", "CREDITS", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+				@Override
+				public void run(Input in, Pt p, Hook.Type type) {
+					showCredits = true;
+				}
+			});
+			menu.append(" ");
+			menuItem("quit", "QUIT", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+				@Override
+				public void run(Input in, Pt p, Hook.Type type) {
+					in.quit();
+				}
+			});
 			menu.append("\n\n");
 			for (final DifficultyLevel dl : DifficultyLevel.values()) {
-				menuItem(dl.name(), dl == difficultyLevel, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+				menuItem("diff", dl.name(), dl == difficultyLevel, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 					@Override
 					public void run(Input in, Pt p, Hook.Type type) {
 						difficultyLevel = dl;
@@ -461,24 +483,10 @@ public class PatentBlaster implements Game {
 				menu.append(" ");
 			}
 			menu.append("\n\n");
-			menuItem("CREDITS", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
-				@Override
-				public void run(Input in, Pt p, Hook.Type type) {
-					showCredits = true;
-				}
-			});
-			menu.append("\n\n");
-			menuItem("QUIT", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
-				@Override
-				public void run(Input in, Pt p, Hook.Type type) {
-					in.quit();
-				}
-			});
-			menu.append("\n\nKey bindings:\n");
 			for (final Pair<String, Pair<String, String>> kb : KEY_NAMES) {
 				menu.append(kb.a).append("  ");
 				menu.append(kb.equals(inputMappingToDo) && !secondaryInputMapping ? "[bg=550000]" : "");
-				menuItem(" _" + key(kb.b.a) + "_ ", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+				menuItem("key_", " " + key(kb.b.a) + " ", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 					@Override
 					public void run(Input in, Pt p, Type type) {
 						inputMappingToDo = kb;
@@ -487,12 +495,12 @@ public class PatentBlaster implements Game {
 				});
 				menu.append("[bg=]");
 				if (kb.b.b != null) {
-					int gap = 7 - key(kb.b.a).length();
+					int gap = 3 - key(kb.b.a).length();
 					for (int i = 0; i < gap; i++) {
 						menu.append(" ");
 					}
 					menu.append(kb.equals(inputMappingToDo) && secondaryInputMapping ? "[bg=550000]" : "");
-					menuItem(" _" + key(kb.b.b) + "_ ", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+					menuItem("key2_", " " + key(kb.b.b) + " ", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 						@Override
 						public void run(Input in, Pt p, Type type) {
 							inputMappingToDo = kb;
@@ -504,6 +512,43 @@ public class PatentBlaster implements Game {
 				menu.append("\n");
 			}
 			
+			d.text(menu.toString(), FOUNT, spacing, y, hoox);
+			Rect menuR = d.textSize(menu.toString(), FOUNT, spacing, y);
+			y += menuR.height + spacing;
+			menu = new StringBuilder();
+			menu.append("[default=BLACK][BLACK]");
+			hoox = new HashMap<String, Hook>();
+			menu.append("Sound  ");
+			for (int i = 0; i < 10; i++) {
+				final int ii = i;
+				menuItem("sound", " " + i, soundVolume == i, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+					@Override
+					public void run(Input in, Pt p, Type type) {
+						soundVolume = ii;
+					}
+				});
+			}
+			
+			d.text(menu.toString(), FOUNT, spacing, y, hoox);
+			menuR = d.textSize(menu.toString(), FOUNT, spacing, y);
+			y += menuR.height + spacing;
+			menu = new StringBuilder();
+			menu.append("[default=BLACK][BLACK]");
+			hoox = new HashMap<String, Hook>();
+			menu.append("Music  ");
+			for (int i = 0; i < 10; i++) {
+				final int ii = i;
+				menuItem("music", " " + i, musicVolume == i, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+					@Override
+					public void run(Input in, Pt p, Type type) {
+						in.stopMusic();
+						if (musicVolume != 0) {
+							in.playMusic(Level.MUSICS[0], ii * 1.0 / 9, null);
+						}
+						musicVolume = ii;
+					}
+				});
+			}
 			d.text(menu.toString(), FOUNT, spacing, y, hoox);
 		} else if (setup) {
 			if (!setupCreatures.isEmpty()) {
@@ -696,7 +741,7 @@ public class PatentBlaster implements Game {
 		Clr recC = !setup && !mainMenu && l != null && shopItems.isEmpty() && l.player.hp > 0 && l.player.weapon.reloadLeft == 0 ? Clr.WHITE : Clr.RED;
 		d.rect(recC, curs.x - 1, curs.y - 8, 2, 16);
 		d.rect(recC, curs.x - 8, curs.y - 1, 16, 2);
-		if (l != null && l.power == 1 && l.moved && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
+		if (!setup && !mainMenu && l != null && l.power == 1 && l.moved && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
 			if (l.shotsFired == 0) {
 				Pt sz = d.textSize("Click to shoot", FOUNT);
 				d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "Click to shoot", FOUNT, Math.min(sm.width - sz.x, curs.x + 3), curs.y + 3);
