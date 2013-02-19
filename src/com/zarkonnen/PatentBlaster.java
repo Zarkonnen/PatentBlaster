@@ -364,7 +364,9 @@ public class PatentBlaster implements Game {
 				
 				Rect titleR = d.textSize("SELECT YOUR CREATURE", FOUNT, spacing, spacing);
 				d.text("[BLACK]SELECT YOUR CREATURE", FOUNT, spacing, spacing);
-				
+				d.rect(Clr.BLACK, 0, spacing + 18, sm.width * 3 / 4, 2);
+				Rect pgR = d.textSize("Page 1", FOUNT, spacing, spacing);
+				d.text("[BLACK]Page 1", FOUNT, sm.width - spacing - pgR.width, spacing);
 				int yOffset = spacing * 2 + (int) titleR.height;
 				int availableH = sm.height - yOffset;
 				int xOffset = spacing * 2;
@@ -411,7 +413,9 @@ public class PatentBlaster implements Game {
 
 			Rect titleR = d.textSize("SHOP: PICK ONE NEW ITEM", FOUNT, spacing, spacing);
 			d.text("[BLACK]SHOP: PICK ONE NEW ITEM", FOUNT, spacing, spacing);
-
+			d.rect(Clr.BLACK, 0, spacing + 18, sm.width * 3 / 4, 2);
+			Rect pgR = d.textSize("Page " + l.power + 1, FOUNT, spacing, spacing);
+			d.text("[BLACK]Page " + l.power, FOUNT, sm.width - spacing - pgR.width, spacing);
 			int yOffset = spacing * 2 + (int) titleR.height;
 			int availableH = sm.height - yOffset;
 			int xOffset = spacing * 2;
