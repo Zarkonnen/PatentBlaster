@@ -35,7 +35,7 @@ public class Colors {
 				if (dist == 0) { break; }
 			}
 			String[] bnb = bestName.split(" ");
-			names.put(c, (bnb.length > 1 ? bnb[bnb.length - 2] + " " : "") + bnb[bnb.length - 1]);
+			names.put(c, (bnb.length > 1 && bnb[bnb.length - 1].length() < 8 ? bnb[bnb.length - 2] + " " : "") + bnb[bnb.length - 1]);
 			return bestName;
 		}
 		return names.get(c);

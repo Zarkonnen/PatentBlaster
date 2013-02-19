@@ -22,17 +22,20 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 public class PatentBlaster implements Game {
-	public static final boolean DEMO = false;
+	public static final boolean DEMO = true;
+	public static final int DEMO_LEVELS = 3;
 	
-	public static final int NUM_IMAGES = 6;
-	public static final int NUM_VOICES = 14;
+	public static final int NUM_IMAGES = DEMO ? 3 : 5;
+	public static final int NUM_VOICES = DEMO ? 3 : 14;
 	public static final int FPS = 60;
 	public static final Fount FOUNT = new Fount("LiberationMono18", 12, 12, 24);
-	public static final String[] IMG_NAMES = {"Elephant", "Bear", "Bat", "Mummy", "Tongue", "Brain-Thing"};
-	public static final int[] IMG_NUMS = { 4, 4, 4, 4, 4, 4 };
+	public static final String[] IMG_NAMES = {"Bat", "Bear", "Elephant", "Brain-Thing", "Mummy", "Tongue"};
+	public static final int[] IMG_NUMS = { 1, 3, 3, 3, 1, 2 };
+	public static final double[] IMG_SHOOT_X = { 0.44, 0.46, 0.18, 0.55, 0.49, 0.48 };
+	public static final double[] IMG_SHOOT_Y = { 0.61, 0.65, 0.53, 0.08, 0.12, 0.74 };
 	
 	public static final Clr PAPER = new Clr(230, 230, 225);
-		
+			
 	public static void main(String[] args) {
 		int response = JOptionPane.showOptionDialog(null, "Patent Blaster", "Choose Display Engine", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, new String[] {"Java2D (Slow, No Sound)", "LibGDX", "Slick (Recommended)"}, "Slick (Recommended)");
 		
@@ -83,7 +86,7 @@ public class PatentBlaster implements Game {
 	ScreenMode chosenMode = null;
 	ScreenMode hoverMode = null;
 	public static boolean lowGraphics = false;
-	public static DifficultyLevel difficultyLevel = DifficultyLevel.BRUTAL;
+	public static DifficultyLevel difficultyLevel = DifficultyLevel.EASY;
 	boolean showFPS = false;
 	
 	public static int shotDivider() { return lowGraphics ? 4 : 1; }
@@ -199,6 +202,15 @@ public class PatentBlaster implements Game {
 				
 			}
 		} else if (l.won()) {
+			if (power == DEMO_LEVELS && DEMO) {
+				l.player.hp = -1;
+				l.player.explodes = true;
+				l.player.lastShooter = null;
+				l.player.explode(l);
+				nextLvlTime = 0;
+				l.texts.add(new FloatingText("KILLED BY THE DEMO LIMIT", l.player.x + l.player.w / 2, l.player.y));
+				return;
+			}
 			nextLvlTime++;
 			if (nextLvlTime >= 140) {
 				l = new Level(System.currentTimeMillis(), ++power, l.player);
@@ -296,7 +308,7 @@ public class PatentBlaster implements Game {
 
 	@Override
 	public void render(Frame f) {
-		if (lowGraphics && (doRender = !doRender)) { return; } // Go down to 30 FPS for low gfx.
+		//if (lowGraphics && (doRender = !doRender)) { return; } // Go down to 30 FPS for low gfx.
 		Draw d = new Draw(f);
 		ScreenMode sm = f.mode();
 		d.rect(lowGraphics && l != null && l.player != null && l.player.hp < l.player.totalMaxHP() / 10 ? new Clr(100, 20, 20) : new Clr(32, 32, 32), 0, 0, sm.width, sm.height);
@@ -335,31 +347,6 @@ public class PatentBlaster implements Game {
 		
 		if (setup) {
 			if (!setupCreatures.isEmpty()) {
-				/*for (int i = 0; i < 4; i++) {
-					final Creature c = setupCreatures.get(i);
-					int xs = sm.width / 2 * (i % 2);
-					int ys = sm.height / 2 * (i / 2);
-					if (new Rect(xs, ys, sm.width / 2, sm.height / 2).contains(curs)) {
-						d.rect(new Clr(64, 64, 64), xs + 10, ys + 10, sm.width / 2 - 20, sm.height / 2 - 20, new Hook(Hook.Type.MOUSE_1) {
-
-							@Override
-							public void run(Input in, Pt p) {
-								if (cooldown != 0) { return; }
-								l = new Level(System.currentTimeMillis() + 10981, power = 1, c);
-								l.player.makePlayerAble();
-								l.player.heal();
-								l.player.weapon.reloadLeft = 10;
-								nextLvlTime = 0;
-								setupCreatures.clear();
-								setup = false;
-							}
-						});
-					}
-					d.blit("units/" + c.img, c.tint, xs + sm.width / 4 - c.w / 2, ys + 60, c.w, c.h);
-					d.text(c.desc(), smount, xs + 20, ys + 80 + c.h);
-				}
-				d.text("Select the creature you want to play as.", FOUNT, 10, 10);*/
-				
 				int spacing = 12;
 				
 				if (lowGraphics) {
@@ -388,7 +375,7 @@ public class PatentBlaster implements Game {
 						boolean hover = tileR.contains(curs);
 						d.text("[BLACK]" + c.name().toUpperCase(), FOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH);
 						Clr t = !hover ? c.tint.mix(0.9, PAPER) : c.tint;
-						d.blit("units/" + c.img, t, xOffset + tileX * tileW + tileW / 2 - 60, yOffset + tileY * tileH + 30, 120, 120);
+						d.blit("units/" + c.img + "_drawing", t, xOffset + tileX * tileW, yOffset + tileY * tileH + 35);
 						d.text("[BLACK][default=BLACK]" + c.desc(Clr.BLACK, IMG_NUMS[c.img]), smount, xOffset + tileX * tileW, yOffset + tileY * tileH + 150, (int) (tileW - 10));
 						d.hook(tileR.x, tileR.y, tileR.width, tileR.height, new Hook(Hook.Type.MOUSE_1) {
 
@@ -498,7 +485,7 @@ public class PatentBlaster implements Game {
 			d.text(f.fps() + " FPS", FOUNT, sm.width - 100, 40);
 		}
 		
-		if (l != null && !l.moved && l.power == 1) {
+		if (l != null && !l.moved && l.power == 1 && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
 			d.text(textBGTint + "D or -> to move right", FOUNT, sm.width / 2 + 50, sm.height * 2 / 3 - FOUNT.height / 2);
 			Pt sz = d.textSize("A or <- to move left", FOUNT);
 			d.text(textBGTint + "A or <- to move left", FOUNT, sm.width / 2 - 50 - sz.x, sm.height * 2 / 3 - FOUNT.height / 2);
@@ -507,12 +494,12 @@ public class PatentBlaster implements Game {
 		}
 		d.rect(l != null && l.player.hp > 0 && l.player.weapon.reloadLeft == 0 ? Clr.WHITE : Clr.RED, curs.x - 1, curs.y - 8, 2, 16);
 		d.rect(l != null && l.player.hp > 0 && l.player.weapon.reloadLeft == 0 ? Clr.WHITE : Clr.RED, curs.x - 8, curs.y - 1, 16, 2);
-		if (l != null && l.power == 1 && l.moved) {
+		if (l != null && l.power == 1 && l.moved && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
 			if (l.shotsFired == 0) {
 				Pt sz = d.textSize("Click to shoot", FOUNT);
 				d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "Click to shoot", FOUNT, Math.min(sm.width - sz.x, curs.x + 3), curs.y + 3);
 			}
-			if (l.shotsFired == 1) {
+			if (l.shotsFired == 1 && l.player.hp > 0) {
 				Pt sz = d.textSize("White recticle = weapon ready", FOUNT);
 				d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "White recticle = weapon ready", FOUNT, Math.min(sm.width - sz.x, curs.x + 3), curs.y + 3);
 			}

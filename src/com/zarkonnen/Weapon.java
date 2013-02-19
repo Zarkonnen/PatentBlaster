@@ -103,15 +103,36 @@ public class Weapon implements HasDesc {
 		return "  Highly inaccurate.\n";
 	}
 	
+	String pad(int n) {
+		return pad("" + n);
+	}
+	
+	String pad(String n) {
+		switch (n.length()) {
+			case 0:
+				return "     ";
+			case 1:
+				return "    " + n;
+			case 2:
+				return "   " + n;
+			case 3:
+				return "  " + n;
+			case 4:
+				return " " + n;
+			default:
+				return n;
+		}
+	}
+	
 	@Override
 	public String desc(Clr textTint) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(" ").append(name.toUpperCase()).append("");
-		sb.append(", [").append(element.tint.mix(0.3, textTint)).append("]").append(element.name()).append("[] Weapon\n");
-		sb.append("  Damage: ").append(dmg * (swarm ? 8 : 1)).append("\n");
-		sb.append("  Reload: ").append(round(reload * 1.0 / PatentBlaster.FPS, 2)).append("sec (").append(round(dps(), 0)).append(" DPS)\n");
-		sb.append("  Shot Speed: ").append(round(shotSpeed, 1)).append("\n");
-		sb.append("  Range: ").append(round(range(), 0)).append("\n");
+		sb.append("").append(name.toUpperCase()).append("");
+		sb.append(", [").append(element.tint.mix(0.4, textTint)).append("]").append(element.name()).append("[] Weapon\n");
+		sb.append("  ").append(dmg * (swarm ? 8 : 1));
+		sb.append(" damage every ").append(round(reload * 1.0 / PatentBlaster.FPS, 2)).append("sec (").append(round(dps(), 0)).append(" DPS)\n");
+		sb.append("  ").append(round(shotSpeed, 1));
+		sb.append(" shot speed, ").append(round(range(), 0)).append(" range\n");
 		sb.append(accuracy());
 		//sb.append("  Shot Size: ").append(round(shotSize, 0)).append("\n");
 		if (knockback) {
@@ -188,7 +209,7 @@ public class Weapon implements HasDesc {
 
 	public Weapon makeTinyVersion() {
 		Weapon t = new Weapon();
-		t.dmg = Math.max(1, dmg / 4);
+		t.dmg = Math.max(1, dmg / 3);
 		t.element = element;
 		t.img = img;
 		t.jitter = jitter * 0.7;

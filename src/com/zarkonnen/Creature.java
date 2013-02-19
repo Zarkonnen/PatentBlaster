@@ -100,6 +100,9 @@ public class Creature extends Entity implements HasDesc {
 	
 	public long seed;
 	
+	public int evading;
+	public boolean evadingLeft;
+	
 	public boolean fireproof() {
 		return resistance(Element.FIRE) >= 0.5;
 	}
@@ -332,8 +335,8 @@ public class Creature extends Entity implements HasDesc {
 		if (jar) {
 			for (int i = 0; i < 6; i++) {
 				Creature tiny = makeTinyVersion(l);
-				tiny.x = x + w / 4 + l.r.nextDouble() * w / 2;
-				tiny.y = y + h / 4 + l.r.nextDouble() * h / 2.1;
+				tiny.x = x + l.r.nextDouble() * w * 0.4 + w * 0.05;
+				tiny.y = y + l.r.nextDouble() * h * 0.3 + h * 0.05;
 				tiny.dx = l.r.nextDouble() * 8 - 4;
 				tiny.dy = l.r.nextDouble() * 8 - 6;
 				tiny.heal();
@@ -494,6 +497,11 @@ public class Creature extends Entity implements HasDesc {
 				if (fleeing) { // Run away!
 					xpd *= -1;
 					if (xpd == 0) { xpd = -1; } // Just go away.
+				} else {
+					if (evading > 0) {
+						evading--;
+						xpd = evadingLeft ? -1000 : 1000;
+					}
 				}
 				double ypd = y + h / 2 - l.player.y - l.player.h / 2;
 				double distSq = xpd * xpd + ypd * ypd;
@@ -517,9 +525,12 @@ public class Creature extends Entity implements HasDesc {
 								dy = -totalSpeed() - HOP_BONUS;
 								break;
 							case FLY:
-								dy = -totalSpeed();
-								break;
 							case HOVER:
+								//dy = -totalSpeed();
+								if (evading == 0) {
+									evading = 60;
+									evadingLeft = l.r.nextBoolean();
+								}
 								hoverPowerOff = true;
 								break;
 						}
@@ -857,23 +868,23 @@ public class Creature extends Entity implements HasDesc {
 		if (boss || (sz > 60 && r.nextInt(8) == 0)) {
 			c.massive = true;
 		}
-		if (!player && (power > 8 || r.nextInt(10 - power) == 0)) {
+		if (!player && !PatentBlaster.DEMO && (power > 8 || r.nextInt(10 - power) == 0)) {
 			c.trackingAim = true;
 			hp *= 0.8;
 		}
-		if (r.nextInt(8) == 0) {
+		if (!PatentBlaster.DEMO && r.nextInt(8) == 0) {
 			c.eating = Math.min(1.0 / 50, power * 0.001);
 			hp *= 0.9;
 		}
-		if (!player && r.nextInt(10 / power + 2) == 0) {
+		if (!player && !PatentBlaster.DEMO && r.nextInt(10 / power + 2) == 0) {
 			c.randomShootDelay = true;
 			hp *= 0.9;
 		}
-		if (!player && power > 4 && sz > 60 && r.nextInt(30 / power + (boss ? 6 : 10)) == 0) {
+		if (!player && !PatentBlaster.DEMO && power > 4 && sz > 60 && r.nextInt(30 / power + (boss ? 6 : 10)) == 0) {
 			c.splitsIntoFour = true;
 			hp *= 0.9;
 		}
-		if (!player && power > 4 && sz > 60 && r.nextInt(30 / power + (boss ? 6 : 10)) == 0) {
+		if (!player && !PatentBlaster.DEMO && power > 4 && sz > 60 && r.nextInt(30 / power + (boss ? 6 : 10)) == 0) {
 			c.reproduces = true;
 			hp *= 0.8;
 		}
@@ -881,7 +892,7 @@ public class Creature extends Entity implements HasDesc {
 			c.resurrects = true;
 			hp *= 0.9;
 		}
-		if (!player && allowFinalForm && power > 3 && !c.splitsIntoFour && r.nextInt((boss ? 10 : 30) / power + (boss ? 3 : 6)) == 0) {
+		if (!player && !PatentBlaster.DEMO && allowFinalForm && power > 3 && !c.splitsIntoFour && r.nextInt((boss ? 10 : 30) / power + (boss ? 3 : 6)) == 0) {
 			c.finalForm = make(seed + 1349, power + 1, numImages, boss, player, false);
 			hp *= 0.9;
 		}
@@ -901,7 +912,7 @@ public class Creature extends Entity implements HasDesc {
 			c.jar = true;
 			sz *= 2;
 		}
-		if (!player && !c.explodes && !c.jar && r.nextInt(20 / power + 10) == 0) {
+		if (!player && !PatentBlaster.DEMO && !c.explodes && !c.jar && r.nextInt(20 / power + 10) == 0) {
 			c.thief = true;
 			hp *= 0.8;
 		}
@@ -1027,7 +1038,7 @@ public class Creature extends Entity implements HasDesc {
 	public String desc(Clr textTint, int numNums) {
 		StringBuilder sb = new StringBuilder();
 		if (resistance != null) {
-			sb.append("[").append(resistance.tint.mix(0.3, textTint)).append("]").append(resistance.name()).append("[]");
+			sb.append("[").append(resistance.tint.mix(0.4, textTint)).append("]").append(resistance.name()).append("[]");
 		} else {
 			sb.append("Normal");
 		}
@@ -1046,7 +1057,7 @@ public class Creature extends Entity implements HasDesc {
 		for (Element e : Element.values()) {
 			double r = resistance(e);
 			if (r > 0) {
-				sb.append("[").append(e.tint.mix(0.3, textTint)).append("]").append(e.name()).append("[] Resistance: ").append(round(r * 100, 0)).append("%\n");
+				sb.append("[").append(e.tint.mix(0.4, textTint)).append("]").append(e.name()).append("[] Resistance: ").append(round(r * 100, 0)).append("%\n");
 			}
 		}
 		if (fireproof()) { sb.append("Can't catch fire.\n"); }
@@ -1081,11 +1092,11 @@ public class Creature extends Entity implements HasDesc {
 			Collections.sort(indices.subList(0, numNums));
 			int i = 0;
 			for (; i < numNums && i < indices.size(); i++) {
-				lines[indices.get(i)] = (i + 1) + ": " + lines[indices.get(i)];
+				lines[indices.get(i)] = /*(i + 1) + " " + */lines[indices.get(i)] + " [555555](" + (i + 1) + ")[]";
 			}
-			for (; i < indices.size(); i++) {
-				lines[indices.get(i)] = "   " + lines[indices.get(i)];
-			}
+			/*for (; i < indices.size(); i++) {
+				lines[indices.get(i)] = "  " + lines[indices.get(i)];
+			}*/
 			sb = new StringBuilder();
 			for (String s : lines) {
 				sb.append(s).append("\n");
