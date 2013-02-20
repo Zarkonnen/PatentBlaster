@@ -412,6 +412,9 @@ public class Creature extends Entity implements HasDesc {
 		if (it.eating > 0) {
 			return totalEating() < 1;
 		}
+		if (it.vampireMult > 0) {
+			return totalVamp() < 1;
+		}
 		return true;
 	}
 	
@@ -429,6 +432,7 @@ public class Creature extends Entity implements HasDesc {
 		if (!items.isEmpty()) {
 			t.items.add(items.get(0).makeTinyVersion());
 		}
+		t.reviens = reviens;
 		t.hpRegen = hpRegen;
 		t.resistance = resistance;
 		t.tint = tint;
@@ -841,9 +845,9 @@ public class Creature extends Entity implements HasDesc {
 			}
 			l.shotsToAdd.addAll(bloodShots);
 			if (src.knockback && !massive) {
-				dx += shot.dx;
-				dy += shot.dy;
-				knockedBack = 30;
+				dx += shot.dx * 0.7;
+				dy += shot.dy * 0.7;
+				knockedBack = 20;
 			}
 			double spltVolume = Math.min(1.3, 1.0 * dmg / totalMaxHP());
 			if (spltVolume > 0.1) {
@@ -961,7 +965,7 @@ public class Creature extends Entity implements HasDesc {
 			c.charges = true;
 			hp *= 0.85;
 		}
-		if (boss || (sz > 60 && r.nextInt(8) == 0)) {
+		if (boss || (sz > 60 && r.nextInt(3) == 0)) {
 			c.massive = true;
 		}
 		if (!player && !PatentBlaster.DEMO && (power > 8 || r.nextInt(10 - power) == 0)) {

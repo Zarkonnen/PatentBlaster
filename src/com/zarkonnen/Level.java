@@ -118,68 +118,92 @@ public class Level implements MusicDone {
 				in.playMusic(music, PatentBlaster.musicVolume * 1.0 / 9, this);
 			}
 		}
-		player.tick(this);
-		if (player.hp > 0) {
-			if (tick % PatentBlaster.FPS / 6 == 0 && player.totalEating() > 0) {
-				for (Shot s : shots) {
-					eatTest(player, s);
+		try {
+			player.tick(this);
+			if (player.hp > 0) {
+				if (tick % PatentBlaster.FPS / 6 == 0 && player.totalEating() > 0) {
+					for (Shot s : shots) {
+						eatTest(player, s);
+					}
 				}
+				physics(player);
 			}
-			physics(player);
+		} catch (Exception e) {
+			e.printStackTrace();
+			player.killMe = true;
+			player.hp = -1;
+			texts.add(new FloatingText("KILLED BY PHYSICS!", player.x + player.w / 2, player.y));
 		}
 		int cIndex = 0;
 		for (Iterator<Creature> it = monsters.iterator(); it.hasNext();) {
 			Creature c = it.next();
-			if (tick % (PatentBlaster.FPS / 6) == cIndex++ % PatentBlaster.FPS / 6 && c.totalEating() > 0) {
-				for (Shot s : shots) {
-					eatTest(c, s);
+			try {
+				if (tick % (PatentBlaster.FPS / 6) == cIndex++ % PatentBlaster.FPS / 6 && c.totalEating() > 0) {
+					for (Shot s : shots) {
+						eatTest(c, s);
+					}
 				}
+				c.tick(this);
+				physics(c);
+			} catch (Exception e) {
+				e.printStackTrace();
+				c.killMe = true;
+				c.hp = -1;
+				texts.add(new FloatingText("KILLED BY PHYSICS!", c.x + c.w / 2, c.y));
 			}
-			c.tick(this);
-			physics(c);
 			if (c.killMe) { it.remove(); }
 		}
 		monsters.addAll(monstersToAdd);
 		monstersToAdd.clear();
 		for (Iterator<Goodie> it = goodies.iterator(); it.hasNext();) {
 			Goodie g = it.next();
-			g.tick(this);
-			physics(g);
-			if (intersects(g, player)) {
-				if (g.item != null) {
-					player.newThing = g.item;
-					player.newThingTimer = 0;
-					player.items.add(g.item);
-					player.canSeeStats = player.canSeeStats || g.item.givesInfo;
+			try {
+				g.tick(this);
+				physics(g);
+				if (intersects(g, player)) {
+					if (g.item != null) {
+						player.newThing = g.item;
+						player.newThingTimer = 0;
+						player.items.add(g.item);
+						player.canSeeStats = player.canSeeStats || g.item.givesInfo;
+					}
+					if (g.weapon != null) {
+						player.newThing = g.weapon;
+						player.newThingTimer = 0;
+						player.weapons.add(g.weapon);
+					}
+					g.killMe = true;
+					soundRequests.add(new SoundRequest("pickup", player.x + player.w / 2, player.y + player.h / 2, 1.0));
 				}
-				if (g.weapon != null) {
-					player.newThing = g.weapon;
-					player.newThingTimer = 0;
-					player.weapons.add(g.weapon);
-				}
+			} catch (Exception e) {
+				e.printStackTrace();
 				g.killMe = true;
-				soundRequests.add(new SoundRequest("pickup", player.x + player.w / 2, player.y + player.h / 2, 1.0));
 			}
 			if (g.killMe) { it.remove(); }
 		}
 		for (Iterator<Shot> it = shots.iterator(); it.hasNext();) {
 			Shot s = it.next();
-			s.tick(this);
-			boolean kill = s.killMe;
-			physics(s);
-			if (s.killMe && !kill && s.hoverer != null) {
-				s.hoverer.dy = -0.7;
-				s.hoverer.y -= 2.5;
-				s.hoverer.ticksSinceBottom = 0;
-			}
-			if (s.shooter != null) {
-				if (s.shooter == player) {
-					for (Creature c : monsters) {
-						if (hitTest(c, s)) { break; }
-					}
-				} else {
-					hitTest(player, s);
+			try {
+				s.tick(this);
+				boolean kill = s.killMe;
+				physics(s);
+				if (s.killMe && !kill && s.hoverer != null) {
+					s.hoverer.dy = -0.7;
+					s.hoverer.y -= 2.5;
+					s.hoverer.ticksSinceBottom = 0;
 				}
+				if (s.shooter != null) {
+					if (s.shooter == player) {
+						for (Creature c : monsters) {
+							if (hitTest(c, s)) { break; }
+						}
+					} else {
+						hitTest(player, s);
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				s.killMe = true;
 			}
 			if (s.killMe) {
 				it.remove();
@@ -189,8 +213,13 @@ public class Level implements MusicDone {
 		shotsToAdd.clear();
 		for (Iterator<FloatingText> it = texts.iterator(); it.hasNext();) {
 			FloatingText ft = it.next();
-			ft.tick(this);
-			physics(ft);
+			try {
+				ft.tick(this);
+				physics(ft);
+			} catch (Exception e) {
+				e.printStackTrace();
+				ft.killMe = true;
+			}
 			if (ft.killMe) { it.remove(); }
 		}
 		ScreenMode sMode = in.mode();

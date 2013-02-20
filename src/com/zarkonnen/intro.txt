@@ -4,9 +4,9 @@ Programming and art by David Stark / www.zarkonnen.com
 
 Item names sourced randomly from recent Wikipedia edits.
 
-Music by www.nosoapradio.us.
+Music by nosoapradio.us.
 
-Sound effects from www.freesound.org, by:
+Sound effects from freesound.org, by:
 
   LeMudCrab
   kasa90
@@ -20,3 +20,9 @@ Sound effects from www.freesound.org, by:
   zmb94
 
 Additional sound effects and voices by David Stark and Rachel Knowler.
+
+Additional graphics from:
+
+  freedesignfile.com
+  start-static.deviantart.com
+  Patrick Hoesly, zooboing.com 

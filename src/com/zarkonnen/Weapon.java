@@ -97,12 +97,12 @@ public class Weapon implements HasDesc {
 	}
 	
 	String accuracy() {
-		if (jitter == 0) { return "  Perfect accuracy.\n"; }
-		if (jitter < 0.05) { return "  Highly accurate.\n"; }
-		if (jitter < 0.1) { return "  Accurate.\n"; }
+		if (jitter == 0) { return "Perfect accuracy.\n"; }
+		if (jitter < 0.05) { return "Highly accurate.\n"; }
+		if (jitter < 0.1) { return "Accurate.\n"; }
 		if (jitter < 0.2) { return ""; }
-		if (jitter < 0.3) { return "  Inaccurate.\n"; }
-		return "  Highly inaccurate.\n";
+		if (jitter < 0.3) { return "Inaccurate.\n"; }
+		return "Highly inaccurate.\n";
 	}
 	
 	String pad(int n) {
@@ -132,31 +132,32 @@ public class Weapon implements HasDesc {
 	
 	@Override
 	public String desc(Clr textTint) {
-		return desc(textTint, true);
+		return desc(textTint, true, true);
 	}
 		
-	public String desc(Clr textTint, boolean showName) {
+	public String desc(Clr textTint, boolean showName, boolean inset) {
+		String is = inset ? "  " : "";
 		StringBuilder sb = new StringBuilder();
 		if (showName) {
 			sb.append("").append(name.toUpperCase()).append("");
 			sb.append(", [").append(element.tint.mix(0.4, textTint)).append("]").append(element.name()).append("[] Weapon\n");
 		} else {
-			sb.append("  [").append(element.tint.mix(0.4, textTint)).append("]").append(element.name()).append("[] Weapon\n");
+			sb.append(is).append("[").append(element.tint.mix(0.4, textTint)).append("]").append(element.name()).append("[] Weapon\n");
 		}
-		sb.append("  ").append(dmg * (swarm ? 8 : 1));
+		sb.append(is).append(dmg * (swarm ? 8 : 1));
 		sb.append(" damage every ").append(round(reload * 1.0 / PatentBlaster.FPS, 2)).append("sec (").append(round(dps(), 0)).append(" DPS)\n");
-		sb.append("  ").append(round(shotSpeed, 1));
+		sb.append(is).append(round(shotSpeed, 1));
 		sb.append(" shot speed, ").append(round(range(), 0)).append(" range\n");
-		sb.append(accuracy());
+		sb.append(accuracy().length() == 0 ? "" : is).append(accuracy());
 		//sb.append("  Shot Size: ").append(round(shotSize, 0)).append("\n");
 		if (knockback) {
-			sb.append("  Knockback.\n");
+			sb.append(is).append("Knockback.\n");
 		}
 		if (homing) {
 			if (swarm) {
-				sb.append("  Homing Swarm.\n");
+				sb.append(is).append("Homing Swarm.\n");
 			} else {
-				sb.append("  Homing.\n");
+				sb.append(is).append("Homing.\n");
 			}
 		}
 		return sb.toString();

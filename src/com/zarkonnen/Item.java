@@ -38,7 +38,7 @@ public class Item implements HasDesc {
 		Random r = new Random(seed);
 		Item i = new Item();
 		i.seed = seed;
-		int type = r.nextInt(1000) % (Math.min(power * 2 + 1, power > 9 ? 10 : 9));
+		int type = r.nextInt(77) % (Math.min(power * 2 + 1, power > 9 ? 10 : 9));
 		switch (type) {
 			case 0:
 				i.resistanceVs = Element.values()[r.nextInt(Element.values().length)];
@@ -115,47 +115,48 @@ public class Item implements HasDesc {
 	
 	@Override
 	public String desc(Clr textTint) {
-		return desc(textTint, true);
+		return desc(textTint, true, true);
 	}
 	
-	public String desc(Clr textTint, boolean showName) {
+	public String desc(Clr textTint, boolean showName, boolean inset) {
+		String is = inset ? "  " : "";
 		StringBuilder sb = new StringBuilder();
 		if (showName) { sb.append("").append(name.toUpperCase()).append("\n"); }
 		sb.append("[").append(tint.mix(0.4, textTint).toString()).append("]");
 		if (resistanceVs != null) {
-			sb.append("  ").append(round(resistance * 100, 0)).append("% resistance to ").append(resistanceVs.name()).append("\n");
+			sb.append(is).append(round(resistance * 100, 0)).append("% resistance to ").append(resistanceVs.name()).append("\n");
 		}
 		if (speedMult != 1) {
-			sb.append("  ").append(round((speedMult - 1) * 100, 0)).append("% speed increase\n");
+			sb.append(is).append(round((speedMult - 1) * 100, 0)).append("% speed increase\n");
 		}
 		if (hpRegen != 0) {
-			sb.append("  ").append(round(hpRegen * PatentBlaster.FPS, 1)).append(" HP regeneration/sec\n");
+			sb.append(is).append(round(hpRegen * PatentBlaster.FPS, 1)).append(" HP regeneration/sec\n");
 		}
 		if (hpBonus > 0) {
-			sb.append("  ").append(hpBonus).append(" max HP increase\n");
+			sb.append(is).append(hpBonus).append(" max HP increase\n");
 		}
 		if (givesInfo) {
-			sb.append("  ").append("Gives detailed enemy info\n");
+			sb.append(is).append("Gives detailed enemy info\n");
 		}
 		if (shield) {
-			sb.append("  ").append("Energy shield\n");
+			sb.append(is).append("Energy shield\n");
 			if (shieldReload > 0) {
-				sb.append("  ").append(shieldReload).append("/").append(shieldReloadTime).append(" reloaded\n");
+				sb.append(is).append(shieldReload).append("/").append(shieldReloadTime).append(" reloaded\n");
 			} else {
-				sb.append("  Active\n");
+				sb.append(is).append("Active\n");
 			}
 		}
 		if (vampireMult > 0) {
-			sb.append("  ").append(round(vampireMult * 100, 0)).append("% of damage gained as HP\n");
+			sb.append(is).append(round(vampireMult * 100, 0)).append("% of damage gained as HP\n");
 		}
 		if (fly) {
-			sb.append("  ").append("Ability to fly\n");
+			sb.append(is).append("Ability to fly\n");
 		}
 		if (eating > 0) {
-			sb.append("  Eating flesh gives you ").append(round(eating * 100 * 50, 0)).append("% of the victim's HP\n");
+			sb.append(is).append("Eating flesh gives you ").append(round(eating * 100 * 50, 0)).append("% of the victim's HP\n");
 		}
 		if (resurrect) {
-			sb.append("  Resurrects once\n");
+			sb.append(is).append("Resurrects once\n");
 		}
 		sb.append("[]");
 		return sb.toString();

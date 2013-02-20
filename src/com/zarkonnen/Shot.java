@@ -148,13 +148,16 @@ public class Shot extends Entity {
 	
 	@Override
 	public void tick(Level l) {
+		if (beingEatenBy != null && beingEatenBy.hp <= 0) {
+			beingEatenBy = null;
+		}
 		if (frozenAmt > 0) {
 			frozenAmt--;
 			if (frozenAmt == 0 && thawedTint != null) {
 				tint = thawedTint;
 			}
 		}
-		if ((reform || finalForm || revenant) && lifeLeft <= 60) {
+		if ((reform || finalForm || revenant) && lifeLeft <= 60 && bleeder != null) {
 			if (lifeLeft == 60) {
 				returnFromX = x;
 				returnFromY = y;
