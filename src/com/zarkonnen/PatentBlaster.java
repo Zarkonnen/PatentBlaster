@@ -21,13 +21,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import static com.zarkonnen.catengine.util.Utils.*;
 import com.zarkonnen.trigram.Trigrams;
+import java.awt.Desktop;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.prefs.Preferences;
+import javax.swing.JOptionPane;
 
 public class PatentBlaster implements Game {
-	public static final boolean DEMO = false;
+	public static final boolean DEMO = true;
 	public static final int DEMO_LEVELS = 4;
 	
 	public static final int NUM_IMAGES = DEMO ? 3 : 5;
@@ -656,7 +659,42 @@ public class PatentBlaster implements Game {
 						}
 					});
 				}
+				menu.append("\n\n");
+				menuItem("screen", "Switch to " + (f.mode().fullscreen ? "windowed" : "fullscreen"), true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+					@Override
+					public void run(Input in, Pt p, Type type) {
+						if (cooldown == 0) {
+							cooldown = 10;
+							ScreenMode sm = in.mode();
+							if (sm.fullscreen) {
+								in.setMode(new ScreenMode(1024, 768, false));
+							} else {
+								in.setMode(new ScreenMode(1024, 768, true));
+							}
+						}
+					}
+				});
+				
 				d.text(menu.toString(), FOUNT, spacing, y, hoox);
+				menuR = d.textSize(menu.toString(), FOUNT, spacing, y);
+				y += menuR.height + spacing;
+				if (DEMO) {
+					menu = new StringBuilder();
+					menu.append("[bg=ff5555]");
+					hoox = new HashMap<String, Hook>();
+					menuItem("buy", "  BUY THE FULL VERSION  ", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+						@Override
+						public void run(Input in, Pt p, Type type) {
+							in.setMode(new ScreenMode(1024, 768, false));
+							try {
+								Desktop.getDesktop().browse(new URI("http://www.patent-blaster.com/buy/"));
+							} catch (Exception e) {
+								JOptionPane.showMessageDialog(null, "Oops. Looks like we can't get a web browser open. But if you go to http://www.patent-blaster.com/buy/ , you'll be able to get the full version!");
+							}
+						}
+					});
+					d.text(menu.toString(), FOUNT, spacing, y + spacing * 3, hoox);
+				}
 			}
 		} else if (setup) {
 			if (!setupCreatures.isEmpty()) {
