@@ -803,7 +803,7 @@ public class PatentBlaster implements Game {
 			d.text(f.fps() + " FPS", FOUNT, sm.width - 100, 40);
 		}
 		
-		if (!mainMenu && l != null && !l.moved && l.power == 1 && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
+		if (!setup && !mainMenu && l != null && !l.moved && l.power == 1 && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
 			d.text(textBGTint + key("D") + " or " + key("RIGHT") + " to move right", FOUNT, sm.width / 2 + 50, sm.height * 2 / 3 - FOUNT.height / 2);
 			Pt sz = d.textSize(key("A") + " or " + key("LEFT") + " to move left", FOUNT);
 			d.text(textBGTint + key("A") + " or " + key("LEFT") + " to move left", FOUNT, sm.width / 2 - 50 - sz.x, sm.height * 2 / 3 - FOUNT.height / 2);

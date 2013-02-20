@@ -16,8 +16,8 @@ public class Colors {
 			StringBuilder sb = new StringBuilder();
 			String l = null;
 			while ((l = r.readLine()) != null) {
-				String[] bits = l.split(" ", 5);
-				mapping.add(new Pair<Clr, String>(new Clr(Integer.parseInt(bits[0]), Integer.parseInt(bits[1]), Integer.parseInt(bits[2])), bits[4]));
+				String[] bits = l.split(" ", 4);
+				mapping.add(new Pair<Clr, String>(new Clr(Integer.parseInt(bits[0]), Integer.parseInt(bits[1]), Integer.parseInt(bits[2])), bits[3]));
 			}
 		} catch (Exception e) { e.printStackTrace(); }
 	}
@@ -34,8 +34,7 @@ public class Colors {
 				}
 				if (dist == 0) { break; }
 			}
-			String[] bnb = bestName.split(" ");
-			names.put(c, (bnb.length > 1 && bnb[bnb.length - 1].length() < 8 && bnb[bnb.length - 1].length() + bnb[bnb.length - 2].length() < 12 ? bnb[bnb.length - 2] + " " : "") + bnb[bnb.length - 1]);
+			names.put(c, bestName);
 			return bestName;
 		}
 		return names.get(c);
