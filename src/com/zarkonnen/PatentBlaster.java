@@ -20,8 +20,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import static com.zarkonnen.catengine.util.Utils.*;
+import com.zarkonnen.trigram.Trigrams;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.prefs.Preferences;
 
 public class PatentBlaster implements Game {
@@ -96,6 +98,11 @@ public class PatentBlaster implements Game {
 	boolean showCredits;
 	Pair<String, Pair<String, String>> inputMappingToDo = null;
 	boolean secondaryInputMapping;
+	int newPatentTimer = 0;
+	String patentText = "";
+	int patentImg;
+	String patentName;
+	long patN = System.currentTimeMillis();
 	
 	// Prefs stuff
 	public static DifficultyLevel difficultyLevel = DifficultyLevel.EASY;
@@ -170,6 +177,7 @@ public class PatentBlaster implements Game {
 			introTxt = sb.toString();
 		} catch (Exception e) { e.printStackTrace(); }
 	}
+	private int tick;
 	
 	void hit(Input in) {
 		//if (!lowGraphics || doRender) {
@@ -179,6 +187,7 @@ public class PatentBlaster implements Game {
 
 	@Override
 	public void input(Input in) {
+		tick++;
 		if (in.keyDown("ESCAPE") || in.keyDown("ESC") || in.keyDown("⎋")) {
 			if (mainMenu && cooldown == 0) {
 				if (showCredits) {
@@ -237,6 +246,16 @@ public class PatentBlaster implements Game {
 					secondaryInputMapping = false;
 					savePrefs();
 				}
+			}
+			if (newPatentTimer > 0) {
+				newPatentTimer--;
+			} else {
+				Random r = new Random(patN += 32908);
+				patentText = Trigrams.TRIGRAMS.generate(65, r);
+				patentText = patentText.substring(0, patentText.length() - 1) + "...";
+				patentImg = r.nextInt(NUM_IMAGES);
+				patentName = "PAT " + (patN % 10000);
+				newPatentTimer = FPS * 20;
 			}
 			hit(in);
 			return;
@@ -479,7 +498,27 @@ public class PatentBlaster implements Game {
 					}
 				});
 			} else {
-			
+				d.rect(Clr.BLACK, sm.width / 2, spacing + 18, 2, sm.height);
+				if (newPatentTimer > FPS * 19) {
+					int speed = FPS / (newPatentTimer - FPS * 19) + 1;
+					Random r = new Random(patN += (tick % speed == 0 ? 1 : 0));
+					d.text("[BLACK]PAT " + (Math.abs(r.nextInt()) % 10000), FOUNT, sm.width / 2 + spacing * 2, y);
+				} else {
+					d.text("[BLACK]" + patentName, FOUNT, sm.width / 2 + spacing * 2, y);
+					d.blit("units/" + patentImg + "_drawing_large", PAPER, sm.width / 2 + spacing * 2, y + 40);
+					d.text("[BLACK]" + patentText, FOUNT, sm.width / 2 + spacing * 2, y + 465, sm.width / 2 - spacing * 4);
+					d.hook(sm.width / 2, 0, sm.width / 2, sm.height, new Hook(Type.MOUSE_1) {
+						@Override
+						public void run(Input in, Pt p, Type type) {
+							if (cooldown == 0) {
+								newPatentTimer = 0;
+								cooldown = 15;
+							}
+						}
+					});
+				}
+				
+				
 				// Play game                  Left        A <-
 				//                            Right       D ->
 				// Easy Medium Hard Brutal    Up          W ^
@@ -489,12 +528,14 @@ public class PatentBlaster implements Game {
 				// Quit                       Music       <--->
 				//                            Sounds      <--->
 
-				d.hook(0, 0, sm.width, sm.height, new Hook(Hook.Type.MOUSE_1) {
-					@Override
-					public void run(Input in, Pt p, Type type) {
-						inputMappingToDo = null;
-					}
-				});
+				if (inputMappingToDo != null) {
+					d.hook(0, 0, sm.width, sm.height, new Hook(Hook.Type.MOUSE_1) {
+						@Override
+						public void run(Input in, Pt p, Type type) {
+							inputMappingToDo = null;
+						}
+					});
+				}
 				StringBuilder menu = new StringBuilder();
 				menu.append("[default=BLACK][BLACK]");
 				HashMap<String, Hook> hoox = new HashMap<String, Hook>();
