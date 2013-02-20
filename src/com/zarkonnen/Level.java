@@ -133,6 +133,7 @@ public class Level implements MusicDone {
 			player.killMe = true;
 			player.hp = -1;
 			texts.add(new FloatingText("KILLED BY PHYSICS!", player.x + player.w / 2, player.y));
+			soundRequests.add(new SoundRequest("killed_by_physics", player.x + player.w / 2, player.y + player.h / 2, 1.0));
 		}
 		int cIndex = 0;
 		for (Iterator<Creature> it = monsters.iterator(); it.hasNext();) {
@@ -150,6 +151,9 @@ public class Level implements MusicDone {
 				c.killMe = true;
 				c.hp = -1;
 				texts.add(new FloatingText("KILLED BY PHYSICS!", c.x + c.w / 2, c.y));
+				if (Math.abs(c.x + c.w / 2 - player.x - player.w / 2) < 500) {
+					soundRequests.add(new SoundRequest("killed_by_physics", c.x + c.w / 2, c.y + c.h / 2, 0.7));
+				}
 			}
 			if (c.killMe) { it.remove(); }
 		}
