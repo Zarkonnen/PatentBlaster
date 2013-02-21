@@ -577,12 +577,22 @@ public class PatentBlaster implements Game {
 					}
 				});
 				menu.append("\n\n");
+				if (DEMO) {
+					d.rect(Clr.BLACK, spacing + "EASY NORMAL HARD ".length() * FOUNT.displayWidth, y + FOUNT.height * 2 + 8, "BRUTAL".length() * FOUNT.displayWidth, 2);
+				}
 				for (final DifficultyLevel dl : DifficultyLevel.values()) {
 					menuItem("diff", dl.name(), dl == difficultyLevel, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 						@Override
 						public void run(Input in, Pt p, Hook.Type type) {
-							difficultyLevel = dl;
-							savePrefs();
+							if (!DEMO || dl != DifficultyLevel.BRUTAL) {
+								difficultyLevel = dl;
+								savePrefs();
+							} else {
+								if (cooldown == 0) {
+									cooldown = 10;
+									in.play("boop", 1.0, 1.0, 0, 0);
+								}
+							}
 						}
 					});
 					menu.append(" ");
