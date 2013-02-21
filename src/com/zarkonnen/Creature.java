@@ -423,6 +423,10 @@ public class Creature extends Entity implements HasDesc {
 	
 	public Creature makeTinyVersion(Level l) {
 		Creature t = new Creature();
+		t.img = img;
+		t.flippedImg = flippedImg;
+		t.imgIndex = imgIndex;
+		t.tint = tint;
 		t.canSeeStats = canSeeStats;
 		t.charges = charges;
 		t.dodges = dodges;
@@ -438,8 +442,6 @@ public class Creature extends Entity implements HasDesc {
 		t.reviens = reviens;
 		t.hpRegen = hpRegen;
 		t.resistance = resistance;
-		t.tint = tint;
-		t.img = img;
 		t.w = w / 2;
 		t.h = h / 2;
 		t.speed = speed;
