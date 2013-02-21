@@ -9,6 +9,7 @@ import com.zarkonnen.catengine.Game;
 import com.zarkonnen.catengine.Hook;
 import com.zarkonnen.catengine.Hook.Type;
 import com.zarkonnen.catengine.Hooks;
+import com.zarkonnen.catengine.Img;
 import com.zarkonnen.catengine.Input;
 import com.zarkonnen.catengine.SlickEngine;
 import com.zarkonnen.catengine.util.Clr;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import static com.zarkonnen.catengine.util.Utils.*;
 import com.zarkonnen.trigram.Trigrams;
 import java.awt.Desktop;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +38,11 @@ public class PatentBlaster implements Game {
 	public static final int NUM_IMAGES = DEMO ? 3 : 5;
 	public static final int NUM_VOICES = DEMO ? 3 : 14;
 	public static final int FPS = 60;
-	public static final Fount FOUNT = new Fount("LiberationMono18", 12, 12, 24);
-	public static final Fount SMOUNT = new Fount("Courier12", 8, 7, 15);
-	public static final String[] IMG_NAMES = {"Bat", "Bear", "Elephant", "Brain-Thing", "Mummy", "Tongue"};
+	public static final String ALPHABET = " qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890-=+_!?<>,.;:\"'@£$%^&*()[]{}|\\~/±";
+	public static final Fount FOUNT = new Fount("LiberationMono18", 14, 24, 12, 24, ALPHABET);
+	public static final Fount SMOUNT = new Fount("Courier12", 10, 15, 7, 15, ALPHABET);
+	public static final String[] IMG_NAMES = {"bat", "bear", "elephant", "thing", "mummy", "tongue"};
+	public static final String[] PRETTY_IMG_NAMES = {"Bat", "Bear", "Elephant", "Brain-Thing", "Mummy", "Tongue"};
 	public static final int[] IMG_NUMS = { 1, 3, 3, 3, 1, 2 };
 	public static final double[] IMG_SHOOT_X = { 0.44, 0.46, 0.18, 0.55, 0.49, 0.50 };
 	public static final double[] IMG_SHOOT_Y = { 0.61, 0.65, 0.53, 0.08, 0.12, 0.58 };
@@ -46,33 +50,26 @@ public class PatentBlaster implements Game {
 	public static final double[] IMG_MOUTH_Y = { 0.61, 0.43, 0.85, 0.57, 0.24, 0.77 };
 	
 	public static final Clr PAPER = new Clr(230, 230, 225);
+	
+	public static final HashMap<String, Img> CREATURE_IMGS;
+	
+	static {
+		HashMap<String, Img> cis = null;
+		try {
+			InputStream is = PatentBlaster.class.getResourceAsStream("images/units.txt");
+			cis = Img.loadMap(is);
+			is.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		CREATURE_IMGS = cis;
+	}
 			
 	public static void main(String[] args) {
-		/*int response = JOptionPane.showOptionDialog(null, "Patent Blaster", "Choose Display Engine", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, new String[] {"Java2D (Slow, No Sound)", "LibGDX", "Slick (Recommended)"}, "Slick (Recommended)");
-		
-		Engine e = null;
-		if (response >= 0) {
-			switch (response) {
-				case 0:
-					e = new Java2DEngine("Patent Blaster", "/com/zarkonnen/images/", "/com/zarkonnen/sounds/", FPS);
-					break;
-				case 1:
-					e = new LibgdxDesktopEngine("Patent Blaster", "src/com/zarkonnen/images/", "src/com/zarkonnen/sounds/", FPS);
-					break;
-				case 2:
-					e = new SlickEngine("Patent Blaster", "/com/zarkonnen/images/", "/com/zarkonnen/sounds/", FPS);
-					break;
-			}
-		}
-		if (e == null) { return; }
-		lowGraphics = response == 0;
-		*/
 		Engine e = new SlickEngine("Patent Blaster", "/com/zarkonnen/images/", "/com/zarkonnen/sounds/", FPS);
 		e.setup(new PatentBlaster());
 		e.runUntil(Condition.ALWAYS);
-		/*if (!(e instanceof LibgdxDesktopEngine)) {
-			e.destroy();
-		}*/
 	}
 	
 	Hooks h = new Hooks();
@@ -508,7 +505,7 @@ public class PatentBlaster implements Game {
 					d.text("[BLACK]PAT " + (Math.abs(r.nextInt()) % 10000), FOUNT, sm.width / 2 + spacing * 2, y);
 				} else {
 					d.text("[BLACK]" + patentName, FOUNT, sm.width / 2 + spacing * 2, y);
-					d.blit("units/" + patentImg + "_drawing_large", PAPER, sm.width / 2 + spacing * 2, y + 40);
+					d.blit("drawings/" + IMG_NAMES[patentImg] + "_drawing_large", PAPER, sm.width / 2 + spacing * 2, y + 40);
 					d.text("[BLACK]" + patentText, FOUNT, sm.width / 2 + spacing * 2, y + 465, sm.width / 2 - spacing * 4);
 					d.hook(sm.width / 2, 0, sm.width / 2, sm.height, new Hook(Type.MOUSE_1) {
 						@Override
@@ -578,7 +575,7 @@ public class PatentBlaster implements Game {
 				});
 				menu.append("\n\n");
 				if (DEMO) {
-					d.rect(Clr.BLACK, spacing + "EASY NORMAL HARD ".length() * FOUNT.displayWidth, y + FOUNT.height * 2 + 8, "BRUTAL".length() * FOUNT.displayWidth, 2);
+					d.rect(Clr.BLACK, spacing + "EASY NORMAL HARD ".length() * FOUNT.displayWidth, y + FOUNT.lineHeight * 2 + 8, "BRUTAL".length() * FOUNT.displayWidth, 2);
 				}
 				for (final DifficultyLevel dl : DifficultyLevel.values()) {
 					menuItem("diff", dl.name(), dl == difficultyLevel, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
@@ -738,8 +735,8 @@ public class PatentBlaster implements Game {
 						boolean hover = tileR.contains(curs);
 						d.text("[BLACK]" + c.name().toUpperCase(), FOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH);
 						Clr t = !hover ? c.tint.mix(0.9, PAPER) : c.tint;
-						d.blit("units/" + c.img + "_drawing", t, xOffset + tileX * tileW, yOffset + tileY * tileH + 35);
-						d.text("[BLACK][default=BLACK]" + c.desc(Clr.BLACK, IMG_NUMS[c.img]), SMOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH + 150, (int) (tileW - 10));
+						d.blit("drawings/" + IMG_NAMES[c.imgIndex] + "_drawing", t, xOffset + tileX * tileW, yOffset + tileY * tileH + 35);
+						d.text("[BLACK][default=BLACK]" + c.desc(Clr.BLACK, IMG_NUMS[c.imgIndex]), SMOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH + 150, (int) (tileW - 10));
 						d.hook(tileR.x, tileR.y, tileR.width, tileR.height, new Hook(Hook.Type.MOUSE_1) {
 
 							@Override
@@ -801,7 +798,7 @@ public class PatentBlaster implements Game {
 					final Object o = shopItems.get(tileY * 2 + tileX);
 					String name = "";
 					String desc = "";
-					int img = 0;
+					Img img = null;
 					Clr tint = Clr.BLACK;
 					if (o instanceof Weapon) {
 						name = ((Weapon) o).name();
@@ -818,7 +815,7 @@ public class PatentBlaster implements Game {
 					boolean hover = tileR.contains(curs);
 					d.text("[BLACK]" + name.toUpperCase(), FOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH);
 					Clr t = !hover ? tint.mix(0.9, PAPER) : tint;
-					d.blit("units/" + img, t, xOffset + tileX * tileW, yOffset + tileY * tileH + 35);
+					d.blit(img, t, xOffset + tileX * tileW, yOffset + tileY * tileH + 35);
 					d.text("[BLACK][default=BLACK]" + desc, FOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH + 220, (int) (tileW - 10));
 					d.hook(tileR.x, tileR.y, tileR.width, tileR.height, new Hook(Hook.Type.MOUSE_1) {
 
@@ -859,7 +856,7 @@ public class PatentBlaster implements Game {
 					if (l.grid[y][x] == 1) {
 						d.rect(new Clr(70, 50, 20), x * Level.GRID_SIZE + scrollX + 5, y * Level.GRID_SIZE + scrollY + 5, Level.GRID_SIZE - 10, Level.GRID_SIZE - 10);
 						d.rect(new Clr(255, 255, 230), x * Level.GRID_SIZE + scrollX + 10, y * Level.GRID_SIZE + scrollY + 10, Level.GRID_SIZE - 20, Level.GRID_SIZE - 20);
-						d.blit("units/" + l.boss.img, l.boss.tint, x * Level.GRID_SIZE + scrollX + 20, y * Level.GRID_SIZE + scrollY + 20, Level.GRID_SIZE - 40, Level.GRID_SIZE - 40);
+						d.blit(l.boss.img, l.boss.tint, x * Level.GRID_SIZE + scrollX + 20, y * Level.GRID_SIZE + scrollY + 20, Level.GRID_SIZE - 40, Level.GRID_SIZE - 40);
 					}
 				}
 			}
@@ -893,11 +890,11 @@ public class PatentBlaster implements Game {
 		}
 		
 		if (!setup && !mainMenu && l != null && !l.moved && l.power == 1 && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
-			d.text(textBGTint + key("D") + " or " + key("RIGHT") + " to move right", FOUNT, sm.width / 2 + 50, sm.height * 2 / 3 - FOUNT.height / 2);
+			d.text(textBGTint + key("D") + " or " + key("RIGHT") + " to move right", FOUNT, sm.width / 2 + 50, sm.height * 2 / 3 - FOUNT.lineHeight / 2);
 			Pt sz = d.textSize(key("A") + " or " + key("LEFT") + " to move left", FOUNT);
-			d.text(textBGTint + key("A") + " or " + key("LEFT") + " to move left", FOUNT, sm.width / 2 - 50 - sz.x, sm.height * 2 / 3 - FOUNT.height / 2);
+			d.text(textBGTint + key("A") + " or " + key("LEFT") + " to move left", FOUNT, sm.width / 2 - 50 - sz.x, sm.height * 2 / 3 - FOUNT.lineHeight / 2);
 			sz = d.textSize(key("W") + " or " + key("UP") + " to jump", FOUNT);
-			d.text(textBGTint + key("W") + " or " + key("UP") + " to jump", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.height / 2 - 50);
+			d.text(textBGTint + key("W") + " or " + key("UP") + " to jump", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.lineHeight / 2 - 50);
 		}
 		Clr recC = !setup && !mainMenu && l != null && shopItems.isEmpty() && l.player.hp > 0 && l.player.weapon.reloadLeft == 0 ? Clr.WHITE : Clr.RED;
 		d.rect(recC, curs.x - 1, curs.y - 8, 2, 16);
@@ -917,7 +914,7 @@ public class PatentBlaster implements Game {
 	
 	private void showEquipment(Draw d, ScreenMode sm, Fount fount, String textBGTint, boolean hilite) {
 		int i = 0;
-		d.blit("units/" + l.player.img, l.player.tint, 15 + i * 40, 15, 30, 30, new Hook(Hook.Type.HOVER) {
+		d.blit(l.player.img, l.player.tint, 15 + i * 40, 15, 30, 30, new Hook(Hook.Type.HOVER) {
 			@Override
 			public void run(Input in, Pt p, Hook.Type type) {
 				info = l.player.desc(Clr.WHITE);
@@ -932,7 +929,7 @@ public class PatentBlaster implements Game {
 			if (w == l.player.newThing && hilite) {
 				t = (l.tick / 20) % 2 == 0 ? Clr.WHITE : t;
 			}
-			d.blit("units/" + w.img, t, 15 + i * 40, 15, 30, 30, new Hook(Hook.Type.HOVER) {
+			d.blit(w.img, t, 15 + i * 40, 15, 30, 30, new Hook(Hook.Type.HOVER) {
 				@Override
 				public void run(Input in, Pt p, Hook.Type type) {
 					hoverWeapon = w;
@@ -957,7 +954,7 @@ public class PatentBlaster implements Game {
 			if (it == l.player.newThing && hilite) {
 				t = (l.tick / 20) % 2 == 0 ? Clr.WHITE : t;
 			}
-			d.blit("units/" + it.img, t, 15 + i * spacing, sm.height - 45, 30, 30, new Hook(Hook.Type.HOVER) {
+			d.blit(it.img, t, 15 + i * spacing, sm.height - 45, 30, 30, new Hook(Hook.Type.HOVER) {
 				@Override
 				public void run(Input in, Pt p, Hook.Type type) {
 					info = it.desc(Clr.WHITE);

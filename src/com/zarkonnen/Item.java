@@ -4,10 +4,12 @@ import com.zarkonnen.catengine.util.Clr;
 import java.util.Random;
 import static com.zarkonnen.PatentBlaster.round;
 import static com.zarkonnen.Util.*;
+import com.zarkonnen.catengine.Img;
 
 public class Item implements HasDesc {
 	public String name;
-	public int img;
+	public int imgIndex;
+	public Img img;
 	public Clr tint;
 	public double resistance;
 	public Element resistanceVs;
@@ -103,8 +105,8 @@ public class Item implements HasDesc {
 				}
 				break;
 		}
-		i.img = r.nextInt(numImages);
-		//i.tint = new Clr(r.nextInt(255), r.nextInt(255), r.nextInt(255));
+		i.imgIndex = r.nextInt(numImages);
+		i.img = PatentBlaster.CREATURE_IMGS.get(PatentBlaster.IMG_NAMES[i.imgIndex]);
 		i.name = Names.pick(r);
 		return i;
 	}

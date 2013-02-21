@@ -1,10 +1,11 @@
 package com.zarkonnen;
 
 import com.zarkonnen.catengine.Draw;
+import com.zarkonnen.catengine.Img;
 import com.zarkonnen.catengine.util.Clr;
 
 public abstract class Entity {
-	public int img = -1;
+	public Img img = null;
 	public Clr tint;
 	public double x, y, w, h, dx, dy;
 	public boolean popOnWorldHit = false;
@@ -15,8 +16,8 @@ public abstract class Entity {
 	
 	public void tick(Level l) {}
 	public void draw(Draw d, Level l, double scrollX, double scrollY) {
-		if (img != -1) {
-			d.blit("units/" + img, tint, x + scrollX, y + scrollY, w, h);
+		if (img != null) {
+			d.blit(img, tint, x + scrollX, y + scrollY, w, h);
 		} else {
 			d.rect(tint, x + scrollX, y + scrollY, w, h);
 		}

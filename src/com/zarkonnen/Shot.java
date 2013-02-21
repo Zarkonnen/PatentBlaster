@@ -61,8 +61,8 @@ public class Shot extends Entity {
 		this.tint = w.element.tint;
 		this.w = w.shotSize;
 		this.h = w.shotSize;
-		this.x = shooter.x - w.shotSize / 2 + (shooter.flipped ? (1 - PatentBlaster.IMG_SHOOT_X[shooter.img]) : PatentBlaster.IMG_SHOOT_X[shooter.img]) * shooter.w;
-		this.y = shooter.y - w.shotSize / 2 + PatentBlaster.IMG_SHOOT_Y[shooter.img] * shooter.h;
+		this.x = shooter.x - w.shotSize / 2 + (shooter.flipped ? (1 - PatentBlaster.IMG_SHOOT_X[shooter.imgIndex]) : PatentBlaster.IMG_SHOOT_X[shooter.imgIndex]) * shooter.w;
+		this.y = shooter.y - w.shotSize / 2 + PatentBlaster.IMG_SHOOT_Y[shooter.imgIndex] * shooter.h;
 		popOnWorldHit = true;
 		gravityMult = 0;
 		double dtx = tx - x, dty = ty - y;

@@ -1,84 +1,49 @@
-255 246 246 white
-255 226 226 pale pink
-255 158 158 light pink
-255 101 101 red
-255 0 0 vivid red
-231 218 218 gray
-231 184 184 pink
-168 0 0 strong red
-89 66 66 brown
-29 26 26 black
-255 201 194 scarlet
-255 233 226 vermilion
-255 217 194 tangelo
-255 240 226 orange
-89 45 0 deep brown
-29 23 17 very brown
-255 232 194 gamboge
-255 248 226 pale amber
-255 231 158 amber
-89 77 39 dark amber
-89 67 0 deep amber
-255 247 194 pale gold
-255 243 158 light gold
-255 236 101 gold
-255 223 0 vivid gold
-89 83 39 dark gold
-89 78 0 deep gold
-255 255 226 yellow
-231 231 184 olive
-89 89 39 dark olive
-89 89 0 deep olive
-247 255 194 green
-248 255 226 lime green
-232 255 194 spring bud
-217 255 194 pistachio
-233 255 226 harlequin
-201 255 194 sap green
-226 255 226 pale green
-39 89 39 dark green
-0 89 0 deep green
-194 255 217 sea green
-194 255 232 aquamarine
-226 255 248 turquoise
-194 255 247 pale opal
-158 255 243 light opal
-101 255 236 opal
-0 255 223 vivid opal
-39 89 83 dark opal
-0 89 78 deep opal
-226 255 255 pale cyan
-158 255 255 light cyan
-101 255 255 cyan
-0 255 255 vivid cyan
-39 89 89 dark cyan
-0 89 89 deep cyan
-194 247 255 blue
-226 248 255 cerulean
-226 240 255 pale azure
-158 207 255 azure
-39 64 89 dark azure
-0 45 89 deep azure
-226 226 255 pale blue
-158 158 255 light blue
-0 0 255 vivid blue
-39 39 89 dark blue
-0 0 89 deep blue
-233 226 255 indigo
-217 194 255 violet
-232 194 255 purple
-248 226 255 mulberry
-247 194 255 heliotrope
-255 226 255 magenta
-255 194 247 orchid
-255 226 248 fuchsia
-255 194 232 cerise
-255 226 240 pale rose
-255 158 207 light rose
-255 101 178 rose
-255 0 128 vivid rose
-89 39 64 dark rose
-89 0 45 deep rose
-255 194 217 raspberry
-255 226 233 crimson
-255 194 201 amaranth
+255 255 255 white
+0 0 0 black
+191 191 191 light greyish
+127 127 127 greyish
+63 63 63 dark greyish
+255 0 0 bright red
+191 0 0 red
+63 0 0 dark red
+0 255 0 bright green
+0 191 0 green
+0 63 0 dark green
+0 0 255 strong blue
+0 0 191 blue
+0 0 63 dark blue
+255 255 0 bright yellow
+212 191 0 yellow
+255 140 0 bright orange
+255 191 0 light orange
+212 118 0 orange
+172 163 0 olive
+172 124 0 brown
+111 80 0 dark brown
+203 175 0 gold
+102 118 0 dark olive
+112 118 75 olive-grey
+22 118 75 forest green
+0 255 255 bright cyan
+0 170 170 cyan
+0 90 90 dark cyan
+255 0 255 bright magenta
+180 0 180 magenta
+90 0 90 dark magenta
+181 145 181 lilac
+188 188 255 light blue
+188 255 188 light green
+255 173 173 salmon
+255 195 189 pink
+155 98 195 purple
+202 128 255 bright purple
+100 63 126 dark purple
+134 158 134 pale grey
+158 134 134 pale red
+134 134 158 pale blue
+158 149 134 pale brown
+134 156 158 pale cyan
+152 134 158 pale purple
+172 81 0 reddish-brown
+185 202 87 light green
+48 137 198 blue

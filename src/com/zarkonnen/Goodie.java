@@ -33,6 +33,6 @@ public class Goodie extends Entity {
 	
 	@Override
 	public void draw(Draw d, Level l, double scrollX, double scrollY) {
-		d.blit("units/" + img, (l.tick / 20) % 2 == 0 ? Clr.WHITE : tint, x + scrollX, y + scrollY, w, h);
+		d.blit(img, (l.tick / 20) % 2 == 0 ? Clr.WHITE : tint, x + scrollX, y + scrollY, w, h);
 	}
 }

@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.Random;
 import static com.zarkonnen.PatentBlaster.round;
 import static com.zarkonnen.Util.*;
+import com.zarkonnen.catengine.Img;
 import java.util.Collections;
 
 public class Creature extends Entity implements HasDesc {
@@ -18,6 +19,8 @@ public class Creature extends Entity implements HasDesc {
 	public static final int ABOVE_PREF = Level.GRID_SIZE * 5 / 2;
 	public static final Clr JAR_CLR = new Clr(110, 90, 85);
 	
+	public int imgIndex;
+	public Img flippedImg;
 	public ArrayList<Weapon> weapons = new ArrayList<Weapon>();
 	public ArrayList<Item> items = new ArrayList<Item>();
 	public Element resistance;
@@ -171,26 +174,26 @@ public class Creature extends Entity implements HasDesc {
 	
 	public double mouthX() {
 		if (flipped) {
-			return x + w * (1 - PatentBlaster.IMG_MOUTH_X[img]);
+			return x + w * (1 - PatentBlaster.IMG_MOUTH_X[imgIndex]);
 		} else {
-			return x + w * PatentBlaster.IMG_MOUTH_X[img];
+			return x + w * PatentBlaster.IMG_MOUTH_X[imgIndex];
 		}
 	}
 	
 	public double mouthY() {
-		return y + w * PatentBlaster.IMG_MOUTH_Y[img];
+		return y + w * PatentBlaster.IMG_MOUTH_Y[imgIndex];
 	}
 	
 	public double gunX() {
 		if (flipped) {
-			return x + w * (1 - PatentBlaster.IMG_SHOOT_X[img]);
+			return x + w * (1 - PatentBlaster.IMG_SHOOT_X[imgIndex]);
 		} else {
-			return x + w * PatentBlaster.IMG_SHOOT_X[img];
+			return x + w * PatentBlaster.IMG_SHOOT_X[imgIndex];
 		}
 	}
 	
 	public double gunY() {
-		return y + w * PatentBlaster.IMG_SHOOT_Y[img];
+		return y + w * PatentBlaster.IMG_SHOOT_Y[imgIndex];
 	}
 	
 	@Override
@@ -221,7 +224,7 @@ public class Creature extends Entity implements HasDesc {
 			}
 		}
 		
-		d.blit("units/" + img + (flipped ? "r" : ""), t, x + scrollX, y + scrollY, w, h, angle);
+		d.blit(flipped ? flippedImg : img, t, x + scrollX, y + scrollY, w, h, angle);
 		if (!PatentBlaster.lowGraphics) {
 			if (frozen > 0) {
 				d.rect(new Clr(100, 110, 200, 120), x + scrollX - w / 10, y + scrollY - h / 10, w * 1.2, h * 1.2, angle);
@@ -912,7 +915,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public boolean[][] grid() {
-		return Grids.get(img, flipped);
+		return Grids.get(PatentBlaster.IMG_NAMES[imgIndex], flipped);
 	}
 	
 	public static Creature make(long seed, int power, int numImages, boolean boss, boolean player, boolean allowFinalForm) {
@@ -1030,7 +1033,9 @@ public class Creature extends Entity implements HasDesc {
 			green = r.nextInt(255);
 			blue = r.nextInt(255);
 		}
-		c.img = r.nextInt(numImages);
+		c.imgIndex = r.nextInt(numImages);
+		c.img = PatentBlaster.CREATURE_IMGS.get(PatentBlaster.IMG_NAMES[c.imgIndex]);
+		c.flippedImg = c.img.flip();
 		c.tint = c.resistance != null ? c.resistance.tint : new Clr(red, green, blue);
 		c.animCycleLength = 10 + r.nextInt(100);
 		c.w = sz;
@@ -1084,7 +1089,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public String name() {
-		String n = PatentBlaster.IMG_NAMES[img];
+		String n = PatentBlaster.PRETTY_IMG_NAMES[imgIndex];
 		if (resistance != null) {
 			n = resistance.name() + "-" + n;
 		}
@@ -1134,7 +1139,7 @@ public class Creature extends Entity implements HasDesc {
 		} else if (w > 150) {
 			n = "Gigantic " + n;
 		}
-		if (n.equals(PatentBlaster.IMG_NAMES[img])) {
+		if (n.equals(PatentBlaster.PRETTY_IMG_NAMES[imgIndex])) {
 			n = "Perfectly Normal " + n;
 		}
 		return "Pat " + (Math.abs(seed % 10000) + 233) + ", " + n;
