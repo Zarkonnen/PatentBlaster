@@ -18,6 +18,7 @@ Sound effects from freesound.org, by:
   zolopher
   themfish
   zmb94
+  Nanashi
 
 Additional sound effects and voices by David Stark and Rachel Knowler.
 

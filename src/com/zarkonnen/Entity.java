@@ -12,6 +12,7 @@ public abstract class Entity {
 	public boolean killMe = false;
 	public double gravityMult = 1;
 	public int ticksSinceBottom = 0;
+	public int ticksSinceSide = 10000;
 	public boolean collides = true;
 	
 	public void tick(Level l) {}

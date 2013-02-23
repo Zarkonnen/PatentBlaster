@@ -40,9 +40,11 @@ public class Weapon implements HasDesc {
 	public int numBullets = 1;
 	public String name;
 	public long seed;
+	public int clickEmptyTimer;
 	
 	public void tick() {
-		if (reloadLeft > 0) { reloadLeft--; }
+		if (reloadLeft > 0) { reloadLeft--; } else { clickEmptyTimer = 0; }
+		if (clickEmptyTimer > 0) { clickEmptyTimer--; }
 	}
 	
 	public double range() {

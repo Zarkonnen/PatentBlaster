@@ -104,6 +104,7 @@ public class PatentBlaster implements Game {
 	int patentImg;
 	String patentName;
 	long patN = System.currentTimeMillis();
+	boolean targetingBooped = false;
 	
 	// Prefs stuff
 	public static DifficultyLevel difficultyLevel = DifficultyLevel.EASY;
@@ -306,6 +307,10 @@ public class PatentBlaster implements Game {
 			return;
 		}
 		
+		if (in.keyPressed(key("SPACE"))) {
+			targetingBooped = false;
+		}
+		
 		if (l.lost()) {
 			nextLvlTime++;
 			if (nextLvlTime >= 140) {
@@ -368,7 +373,8 @@ public class PatentBlaster implements Game {
 					}
 				} else {
 					if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (in.keyDown(key("UP")) || in.keyDown(key("W")))) {
-						l.player.dy = -l.player.totalSpeed() - Creature.HOP_BONUS;
+						double spd = l.player.ticksSinceSide < Creature.AIR_STEERING ? Math.min(3.0, l.player.totalSpeed() * 1.5) : l.player.totalSpeed() + Creature.HOP_BONUS;
+						l.player.dy = -spd;
 						l.moved = true;
 					}
 				}
@@ -376,45 +382,63 @@ public class PatentBlaster implements Game {
 					l.player.dx = 0;
 				}
 				if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (in.keyDown(key("LEFT")) || in.keyDown(key("A")))) {
-					l.player.dx = -l.player.totalSpeed();
+					l.player.dx = -(l.player.ticksSinceSide < Creature.AIR_STEERING ? Math.min(2.5, l.player.totalSpeed()) : l.player.totalSpeed());
 					l.player.flipped = false;
 					l.moved = true;
 				}
 				if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (in.keyDown(key("RIGHT")) || in.keyDown(key("D")))) {
-					l.player.dx = l.player.totalSpeed();
+					l.player.dx = l.player.ticksSinceSide < Creature.AIR_STEERING ? Math.min(2.5, l.player.totalSpeed()) : l.player.totalSpeed();
 					l.player.flipped = true;
 					l.moved = true;
 				}
 			}
-			if (l.player.weapon.reloadLeft == 0 && in.click() != null) {
-				l.player.shoot(in.cursor().x - scrollX, in.cursor().y - scrollY, l);
-				l.shotsFired++;
-			} else if (l.player.weapon.reloadLeft == 0 && in.keyDown(key("SPACE"))) {
-				Creature targ = null;
-				Creature nearest = null;
-				double bestDsq = 100000 * 100000;
-				for (Creature c : l.monsters) {
-					double dx = (l.player.gunX() - c.x - c.w / 2);
-					double dy = (l.player.gunY() - c.y - c.h / 2);
-					double dsq = dx * dx + dy * dy;
-					if (dsq < bestDsq) {
-						nearest = c;
-						bestDsq = dsq;
-						if (dsq < l.player.weapon.range() * l.player.weapon.range()) {
-							targ = c;
+			if (in.click() != null) {
+				if (l.player.weapon.reloadLeft == 0) {
+					l.player.shoot(in.cursor().x - scrollX, in.cursor().y - scrollY, l);
+					l.shotsFired++;
+				} else if (l.player.weapon.clickEmptyTimer == 0 && l.player.weapon.reloadLeft < l.player.weapon.reload - 10 && l.player.weapon.reloadLeft > 30) {
+					in.play("empty", 1.0, 1.0, 0, 0);
+					l.player.weapon.clickEmptyTimer = Math.min(FPS, l.player.weapon.reload);
+				}
+			} else if (in.keyDown(key("SPACE"))) {
+				if (l.player.weapon.reloadLeft == 0) {
+					Creature targ = null;
+					Creature nearest = null;
+					double bestDsq = 100000 * 100000;
+					for (Creature c : l.monsters) {
+						double dx = (l.player.gunX() - c.x - c.w / 2);
+						double dy = (l.player.gunY() - c.y - c.h / 2);
+						double dsq = dx * dx + dy * dy;
+						if (dsq < bestDsq) {
+							nearest = c;
+							bestDsq = dsq;
+							if (dsq < l.player.weapon.range() * l.player.weapon.range()) {
+								targ = c;
+							}
 						}
 					}
-				}
-				if (targ != null) {
-					double tx = targ.x + targ.w / 2;
-					double ty = targ.y + targ.h / 2;
-					cursOverride = new Pt(tx + scrollX, ty + scrollY);
-					l.player.shoot(tx, ty, l);
-					l.shotsFired++;
-				} else if (nearest != null) {
-					double tx = nearest.x + nearest.w / 2;
-					double ty = nearest.y + nearest.h / 2;
-					cursOverride = new Pt(tx + scrollX, ty + scrollY);
+					if (targ != null) {
+						double tx = targ.x + targ.w / 2;
+						double ty = targ.y + targ.h / 2;
+						cursOverride = new Pt(tx + scrollX, ty + scrollY);
+						l.player.shoot(tx, ty, l);
+						l.shotsFired++;
+					} else if (nearest != null) {
+						if (!targetingBooped) {
+							in.play("boop", 1.0, 0.5, 0, 0);
+							if (!l.player.noTargetInRangeWarning) {
+								l.texts.add(new FloatingText("NO TARGET IN RANGE", l.player.x + l.player.w / 2, l.player.y));
+								l.player.noTargetInRangeWarning = true;
+							}
+							targetingBooped = true;
+						}
+						double tx = nearest.x + nearest.w / 2;
+						double ty = nearest.y + nearest.h / 2;
+						cursOverride = new Pt(tx + scrollX, ty + scrollY);
+					}
+				} else if (l.player.weapon.clickEmptyTimer == 0 && l.player.weapon.reloadLeft < l.player.weapon.reload - 10 && l.player.weapon.reloadLeft > 30) {
+					in.play("empty", 1.0, 1.0, 0, 0);
+					l.player.weapon.clickEmptyTimer = Math.min(FPS, l.player.weapon.reload);
 				}
 			}
 		}
@@ -586,6 +610,7 @@ public class PatentBlaster implements Game {
 					});
 					menu.append("  ");
 				}
+				if (!hasContinue) { menu.append("[bg=ff5555]"); }
 				menuItem("play", hasContinue ? "PLAY NEW" : "PLAY", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 					@Override
 					public void run(Input in, Pt p, Hook.Type type) {
@@ -594,6 +619,7 @@ public class PatentBlaster implements Game {
 						cooldown = 10;
 					}
 				});
+				menu.append("[bg=]");
 				menu.append("  ");
 				menuItem("credits", "CREDITS", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 					@Override
@@ -782,6 +808,7 @@ public class PatentBlaster implements Game {
 								l.player.makePlayerAble();
 								l.player.heal();
 								l.player.weapon.reloadLeft = 10;
+								l.player.weapon.clickEmptyTimer = 12;
 								nextLvlTime = 0;
 								setupCreatures.clear();
 								setup = false;
@@ -867,6 +894,7 @@ public class PatentBlaster implements Game {
 								l.player.canSeeStats = l.player.canSeeStats || ((Item) o).givesInfo;
 							}
 							l.player.weapon.reloadLeft = 10;
+							l.player.weapon.clickEmptyTimer = 12;
 							shopItems.clear();
 						}
 					});
@@ -877,7 +905,7 @@ public class PatentBlaster implements Game {
 		} else {
 			// Background texture
 			if (!lowGraphics && l.background != -1) {
-				for (int y = -l.backgroundH; y < (Level.LVL_H + 1) * Level.GRID_SIZE + 300; y += l.backgroundH) {
+				for (int y = -l.backgroundH; y < (Level.LVL_H + 1) * Level.GRID_SIZE + 300; y += l.backgroundH - 2) {
 					for (int x = -l.backgroundW; x < (Level.LVL_W + 1) * Level.GRID_SIZE; x += l.backgroundW) {
 						d.blit("background_" + l.background, x + scrollX, y + scrollY);
 					}
@@ -1000,7 +1028,7 @@ public class PatentBlaster implements Game {
 		}
 		i = 0;
 		int spacing = 40;
-		if (l.player.items.size() * 40 > sm.width) {
+		if ((l.player.items.size() + 1) * 40 > sm.width) {
 			spacing = Math.max(1, sm.width / (l.player.items.size()));
 		}
 		for (final Item it : l.player.items) {

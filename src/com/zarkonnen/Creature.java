@@ -15,7 +15,7 @@ import java.util.Collections;
 
 public class Creature extends Entity implements HasDesc {
 	public static final double HOP_BONUS = 3.5;
-	public static final int AIR_STEERING = 8;
+	public static final int AIR_STEERING = 10;
 	public static final int ABOVE_PREF = Level.GRID_SIZE * 5 / 2;
 	public static final Clr JAR_CLR = new Clr(110, 90, 85);
 	
@@ -110,6 +110,7 @@ public class Creature extends Entity implements HasDesc {
 	public int eatSoundTimer = 0;
 	
 	public int absorbTimer = 0;
+	public boolean noTargetInRangeWarning;
 	
 	public boolean fireproof() {
 		return resistance(Element.FIRE) >= 0.5;
@@ -130,7 +131,7 @@ public class Creature extends Entity implements HasDesc {
 	public double totalSpeed() {
 		double s = speed;
 		for (Item it : items) { s *= it.speedMult; }
-		if (s > 4) { s = 4; }
+		if (s > 6) { s = 6; }
 		return s * (charging ? 2 : 1);
 	}
 	
@@ -341,19 +342,17 @@ public class Creature extends Entity implements HasDesc {
 			sound("drop", l);
 		}
 		if (dropWeapon && !doesResurrect() && !reviens && l.player.isUseful(weapon)) {
-			/*boolean drop = true;
-			double dps = 1.0 * weapon.dmg / weapon.reload;
-			for (Weapon pW : l.player.weapons) {
-				double wdps = 1.0 * weapon.dmg / weapon.reload;
-				if (pW.element == weapon.element && wdps > dps) {
+			boolean drop = true;
+			for (Goodie g : l.goodies) {
+				if (g.weapon != null && g.weapon.equals(weapon)) {
 					drop = false;
 					break;
 				}
 			}
-			if (drop) {*/
+			if (drop) {
 				l.goodies.add(new Goodie(this, weapon));
 				sound("drop", l);
-			//}
+			}
 		}
 		if (stolenWeapon != null) {
 			weapons.remove(stolenWeapon);
@@ -410,7 +409,7 @@ public class Creature extends Entity implements HasDesc {
 			return !canSeeStats;
 		}
 		if (it.speedMult > 0) {
-			return totalSpeed() < 4;
+			return totalSpeed() < 6;
 		}
 		if (it.eating > 0) {
 			return totalEating() < 1;
@@ -840,7 +839,8 @@ public class Creature extends Entity implements HasDesc {
 			return 0;
 		}
 		ticksSinceHit = 0;
-		
+		lastShooter = shot.shooter;
+
 		ArrayList<Shot> bloodShots = new ArrayList<Shot>();
 		if (hp - dmg > 0) {
 			Clr blood = bloodClr();
@@ -875,7 +875,6 @@ public class Creature extends Entity implements HasDesc {
 			bloodShots.get(0).eatHPGain = (int) (dmg * tv);
 		}
 		
-		lastShooter = shot.shooter;
 		hp -= dmg;
 		if (flees && hp < totalMaxHP() / 2) {
 			fleeing = true;
@@ -942,8 +941,8 @@ public class Creature extends Entity implements HasDesc {
 		int sz = (boss ? 80 : 40) + r.nextInt(3) * (boss ? 20: 10);
 		
 		hp *= (1.0 * sz / (boss ? 100 : 50));
-		c.speed = Math.min(w.shotSpeed - 2, player ? (2 + r.nextDouble() * 2) : (1 + r.nextDouble() * 3));
-		hp /= (c.speed / 2);
+		c.speed = Math.min(w.shotSpeed - 2, player ? (2.5 + r.nextDouble() * 2) : (1 + r.nextDouble() * 4));
+		hp /= (c.speed / 2.5);
 		if (boss) {
 			c.voice = r.nextInt(PatentBlaster.NUM_VOICES);
 		}
@@ -999,7 +998,7 @@ public class Creature extends Entity implements HasDesc {
 			hp *= 0.9;
 		}
 		if (!player && !PatentBlaster.DEMO && allowFinalForm && power > 3 && !c.splitsIntoFour && r.nextInt((boss ? 10 : 30) / power + (boss ? 3 : 6)) == 0) {
-			c.finalForm = make(seed + 1349, power + 1, numImages, boss, player, false);
+			c.finalForm = make(seed + 1349, power * 5 / 4, numImages, boss, player, false);
 			hp *= 0.9;
 		}
 		if (!player && power > 2 && c.finalForm == null && !c.splitsIntoFour && !c.resurrects && r.nextInt(30 / power + 5) == 0) {

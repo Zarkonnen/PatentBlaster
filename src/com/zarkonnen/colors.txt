@@ -47,3 +47,5 @@
 172 81 0 reddish-brown
 185 202 87 light green
 48 137 198 blue
+230 227 136 yellowish
+223 143 175 pink

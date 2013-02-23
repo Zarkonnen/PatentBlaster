@@ -116,9 +116,9 @@ public class Shot extends Entity {
 				dmgMultiplier = 0.01 * PatentBlaster.shotDivider();
 				break;
 			case ICE:
-				gravityMult = 0.1;
+				gravityMult = 0.12;
 				popOnWorldHit = true;
-				dmgMultiplier = 0.005 * PatentBlaster.shotDivider();
+				dmgMultiplier = 0.05 * PatentBlaster.shotDivider();
 				break;
 			case STEEL:
 				gravityMult = 0;

@@ -6,7 +6,7 @@ public enum Element {
 	STEEL(new Clr(180, 180, 180), 1.25, 1.7, "STEEL"),
 	ACID(new Clr(120, 200, 30), 1.0, 1.25, "ACID"),
 	FIRE(new Clr(255, 80, 10), 1.0, 1.0, "FIRE"),
-	ICE(new Clr(100, 100, 255), 1.0, 0.85, "ICE");
+	ICE(new Clr(100, 100, 255), 1.0, 0.8, "ICE");
 	
 	public final Clr tint;
 	public final double dmgMult;

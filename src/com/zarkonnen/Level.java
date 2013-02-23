@@ -78,17 +78,17 @@ public class Level implements MusicDone {
 					continue;
 				}
 				c.x = i * GRID_SIZE;
-				c.y = (LVL_H - gridH[i] - 1) * GRID_SIZE - c.h - (c.moveMode == MoveMode.FLY || c.moveMode == MoveMode.HOVER ? c.h / 4 : 0);
+				c.y = (LVL_H - gridH[i] - 1) * GRID_SIZE - c.h - (c.moveMode == MoveMode.FLY || c.moveMode == MoveMode.HOVER ? c.h / 4 : 0) - 1;
 				monsters.add(c);
 			}
 		}
 		
 		player.x = GRID_SIZE * 2;
-		player.y = (LVL_H - gridH[2] - 1) * GRID_SIZE - player.h - (player.moveMode == MoveMode.FLY || player.moveMode == MoveMode.HOVER ? player.h / 4 : 0);
+		player.y = (LVL_H - gridH[2] - 1) * GRID_SIZE - player.h - (player.moveMode == MoveMode.FLY || player.moveMode == MoveMode.HOVER ? player.h / 4 : 0) - 1;
 		
 		boss = Creature.make(seed + 92318, power + 2, PatentBlaster.NUM_IMAGES, true, false, true);
 		boss.x = (LVL_W - 8) * GRID_SIZE;
-		boss.y = (LVL_H - gridH[LVL_W - 8] - 1) * GRID_SIZE - boss.h - (boss.moveMode == MoveMode.FLY || boss.moveMode == MoveMode.HOVER ? boss.h / 4 : 0);
+		boss.y = (LVL_H - gridH[LVL_W - 8] - 1) * GRID_SIZE - boss.h - (boss.moveMode == MoveMode.FLY || boss.moveMode == MoveMode.HOVER ? boss.h / 4 : 0) - 1;
 		if (r.nextBoolean()) {
 			boss.dropItem = true;
 		} else {
@@ -253,6 +253,7 @@ public class Level implements MusicDone {
 			left = (int) Math.floor(e.x / GRID_SIZE);
 			right = (int) Math.floor((e.x + e.w) / GRID_SIZE);
 			e.ticksSinceBottom = 0;
+			e.ticksSinceSide = 0;
 			if (e.popOnWorldHit) { e.killMe = true; }
 		} else if (e.dx > 0 && (grid[top][right] >= SOLID_START || grid[bottom][right] >= SOLID_START)) {
 			e.x = right * GRID_SIZE - e.w - 0.001;
@@ -260,6 +261,7 @@ public class Level implements MusicDone {
 			left = (int) Math.floor(e.x / GRID_SIZE);
 			right = (int) Math.floor((e.x + e.w) / GRID_SIZE);
 			e.ticksSinceBottom = 0;
+			e.ticksSinceSide = 0;
 			if (e.popOnWorldHit) { e.killMe = true; }
 		}
 		e.y += e.dy;
@@ -276,6 +278,7 @@ public class Level implements MusicDone {
 			if (e.popOnWorldHit) { e.killMe = true; }
 		}
 		e.ticksSinceBottom++;
+		e.ticksSinceSide++;
 	}
 	
 	public boolean intersectsShot(Creature c, Shot s) {
