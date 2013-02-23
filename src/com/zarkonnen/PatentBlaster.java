@@ -897,12 +897,20 @@ public class PatentBlaster implements Game {
 			d.text(textBGTint + key("W") + " or " + key("UP") + " to jump", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.lineHeight / 2 - 50);
 		}
 		Clr recC = Clr.RED;
-		if (!setup && !mainMenu && l != null && shopItems.isEmpty() && l.player.hp > 0 && l.player.weapon.reloadLeft == 0) {
+		if (!setup && !mainMenu && l != null && shopItems.isEmpty() && l.player.hp > 0) {
 			double dx = curs.x - scrollX - l.player.gunX(), dy = curs.y - scrollY - l.player.gunY();
-			if ((dx * dx + dy * dy) <= l.player.weapon.range() * l.player.weapon.range()) {
-				recC = Clr.WHITE;
-			} else {
-				recC = new Clr(150, 150, 150);
+			double dist = Math.sqrt(dx * dx + dy * dy);
+			if (l.player.weapon.reloadLeft == 0) {
+				if (dist <= l.player.weapon.range()) {
+					recC = Clr.WHITE;
+				} else {
+					recC = new Clr(150, 150, 150);
+				}
+			}
+			if (!l.player.weapon.swarm && (dx != 0 || dy != 0)) {
+				double angle = Math.atan2(dy, dx);
+				d.rect(recC, l.player.gunX() + scrollX + Math.cos(angle + l.player.weapon.jitter) * dist - 1, l.player.gunY() + scrollY + Math.sin(angle + l.player.weapon.jitter) * dist - 1, 2, 2);
+				d.rect(recC, l.player.gunX() + scrollX + Math.cos(angle - l.player.weapon.jitter) * dist - 1, l.player.gunY() + scrollY + Math.sin(angle - l.player.weapon.jitter) * dist - 1, 2, 2);
 			}
 		}
 		d.rect(recC, curs.x - 1, curs.y - 8, 2, 16);

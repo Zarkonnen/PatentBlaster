@@ -1173,7 +1173,7 @@ public class Creature extends Entity implements HasDesc {
 		if (totalVamp() > 0) {
 			sb.append(round(totalVamp() * 100, 0)).append("% of damage gained as HP\n");
 		}
-		sb.append("Speed: ").append(round(totalSpeed(), 1)).append("\n");
+		sb.append("Speed: ").append(round(totalSpeed() * PatentBlaster.FPS, 0)).append(" px/sec\n");
 		//sb.append("Move mode: ").append(realMoveMode().name()).append("\n");
 		for (Element e : Element.values()) {
 			double r = resistance(e);

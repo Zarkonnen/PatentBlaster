@@ -66,11 +66,10 @@ public class Shot extends Entity {
 		popOnWorldHit = true;
 		gravityMult = 0;
 		double dtx = tx - x, dty = ty - y;
-		double dtx2 = dtx + dty * (l.r.nextDouble() - 0.5) * w.jitter;
-		dty += dtx * (l.r.nextDouble() - 0.5) * w.jitter;
-		dtx = dtx2;
-		dx = w.shotSpeed * dtx / (Math.sqrt(dtx * dtx + dty * dty) + 0.001);
-		dy = w.shotSpeed * dty / (Math.sqrt(dtx * dtx + dty * dty) + 0.001);
+		double angle = Math.atan2(dty, dtx);
+		angle += (l.r.nextDouble() * 2 - 1) * w.jitter;
+		dx = w.shotSpeed * Math.cos(angle);
+		dy = w.shotSpeed * Math.sin(angle);
 		lifeLeft = w.shotLife;
 		immune.add(shooter);
 		switch (w.element) {

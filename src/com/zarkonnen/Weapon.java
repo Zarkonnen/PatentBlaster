@@ -65,7 +65,7 @@ public class Weapon implements HasDesc {
 		w.shotSpeed = MIN_SHOT_SPEED + r.nextDouble() * (MAX_SHOT_SPEED - MIN_SHOT_SPEED);
 		dmg /= Math.pow(w.shotSpeed / AVG_SHOT_SPEED, 0.3);
 		w.jitter = r.nextDouble() * (2.0 / (power + 5));
-		dmg *= (0.8 + w.jitter);
+		dmg *= (0.6 + w.jitter * 2);
 		int range = MIN_RANGE + r.nextInt(MAX_RANGE - MIN_RANGE);
 		w.shotLife = (int) (range / w.shotSpeed);
 		dmg /= Math.sqrt(1.0 * range / AVG_RANGE);
@@ -88,12 +88,13 @@ public class Weapon implements HasDesc {
 	}
 	
 	String accuracy() {
+		if (swarm) { return ""; }
 		if (jitter == 0) { return "Perfect accuracy.\n"; }
-		if (jitter < 0.05) { return "Highly accurate.\n"; }
-		if (jitter < 0.1) { return "Accurate.\n"; }
-		if (jitter < 0.2) { return ""; }
-		if (jitter < 0.3) { return "Inaccurate.\n"; }
-		return "Highly inaccurate.\n";
+		if (jitter < 2 * Math.PI / 180) { return "Highly accurate (+-" + round(jitter * 180 / Math.PI, 1) + " degrees)\n"; }
+		if (jitter < 6 * Math.PI / 180) { return "Accurate (+-" + round(jitter * 180 / Math.PI, 0) + " degrees)\n"; }
+		if (jitter < 9 * Math.PI / 180) { return ""; }
+		if (jitter < 15 * Math.PI / 180) { return "Inaccurate (+-" + round(jitter * 180 / Math.PI, 0) + " degrees)\n"; }
+		return "Highly inaccurate (+-" + round(jitter * 180 / Math.PI, 0) + " degrees)\n";
 	}
 	
 	String pad(int n) {
@@ -137,8 +138,8 @@ public class Weapon implements HasDesc {
 		}
 		sb.append(is).append(dmg * numBullets);
 		sb.append(" damage every ").append(round(reload * 1.0 / PatentBlaster.FPS, 2)).append("sec (").append(round(dps(), 0)).append(" DPS)\n");
-		sb.append(is).append(round(shotSpeed, 1));
-		sb.append(" shot speed, ").append(round(range(), 0)).append(" range\n");
+		sb.append(is).append(round(shotSpeed * PatentBlaster.FPS, 0));
+		sb.append(" px/sec shot speed, ").append(round(range(), 0)).append(" px range\n");
 		sb.append(accuracy().length() == 0 ? "" : is).append(accuracy());
 		//sb.append("  Shot Size: ").append(round(shotSize, 0)).append("\n");
 		if (knockback) {
