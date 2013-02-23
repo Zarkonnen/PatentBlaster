@@ -896,7 +896,15 @@ public class PatentBlaster implements Game {
 			sz = d.textSize(key("W") + " or " + key("UP") + " to jump", FOUNT);
 			d.text(textBGTint + key("W") + " or " + key("UP") + " to jump", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.lineHeight / 2 - 50);
 		}
-		Clr recC = !setup && !mainMenu && l != null && shopItems.isEmpty() && l.player.hp > 0 && l.player.weapon.reloadLeft == 0 ? Clr.WHITE : Clr.RED;
+		Clr recC = Clr.RED;
+		if (!setup && !mainMenu && l != null && shopItems.isEmpty() && l.player.hp > 0 && l.player.weapon.reloadLeft == 0) {
+			double dx = curs.x - scrollX - l.player.gunX(), dy = curs.y - scrollY - l.player.gunY();
+			if ((dx * dx + dy * dy) <= l.player.weapon.range() * l.player.weapon.range()) {
+				recC = Clr.WHITE;
+			} else {
+				recC = new Clr(150, 150, 150);
+			}
+		}
 		d.rect(recC, curs.x - 1, curs.y - 8, 2, 16);
 		d.rect(recC, curs.x - 8, curs.y - 1, 16, 2);
 		if (!setup && !mainMenu && l != null && l.power == 1 && l.moved && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
