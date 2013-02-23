@@ -78,6 +78,7 @@ public class PatentBlaster implements Game {
 	double scrollY = 0;
 	Level l;
 	Pt curs = new Pt(0, 0);
+	Pt cursOverride = null;
 	int nextLvlTime = 0;
 	int power = 1;
 	String info = "";
@@ -111,14 +112,15 @@ public class PatentBlaster implements Game {
 	public static int musicVolume = 2;
 	
 	public static final List<Pair<String, Pair<String, String>>> KEY_NAMES = l(
-		p("Move left     ", p("A", "LEFT")),
-		p("Move right    ", p("D", "RIGHT")),
-		p("Move up / jump", p("W", "UP")),
-		p("Move down     ", p("S", "DOWN")),
-		p("Prev weapon   ", p("Q", (String) null)),
-		p("Next weapon   ", p("E", (String) null)),
-		p("Pause         ", p("P", (String) null)),
-		p("Show FPS      ", p("F", (String) null))
+		p("Move left     ", p("A",     "LEFT")),
+		p("Move right    ", p("D",     "RIGHT")),
+		p("Move up / jump", p("W",     "UP")),
+		p("Move down     ", p("S",     "DOWN")),
+		p("Prev weapon   ", p("Q",     (String) null)),
+		p("Next weapon   ", p("E",     (String) null)),
+		p("Autofire      ", p("SPACE", (String) null)),
+		p("Pause         ", p("P",     (String) null)),
+		p("Show FPS      ", p("F",     (String) null))
 	);
 	
 	static {
@@ -184,7 +186,11 @@ public class PatentBlaster implements Game {
 			h.hit(in);
 		//}
 	}
-
+	
+	Pt fireCursor() {
+		return cursOverride == null ? curs : cursOverride;
+	}
+	
 	@Override
 	public void input(Input in) {
 		tick++;
@@ -225,6 +231,9 @@ public class PatentBlaster implements Game {
 			screened = true;
 			in.setCursorVisible(false);
 			if (musicVolume > 0) { in.playMusic(Level.MUSICS[0], musicVolume * 1.0 / 9, null); }
+		}
+		if (!curs.equals(in.cursor())) {
+			cursOverride = null;
 		}
 		curs = in.cursor();
 		if (cooldown > 0) { cooldown--; }
@@ -380,6 +389,33 @@ public class PatentBlaster implements Game {
 			if (l.player.weapon.reloadLeft == 0 && in.click() != null) {
 				l.player.shoot(in.cursor().x - scrollX, in.cursor().y - scrollY, l);
 				l.shotsFired++;
+			} else if (l.player.weapon.reloadLeft == 0 && in.keyDown(key("SPACE"))) {
+				Creature targ = null;
+				Creature nearest = null;
+				double bestDsq = 100000 * 100000;
+				for (Creature c : l.monsters) {
+					double dx = (l.player.gunX() - c.x - c.w / 2);
+					double dy = (l.player.gunY() - c.y - c.h / 2);
+					double dsq = dx * dx + dy * dy;
+					if (dsq < bestDsq) {
+						nearest = c;
+						bestDsq = dsq;
+						if (dsq < l.player.weapon.range() * l.player.weapon.range()) {
+							targ = c;
+						}
+					}
+				}
+				if (targ != null) {
+					double tx = targ.x + targ.w / 2;
+					double ty = targ.y + targ.h / 2;
+					cursOverride = new Pt(tx + scrollX, ty + scrollY);
+					l.player.shoot(tx, ty, l);
+					l.shotsFired++;
+				} else if (nearest != null) {
+					double tx = nearest.x + nearest.w / 2;
+					double ty = nearest.y + nearest.h / 2;
+					cursOverride = new Pt(tx + scrollX, ty + scrollY);
+				}
 			}
 		}
 		for (int i = 1; i <= 9; i++) {
@@ -907,22 +943,24 @@ public class PatentBlaster implements Game {
 					recC = new Clr(150, 150, 150);
 				}
 			}
-			if (!l.player.weapon.swarm && (dx != 0 || dy != 0)) {
+			if (cursOverride == null && !l.player.weapon.swarm && (dx != 0 || dy != 0)) {
 				double angle = Math.atan2(dy, dx);
 				d.rect(recC, l.player.gunX() + scrollX + Math.cos(angle + l.player.weapon.jitter) * dist - 1, l.player.gunY() + scrollY + Math.sin(angle + l.player.weapon.jitter) * dist - 1, 2, 2);
 				d.rect(recC, l.player.gunX() + scrollX + Math.cos(angle - l.player.weapon.jitter) * dist - 1, l.player.gunY() + scrollY + Math.sin(angle - l.player.weapon.jitter) * dist - 1, 2, 2);
 			}
 		}
-		d.rect(recC, curs.x - 1, curs.y - 8, 2, 16);
-		d.rect(recC, curs.x - 8, curs.y - 1, 16, 2);
-		if (!setup && !mainMenu && l != null && l.power == 1 && l.moved && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
+		if (cursOverride == null) {
+			d.rect(recC, fireCursor().x - 1, fireCursor().y - 8, 2, 16);
+			d.rect(recC, fireCursor().x - 8, fireCursor().y - 1, 16, 2);
+		}
+		if (!setup && !mainMenu && l != null && l.power == 1 && l.moved && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal() && cursOverride == null) {
 			if (l.shotsFired == 0) {
-				Pt sz = d.textSize("Click to shoot", FOUNT);
-				d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "Click to shoot", FOUNT, Math.min(sm.width - sz.x, curs.x + 3), curs.y + 3);
+				Pt sz = d.textSize("Click to shoot\nOr press " + key("SPACE") + " to auto-target", FOUNT);
+				d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "Click to shoot\nOr press " + key("SPACE") + " to auto-target", FOUNT, Math.min(sm.width - sz.x, fireCursor().x + 3), fireCursor().y + 3);
 			}
-			if (l.shotsFired == 1 && l.player.hp > 0) {
+			if (l.shotsFired == 1 && l.player.hp > 0 && cursOverride == null) {
 				Pt sz = d.textSize("White recticle = weapon ready", FOUNT);
-				d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "White recticle = weapon ready", FOUNT, Math.min(sm.width - sz.x, curs.x + 3), curs.y + 3);
+				d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "White recticle = weapon ready", FOUNT, Math.min(sm.width - sz.x, fireCursor().x + 3), fireCursor().y + 3);
 			}
 		}
 		h = d.getHooks();

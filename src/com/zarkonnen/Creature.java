@@ -234,7 +234,7 @@ public class Creature extends Entity implements HasDesc {
 			}
 		}
 		if (l.player.canSeeStats || this == l.player) {
-			d.rect(weapon.reloadLeft == 0 ? Clr.WHITE : Clr.LIGHT_GREY, x + scrollX, y + scrollY + h - 8, w, 6);
+			d.rect(weapon.reloadLeft == 0 ? Clr.WHITE : Clr.LIGHT_GREY, x + scrollX, y + scrollY + h - 10, w, 8);
 			Clr c = Clr.GREEN;
 			int tmh = totalMaxHP();
 			int adjHP = Math.min(hp, tmh);
@@ -247,14 +247,14 @@ public class Creature extends Entity implements HasDesc {
 					}
 				}
 			}
-			d.rect(c, x + scrollX + 1, y + scrollY + h - 7, (w - 2) * adjHP / tmh, 4);
+			d.rect(c, x + scrollX + 2, y + scrollY + h - 8, (w - 4) * adjHP / tmh, 4);
 			if (heat > tmh / 16 && heat < tmh / 4 && !fireproof() && onFire == 0) {
-				d.rect(weapon.reloadLeft == 0 ? Clr.WHITE : Clr.LIGHT_GREY, x + scrollX, y + scrollY + h - 13, w, 6);
-				d.rect(Element.FIRE.tint, x + scrollX + 1, y + scrollY + h - 12, (w - 2) * (heat) * 4 / tmh, 4);
+				d.rect(weapon.reloadLeft == 0 ? Clr.WHITE : Clr.LIGHT_GREY, x + scrollX, y + scrollY + h - 15, w, 6);
+				d.rect(Element.FIRE.tint, x + scrollX + 2, y + scrollY + h - 14, (w - 4) * (heat) * 4 / tmh, 4);
 			}
 			if (heat < -tmh / 16 && heat > -tmh / 4 && !iceproof() && frozen == 0) {
-				d.rect(weapon.reloadLeft == 0 ? Clr.WHITE : Clr.LIGHT_GREY, x + scrollX, y + scrollY + h - 13, w, 6);
-				d.rect(Element.ICE.tint, x + scrollX + 1, y + scrollY + h - 12, (w - 2) * (- heat) * 4 / tmh, 4);
+				d.rect(weapon.reloadLeft == 0 ? Clr.WHITE : Clr.LIGHT_GREY, x + scrollX, y + scrollY + h - 15, w, 6);
+				d.rect(Element.ICE.tint, x + scrollX + 1, y + scrollY + h - 14, (w - 4) * (- heat) * 4 / tmh, 4);
 			}
 		}
 	}
@@ -711,12 +711,12 @@ public class Creature extends Entity implements HasDesc {
 							doShoot = true;
 						}
 						if (doShoot) {
-							if (trackingAim) {
+							/*if (trackingAim) {
 								double dist = Math.sqrt((l.player.x + l.player.w / 2 - x - w / 2) * (l.player.x + l.player.w / 2 - x - w / 2) + (l.player.y + l.player.h / 2 - y - h / 2) * (l.player.y + l.player.h / 2 - y - h / 2));
 								shoot(l.player.x + l.player.w / 2 + l.player.dx * dist / weapon.shotSpeed * 1.1, l.player.y + l.player.h / 2 + (l.player.dy == 0 ? 0 : l.player.dy * dist / weapon.shotSpeed + Level.G * dist * dist / weapon.shotSpeed / weapon.shotSpeed), l);
-							} else {
+							} else {*/
 								shoot(l.player.x + l.player.w / 2, l.player.y + l.player.h / 2, l);
-							}
+							//}
 						}
 					}
 				}
