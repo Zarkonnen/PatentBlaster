@@ -793,20 +793,21 @@ public class Creature extends Entity implements HasDesc {
 			l.soundRequests.add(new SoundRequest(weapon.element.shotSound, x + w / 2, y + h / 2, 1.0));
 		}
 		weapon.reloadLeft = weapon.reload;
-		if (weapon.swarm) {
-			Shot s = null;
-			for (int i = 0; i < 8; i++) {
-				s = new Shot(l, weapon, this, tx, ty);
+		Shot s = null;
+		for (int i = 0; i < weapon.numBullets; i++) {
+			s = new Shot(l, weapon, this, tx, ty);
+			if (weapon.swarm) {
 				s.dx = (l.r.nextDouble() * 2 - 1) * weapon.shotSpeed;
 				s.dy = (l.r.nextDouble() * 2 - 1) * weapon.shotSpeed;
-				l.shotsToAdd.add(s);
 			}
-			return s;
-		} else {
-			Shot s = new Shot(l, weapon, this, tx, ty);
+			if (weapon.shotgun) {
+				double sMult = l.r.nextDouble() * 0.5 + 0.75;
+				s.dx *= sMult;
+				s.dy *= sMult;
+			}
 			l.shotsToAdd.add(s);
-			return s;
 		}
+		return s;
 	}
 	
 	void sound(String s, Level l) {
@@ -953,7 +954,7 @@ public class Creature extends Entity implements HasDesc {
 		} else if (c.moveMode == MoveMode.HOVER) {
 			hp *= 1.05;
 		} else {
-			if (!player &&!boss && !w.homing && r.nextInt(8) == 0) {
+			if (!player &&!boss && !w.homing && w.shotgun && r.nextInt(8) == 0) {
 				c.explodes = true;
 				hp *= 0.9;
 			}
