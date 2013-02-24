@@ -204,6 +204,7 @@ public class PatentBlaster implements Game {
 	
 	@Override
 	public void input(Input in) {
+		Preload.preload(in);
 		tick++;
 		if (in.keyDown("ESCAPE") || in.keyDown("ESC") || in.keyDown("⎋")) {
 			if (mainMenu && cooldown == 0) {
