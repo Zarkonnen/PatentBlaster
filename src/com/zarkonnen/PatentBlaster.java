@@ -69,6 +69,7 @@ public class PatentBlaster implements Game {
 	}
 			
 	public static void main(String[] args) {
+		Names.init();
 		Engine e = new SlickEngine("Patent Blaster", "/com/zarkonnen/images/", "/com/zarkonnen/sounds/", FPS);
 		e.setup(new PatentBlaster());
 		e.runUntil(Condition.ALWAYS);
@@ -276,7 +277,7 @@ public class PatentBlaster implements Game {
 		}
 		
 		if (setup) {
-			if (setupCreatures.isEmpty()) {
+			if (Names.namesLoaded && setupCreatures.isEmpty()) {
 				cooldown = 10;
 				for (int i = 0; i < 4; i++) {
 					Creature c = Creature.make(System.currentTimeMillis() + i * 32980, difficultyLevel.playerLevel, NUM_IMAGES, false, true, false);
@@ -802,19 +803,25 @@ public class PatentBlaster implements Game {
 				}
 			}
 		} else if (setup) {
-			if (!setupCreatures.isEmpty()) {
-				int spacing = 12;
-				
-				if (lowGraphics) {
-					d.rect(PAPER, 0, 0, sm.width, sm.height);
-				} else {
-					for (int y = 0; y < sm.width; y += 600) {
-						for (int x = 0; x < sm.height; x += 600) {
-							d.blit("paper.jpg", x, y);
-						}
+			int spacing = 12;
+
+			if (lowGraphics) {
+				d.rect(PAPER, 0, 0, sm.width, sm.height);
+			} else {
+				for (int y = 0; y < sm.width; y += 600) {
+					for (int x = 0; x < sm.height; x += 600) {
+						d.blit("paper.jpg", x, y);
 					}
 				}
-				
+			}
+			if (setupCreatures.isEmpty()) {
+				Pt infoP = d.textSize("[BLACK]LOADING RANDOM NAMES FROM WIKIPEDIA", FOUNT);
+				String dots = "";
+				for (int i = 0; i < (tick / 15) % 4; i++) {
+					dots += ".";
+				}
+				d.text("[BLACK]LOADING RANDOM NAMES FROM WIKIPEDIA" + dots, FOUNT, sm.width / 2 - infoP.x / 2, sm.height / 2 - infoP.y / 2);
+			} else {
 				Rect titleR = d.textSize("SELECT YOUR CREATURE", FOUNT, spacing, spacing);
 				d.text("[BLACK]SELECT YOUR CREATURE", FOUNT, spacing, spacing);
 				d.rect(Clr.BLACK, 0, spacing + 18, sm.width * 3 / 4, 2);

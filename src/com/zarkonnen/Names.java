@@ -40,7 +40,9 @@ public class Names {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		if (names.isEmpty()) {
+		if (!names.isEmpty()) {
+			namesLoaded = true;
+		} else {
 			Runnable r = new Runnable() {
 				@Override
 				public void run() {
@@ -76,6 +78,7 @@ public class Names {
 									e.printStackTrace();
 								}
 							}
+							namesLoaded = true;
 							names.notifyAll();
 						}
 						br.close();
@@ -94,6 +97,12 @@ public class Names {
 			t.start();
 		}
 	}
+	
+	public static void init() {
+		// Does nothing, but causes WP name fetcher to run.
+	}
+	
+	public static volatile boolean namesLoaded = false;
 	
 	public static String pick(Random r) {
 		try {
