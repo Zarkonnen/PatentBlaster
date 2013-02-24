@@ -263,6 +263,7 @@ public class Level implements MusicDone, Serializable {
 			right = (int) Math.floor((e.x + e.w) / GRID_SIZE);
 			e.ticksSinceBottom = 0;
 			e.ticksSinceSide = 0;
+			e.leftPress += e.pressAmount;
 			if (e.popOnWorldHit) { e.killMe = true; }
 		} else if (e.dx > 0 && (grid[top][right] >= SOLID_START || grid[bottom][right] >= SOLID_START)) {
 			e.x = right * GRID_SIZE - e.w - 0.001;
@@ -271,6 +272,7 @@ public class Level implements MusicDone, Serializable {
 			right = (int) Math.floor((e.x + e.w) / GRID_SIZE);
 			e.ticksSinceBottom = 0;
 			e.ticksSinceSide = 0;
+			e.rightPress += e.pressAmount;
 			if (e.popOnWorldHit) { e.killMe = true; }
 		}
 		e.y += e.dy;
@@ -278,6 +280,9 @@ public class Level implements MusicDone, Serializable {
 		bottom = (int) Math.floor((e.y + e.h) / GRID_SIZE);
 		if (e.dy > 0 && (grid[bottom][left] >= SOLID_START || grid[bottom][right] >= SOLID_START)) {
 			e.y = bottom * GRID_SIZE - e.h - 0.001;
+			if (e.dy > G * 2) {
+				e.bottomPress = (int) (e.dy * e.bottomPressSpeedMult);
+			}
 			e.dy = 0;
 			e.ticksSinceBottom = 0;
 			if (e.popOnWorldHit) { e.killMe = true; }
@@ -288,6 +293,9 @@ public class Level implements MusicDone, Serializable {
 		}
 		e.ticksSinceBottom++;
 		e.ticksSinceSide++;
+		e.leftPress = Math.min(e.maxPress, Math.max(0, e.leftPress - e.inflateAmount));
+		e.rightPress = Math.min(e.maxPress, Math.max(0, e.rightPress - e.inflateAmount));
+		e.bottomPress = Math.min(e.maxPress, Math.max(0, e.bottomPress - e.bottomInflateAmount));
 	}
 	
 	public boolean intersectsShot(Creature c, Shot s) {

@@ -93,11 +93,11 @@ public class Weapon implements HasDesc, Serializable {
 	String accuracy() {
 		if (swarm) { return ""; }
 		if (jitter == 0) { return "Perfect accuracy.\n"; }
-		if (jitter < 2 * Math.PI / 180) { return "Highly accurate (+-" + round(jitter * 180 / Math.PI, 1) + " degrees)\n"; }
-		if (jitter < 6 * Math.PI / 180) { return "Accurate (+-" + round(jitter * 180 / Math.PI, 0) + " degrees)\n"; }
+		if (jitter < 2 * Math.PI / 180) { return "Highly accurate (±" + round(jitter * 180 / Math.PI, 1) + " degrees)\n"; }
+		if (jitter < 6 * Math.PI / 180) { return "Accurate (±" + round(jitter * 180 / Math.PI, 0) + " degrees)\n"; }
 		if (jitter < 9 * Math.PI / 180) { return ""; }
-		if (jitter < 15 * Math.PI / 180) { return "Inaccurate (+-" + round(jitter * 180 / Math.PI, 0) + " degrees)\n"; }
-		return "Highly inaccurate (+-" + round(jitter * 180 / Math.PI, 0) + " degrees)\n";
+		if (jitter < 15 * Math.PI / 180) { return "Inaccurate (±" + round(jitter * 180 / Math.PI, 0) + " degrees)\n"; }
+		return "Highly inaccurate (±" + round(jitter * 180 / Math.PI, 0) + " degrees)\n";
 	}
 	
 	String pad(int n) {

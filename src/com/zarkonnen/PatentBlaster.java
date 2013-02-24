@@ -51,10 +51,13 @@ public class PatentBlaster implements Game {
 	public static final String[] IMG_NAMES = {"bat", "bear", "elephant", "thing", "mummy", "tongue"};
 	public static final String[] PRETTY_IMG_NAMES = {"Bat", "Bear", "Elephant", "Brain-Thing", "Mummy", "Tongue"};
 	public static final int[] IMG_NUMS = { 1, 3, 3, 3, 1, 2 };
-	public static final double[] IMG_SHOOT_X = { 0.44, 0.46, 0.18, 0.55, 0.49, 0.50 };
-	public static final double[] IMG_SHOOT_Y = { 0.61, 0.65, 0.53, 0.08, 0.12, 0.58 };
-	public static final double[] IMG_MOUTH_X = { 0.44, 0.50, 0.10, 0.53, 0.48, 0.48 };
-	public static final double[] IMG_MOUTH_Y = { 0.61, 0.43, 0.85, 0.57, 0.24, 0.77 };
+	public static final double[] IMG_SHOOT_X = { 0.44, 0.45, 0.18, 0.56, 0.49, 0.50 };
+	public static final double[] IMG_SHOOT_Y = { 0.51, 0.65, 0.47, 0.08, 0.12, 0.14 };
+	public static final double[] IMG_MOUTH_X = { 0.44, 0.50, 0.10, 0.54, 0.47, 0.48 };
+	public static final double[] IMG_MOUTH_Y = { 0.51, 0.43, 0.83, 0.57, 0.24, 0.53 };
+	
+	public static final double[] IMG_W =       { 1.00, 0.82, 1.00, 0.83, 0.69, 1.00 };
+	public static final double[] IMG_H =       { 0.79, 1.00, 0.89, 1.00, 1.00, 0.49 };
 	
 	public static final Clr PAPER = new Clr(230, 230, 225);
 	
@@ -421,6 +424,7 @@ public class PatentBlaster implements Game {
 				} else {
 					if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (in.keyDown(key("UP")) || in.keyDown(key("W")))) {
 						double spd = l.player.ticksSinceSide < Creature.AIR_STEERING ? Math.min(3.0, l.player.totalSpeed() * 1.5) : l.player.totalSpeed() + Creature.HOP_BONUS;
+						l.player.jump();
 						l.player.dy = -spd;
 						l.moved = true;
 					}

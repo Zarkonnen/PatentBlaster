@@ -14,7 +14,17 @@ public abstract class Entity implements Serializable {
 	public double gravityMult = 1;
 	public int ticksSinceBottom = 0;
 	public int ticksSinceSide = 10000;
+	public int leftPress = 0;
+	public int rightPress = 0;
+	public int bottomPress = 0;
 	public boolean collides = true;
+	
+	public double bottomPressSpeedMult = 10.0;
+	public int bottomInflateAmount = 1;
+	
+	public int inflateAmount = 7;
+	public int pressAmount = 10;
+	public int maxPress = 30;
 	
 	public void tick(Level l) {}
 	public void draw(Draw d, Level l, double scrollX, double scrollY) {

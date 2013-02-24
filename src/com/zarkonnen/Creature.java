@@ -123,6 +123,23 @@ public class Creature extends Entity implements HasDesc {
 	
 	public int flyerHysteresis = 0;
 	
+	public double size;
+	public double normalW;
+	public double normalH;
+	public int jumpElongate;
+	
+	public double squish() {
+		if (resistance != null) {
+			switch (resistance) {
+				case ACID:
+					return 0.18;
+				case STEEL:
+					return 0;
+			}
+		}
+		return 0.08;
+	}
+	
 	public boolean fireproof() {
 		return resistance(Element.FIRE) >= 0.5;
 	}
@@ -208,6 +225,11 @@ public class Creature extends Entity implements HasDesc {
 		return y + w * PatentBlaster.IMG_SHOOT_Y[imgIndex];
 	}
 	
+	public void jump() {
+		dy = -totalSpeed() - HOP_BONUS;
+		jumpElongate = maxPress;
+	}
+	
 	@Override
 	public void draw(Draw d, Level l, double scrollX, double scrollY) {
 		if (hp <= 0) { return; }
@@ -236,13 +258,17 @@ public class Creature extends Entity implements HasDesc {
 			}
 		}
 		
-		d.blit(flipped ? flippedImg : img, t, x + scrollX, y + scrollY, w, h, angle);
+		double width = w / PatentBlaster.IMG_W[imgIndex];
+		double height = h / PatentBlaster.IMG_W[imgIndex];
+		double ex = x + scrollX - width / 2 + w / 2;
+		double ey = y + scrollY - height + h;
+		d.blit(flipped ? flippedImg : img, t, ex, ey, width, height, angle);
 		if (!PatentBlaster.lowGraphics) {
 			if (frozen > 0) {
-				d.rect(new Clr(100, 110, 200, 120), x + scrollX - w / 10, y + scrollY - h / 10, w * 1.2, h * 1.2, angle);
+				d.rect(new Clr(100, 110, 200, 120), ex - w / 10, ey - h / 10, width + w / 5, height + w / 5, angle);
 			}
 			if (shield > 0) {
-				d.rect(new Clr(255, 255, 255, shield), x + scrollX - w / 10, y + scrollY - h / 10, w * 1.2, h * 1.2, angle);
+				d.rect(new Clr(255, 255, 255, shield), ex - w / 10, ey - h / 10, width + w / 5, height + w / 5, angle);
 			}
 		}
 		if (l.player.canSeeStats || this == l.player) {
@@ -295,6 +321,12 @@ public class Creature extends Entity implements HasDesc {
 				s.gravityMult = 0.3;
 			}
 		}
+		
+		double gw = w / PatentBlaster.IMG_W[imgIndex];
+		double gh = h / PatentBlaster.IMG_W[imgIndex];
+		double gx = x - gw / 2 + w / 2;
+		double gy = y - gh + h;
+		
 		Clr blood = bloodClr();
 		boolean[][] grid = grid();
 		boolean[][] reformGrid = grid;
@@ -320,11 +352,11 @@ public class Creature extends Entity implements HasDesc {
 			for (int bx = 0; bx < Grids.GRID_SZ; bx += skipAmt) {
 				if (grid[by][bx]) {
 					if (reformGridIndex < reformPoints.size()) {
-						double sx = x + bx * w / Grids.GRID_SZ;
-						double sy = y + by * h / Grids.GRID_SZ;
-						double tx = x + reformPoints.get(reformGridIndex).a * w / Grids.GRID_SZ;
-						double ty = y + reformPoints.get(reformGridIndex).b * h / Grids.GRID_SZ;
-						bloodShots.add(new Shot(blood, w / Grids.GRID_SZ, false, 120 + l.r.nextInt(80), sx, sy, (l.r.nextDouble() - 0.5) * gibsSpeedMult, (l.r.nextDouble() - 0.5) * gibsSpeedMult, 1.0, this, doesResurrect(), reviens, finalForm != null, tx, ty, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
+						double sx = gx + bx * gw / Grids.GRID_SZ;
+						double sy = gy + by * gh / Grids.GRID_SZ;
+						double tx = gx + reformPoints.get(reformGridIndex).a * gw / Grids.GRID_SZ;
+						double ty = gy + reformPoints.get(reformGridIndex).b * gh / Grids.GRID_SZ;
+						bloodShots.add(new Shot(blood, gw / Grids.GRID_SZ + 1, false, 120 + l.r.nextInt(80), sx, sy, (l.r.nextDouble() - 0.5) * gibsSpeedMult, (l.r.nextDouble() - 0.5) * gibsSpeedMult, 1.0, this, doesResurrect(), reviens, finalForm != null, tx, ty, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
 						reformGridIndex += skipAmt;
 					}
 				}
@@ -332,11 +364,11 @@ public class Creature extends Entity implements HasDesc {
 		}
 		
 		while (reformGridIndex < reformPoints.size()) {
-			double sx = x + w / 2;
-			double sy = y + h / 2;
-			double tx = x + reformPoints.get(reformGridIndex).a * w / Grids.GRID_SZ;
-			double ty = y + reformPoints.get(reformGridIndex).b * h / Grids.GRID_SZ;
-			bloodShots.add(new Shot(blood, w / Grids.GRID_SZ, false, 120 + l.r.nextInt(80), sx, sy, (l.r.nextDouble() - 0.5) * gibsSpeedMult, (l.r.nextDouble() - 0.5) * gibsSpeedMult, 1.0, this, doesResurrect(), reviens, finalForm != null, tx, ty, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
+			double sx = gx + gw / 2;
+			double sy = gy + gh / 2;
+			double tx = gx + reformPoints.get(reformGridIndex).a * gw / Grids.GRID_SZ;
+			double ty = gy + reformPoints.get(reformGridIndex).b * gh / Grids.GRID_SZ;
+			bloodShots.add(new Shot(blood, gw / Grids.GRID_SZ + 1, false, 120 + l.r.nextInt(80), sx, sy, (l.r.nextDouble() - 0.5) * gibsSpeedMult, (l.r.nextDouble() - 0.5) * gibsSpeedMult, 1.0, this, doesResurrect(), reviens, finalForm != null, tx, ty, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
 			reformGridIndex += skipAmt;
 		}
 		
@@ -442,6 +474,9 @@ public class Creature extends Entity implements HasDesc {
 		t.alwaysOnFire = alwaysOnFire;
 		t.thief = thief;
 		t.flyHeightBonus = l.r.nextInt(Level.GRID_SIZE);
+		t.size = size / 2;
+		t.normalW = normalW / 2;
+		t.normalH = normalH / 2;
 		return t;
 	}
 	
@@ -468,6 +503,9 @@ public class Creature extends Entity implements HasDesc {
 		if (canFly()) { ticksSinceGainingFlight++; }
 		if (canHover()) { ticksSinceGainingHover++; }
 		if (frozen == 0) {
+			if (jumpElongate > 0) {
+				jumpElongate = Math.max(0, jumpElongate - bottomInflateAmount);
+			}
 			if (eatSoundTimer > 0) { eatSoundTimer--; }
 			if (fuse) {
 				if (fuseTimer-- == 0) {
@@ -511,7 +549,7 @@ public class Creature extends Entity implements HasDesc {
 				case HOP:
 					gravityMult = 1;
 					if (animCycle == 0 && ticksSinceBottom < AIR_STEERING) {
-						dy = -totalSpeed() - HOP_BONUS;
+						jump();
 					}
 					break;
 				case HOVER:
@@ -608,7 +646,7 @@ public class Creature extends Entity implements HasDesc {
 							case CANTER:
 							case HOP:
 							case SLIDE:
-								dy = -totalSpeed() - HOP_BONUS;
+								jump();
 								break;
 							case FLY:
 							case HOVER:
@@ -630,7 +668,7 @@ public class Creature extends Entity implements HasDesc {
 										((y + h - l.player.y - l.player.h) > 1 ||
 										l.grid[gy][(xpd < 0 ? gRight + 1 : gLeft - 1)] >= Level.SOLID_START))
 								{
-									dy = -ts - HOP_BONUS;
+									jump();
 									if (xpd > 0) {
 										dx = -ts;
 									} else {
@@ -788,6 +826,25 @@ public class Creature extends Entity implements HasDesc {
 		}
 		if (hp > totalMaxHP()) { hp = totalMaxHP(); }
 		heat *= 0.986;
+		
+		if (frozen == 0) {
+			// Finally, adjust squish.
+			if (leftPress > 0) {
+				double newW = normalW * (1.0 - squish() * leftPress / maxPress);
+				x -= newW - w + 0.001;
+				dx += newW - w;
+				w = newW;
+			} else if (rightPress > 0) {
+				double newW = normalW * (1.0 - squish() * rightPress / maxPress);
+				dx += w - newW;
+				w = newW;
+			} else {
+				w = normalW;
+			}
+			double newH = normalH * (1.0 - squish() * (bottomPress - jumpElongate) / maxPress);
+			y += h - newH;
+			h = newH;
+		}
 	}
 	
 	public Shot shoot(double tx, double ty, Level l) {
@@ -1043,8 +1100,11 @@ public class Creature extends Entity implements HasDesc {
 		c.flippedImg = c.img.flip();
 		c.tint = c.resistance != null ? c.resistance.tint : new Clr(red, green, blue);
 		c.animCycleLength = 10 + r.nextInt(100);
-		c.w = sz;
-		c.h = sz;
+		c.w = sz * PatentBlaster.IMG_W[c.imgIndex];
+		c.h = sz * PatentBlaster.IMG_W[c.imgIndex];
+		c.normalW = c.w;
+		c.normalH = c.h;
+		c.size = sz;
 		if (c.finalForm != null) {
 			c.finalForm.w = sz; // Important so the game doesn't crash on reform.
 			c.finalForm.h = sz;
@@ -1133,15 +1193,15 @@ public class Creature extends Entity implements HasDesc {
 				n = "Flying " + n;
 				break;
 		}
-		if (w < 50) {
+		if (size < 50) {
 			n = "Tiny " + n;
-		} else if (w < 60) {
+		} else if (size < 60) {
 			n = "Small " + n;
-		} else if (w > 70) {
+		} else if (size > 70) {
 			n = "Big " + n;
-		} else if (w > 100) {
+		} else if (size > 100) {
 			n = "Huge " + n;
-		} else if (w > 150) {
+		} else if (size > 150) {
 			n = "Gigantic " + n;
 		}
 		if (n.equals(PatentBlaster.PRETTY_IMG_NAMES[imgIndex])) {
