@@ -56,7 +56,7 @@ public class Weapon implements HasDesc, Serializable {
 		return dmg * 1.0 / reload * PatentBlaster.FPS * numBullets;
 	}
 	
-	public static Weapon make(long seed, int power, int numImages) {
+	public static Weapon make(long seed, int power) {
 		Random r = new Random(seed);
 		Weapon w = new Weapon();
 		w.seed = seed;
@@ -83,7 +83,7 @@ public class Weapon implements HasDesc, Serializable {
 		if (w.shotgun) { w.reload = w.reload * 3 / 2; dmg /= 4; w.shotLife *= 0.35; w.shotSize = w.shotSize / 2 + 1; w.numBullets = 8; w.jitter += 0.3; }
 		w.tint = w.element.tint;
 		w.name = Names.pick(r);
-		w.imgIndex = r.nextInt(numImages);
+		w.imgIndex = r.nextInt(PatentBlaster.NUM_IMAGES);
 		w.img = PatentBlaster.CREATURE_IMGS.get(PatentBlaster.IMG_NAMES[w.imgIndex]);
 		w.dmg = Math.max(1, (int) Math.ceil(dmg * powerLvl(power)));
 		w.shotSpeed *= w.element.speedMult;

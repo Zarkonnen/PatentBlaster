@@ -25,6 +25,7 @@ public class Level implements MusicDone, Serializable {
 	public ArrayList<Shot> shots = new ArrayList<Shot>();
 	public ArrayList<Shot> shotsToAdd = new ArrayList<Shot>();
 	public ArrayList<FloatingText> texts = new ArrayList<FloatingText>();
+	public ArrayList<Barrel> barrels = new ArrayList<Barrel>();
 	public int tick = 0;
 	public Random r;
 	public Creature boss;
@@ -48,6 +49,8 @@ public class Level implements MusicDone, Serializable {
 		this.power = power;
 		this.player = player;
 		r = new Random(seed);
+		boolean hasBarrels = power > 1 && r.nextBoolean();
+		Barrel.Type bType = Barrel.Type.values()[r.nextInt(Barrel.Type.values().length)];
 		music = MUSICS[r.nextInt(MUSICS.length)];
 		background = r.nextInt(NUM_BACKGROUNDS);
 		backgroundH = background > -1 ? BACKGROUND_HS[background] : 512;
@@ -68,8 +71,12 @@ public class Level implements MusicDone, Serializable {
 			for (int y = LVL_H - 1 - h; y < LVL_H; y++) {
 				grid[y][i] = SOLID_START;
 			}
-			if (i != 0 && i != LVL_W - 1 && r.nextInt(8) == 0) {
-				grid[LVL_H - 2 - h][i] = 1;
+			if (i != 0 && i != LVL_W - 1) {
+				if (r.nextInt(8) == 0) {
+					grid[LVL_H - 2 - h][i] = 1;
+				} else if (hasBarrels && r.nextInt(9) == 0) {
+					barrels.add(new Barrel(bType, seed, power, i * GRID_SIZE + r.nextInt(8), (LVL_H - gridH[i] - 1) * GRID_SIZE - 61));
+				}
 			}
 		}
 		
@@ -205,13 +212,57 @@ public class Level implements MusicDone, Serializable {
 					s.hoverer.y -= 2.5;
 					s.hoverer.ticksSinceBottom = 0;
 				}
+				if ((s.age < 2 || s.killMe) && s.weapon != null && s.weapon.element == Element.FIRE) {
+					for (Shot s2 : shots) {
+						if (!s2.flammable) { continue; }
+						if (intersects(s, s2)) {
+							s2.weapon = s.weapon;
+							s2.shooter = s.shooter;
+							s2.dmgMultiplier = 4.0 / s.weapon.reload * s.weapon.numBullets;
+							s2.slipperiness = 0;
+							s2.sprayProbability = 0.1;
+							s2.tint = Element.FIRE.tint;
+							s2.flammable = false;
+							s2.remains = true;
+							s2.lifeLeft /= 10;
+							s2.freeAgent = true;
+							s2.dy = -1;
+							s2.age = 0;
+						}
+					}
+				}
 				if (s.shooter != null) {
-					if (s.shooter == player) {
+					if (s.shooter == player || s.freeAgent) {
 						for (Creature c : monsters) {
 							if (hitTest(c, s)) { break; }
 						}
-					} else {
+					}
+					if (s.shooter != player || s.freeAgent) {
 						hitTest(player, s);
+					}
+				}
+				if (s.stickiness > 0 || s.slipperiness > 0) {
+					if (intersects(player, s)) {
+						player.stickiness = s.stickiness;
+						player.slipperiness = s.slipperiness;
+					}
+					for (Creature c : monsters) {
+						if (intersects(c, s)) {
+							c.stickiness = s.stickiness;
+							c.slipperiness = s.slipperiness;
+						}
+					}
+				}
+				if (!s.killMe) {
+					for (Barrel b : barrels) {
+						if (intersects(s, b)) {
+							s.killMe = true;
+							b.doDamage(this, s);
+							if (b.killMe) {
+								barrels.remove(b);
+							}
+							break;
+						}
 					}
 				}
 			} catch (Exception e) {
@@ -250,6 +301,9 @@ public class Level implements MusicDone, Serializable {
 	
 	public void physics(Entity e) {
 		e.dy += e.gravityMult * G;
+		if (e instanceof Creature && ((Creature) e).slipperiness > 0) {
+			e.dx *= 2;
+		}
 		e.x += e.dx;
 		if (!e.collides) { e.y += e.dy; return; }
 		int left = (int) Math.floor(e.x / GRID_SIZE);
@@ -296,6 +350,9 @@ public class Level implements MusicDone, Serializable {
 		e.leftPress = Math.min(e.maxPress, Math.max(0, e.leftPress - e.inflateAmount));
 		e.rightPress = Math.min(e.maxPress, Math.max(0, e.rightPress - e.inflateAmount));
 		e.bottomPress = Math.min(e.maxPress, Math.max(0, e.bottomPress - e.bottomInflateAmount));
+		if (e instanceof Creature && ((Creature) e).slipperiness > 0) {
+			e.dx /= 2.05;
+		}
 	}
 	
 	public boolean intersectsShot(Creature c, Shot s) {
@@ -356,11 +413,13 @@ public class Level implements MusicDone, Serializable {
 					}
 				}
 			}
-			if (c.massive || !s.weapon.penetrates() || s.weapon.homing) {
+			if (!s.remains && (c.massive || !s.weapon.penetrates() || s.weapon.homing)) {
 				s.killMe = true;
 				return true;
 			} else {
-				s.immune.add(c);
+				if (!s.remains) {
+					s.immune.add(c);
+				}
 			}
 		}
 		return false;

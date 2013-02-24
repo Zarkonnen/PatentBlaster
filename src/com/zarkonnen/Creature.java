@@ -128,6 +128,9 @@ public class Creature extends Entity implements HasDesc {
 	public double normalH;
 	public int jumpElongate;
 	
+	public int stickiness = 0;
+	public int slipperiness = 0;
+	
 	public double squish() {
 		if (resistance != null) {
 			switch (resistance) {
@@ -160,6 +163,9 @@ public class Creature extends Entity implements HasDesc {
 		double s = speed;
 		for (Item it : items) { s *= it.speedMult; }
 		if (s > MAX_SPEED) { s = MAX_SPEED; }
+		if (stickiness > 0) {
+			s = Math.max(0, (s - 1) / 2);
+		}
 		return s * (charging ? 2 : 1);
 	}
 	
@@ -176,7 +182,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public double totalHPRegen() {
-		return baseHPRegen() * (ticksSinceHit > PatentBlaster.FPS * 5 ? 100 : 1);
+		return baseHPRegen() * (ticksSinceHit < 2 ? 0 : ticksSinceHit > PatentBlaster.FPS * 5 ? 100 : 1);
 	}
 	
 	public MoveMode realMoveMode() {
@@ -226,7 +232,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public void jump() {
-		dy = -totalSpeed() - HOP_BONUS;
+		dy = -totalSpeed() - HOP_BONUS * (stickiness > 0 ? 0.2 : 1);
 		jumpElongate = maxPress;
 	}
 	
@@ -489,6 +495,11 @@ public class Creature extends Entity implements HasDesc {
 	
 	@Override
 	public void tick(Level l) {
+		if (stickiness > 0) { stickiness--; }
+		double originalDx = dx, originalDy = dy;
+		if (slipperiness > 0) {
+			slipperiness--;
+		}
 		newThingTimer++;
 		if (hp <= 0) {
 			if (!killMe) {
@@ -827,6 +838,10 @@ public class Creature extends Entity implements HasDesc {
 		if (hp > totalMaxHP()) { hp = totalMaxHP(); }
 		heat *= 0.986;
 		
+		if (slipperiness > 0 && !playerControlled && Math.abs(originalDx) > 0.5) {
+			dx = originalDx;
+		}
+		
 		if (frozen == 0) {
 			// Finally, adjust squish.
 			if (leftPress > 0) {
@@ -984,7 +999,7 @@ public class Creature extends Entity implements HasDesc {
 		Random r = new Random(seed);
 		Creature c = new Creature();
 		c.seed = seed;
-		Weapon w = Weapon.make(seed, power, numImages);
+		Weapon w = Weapon.make(seed, power);
 		c.weapon = w;
 		c.weapons.add(w);
 		Element el = Element.values()[r.nextInt(Element.values().length)];
@@ -1006,7 +1021,7 @@ public class Creature extends Entity implements HasDesc {
 		if (boss) {
 			c.voice = r.nextInt(PatentBlaster.NUM_VOICES);
 		}
-		c.moveMode = player ? MoveMode.SLIDE : MoveMode.values()[r.nextInt(MoveMode.values().length)];
+		c.moveMode = player || r.nextInt(3) == 0 ? MoveMode.SLIDE : MoveMode.values()[r.nextInt(MoveMode.values().length)];
 		if (c.moveMode == MoveMode.FLY) {
 			hp *= 0.8;
 			c.speed *= 1.2;
@@ -1154,6 +1169,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public String name() {
+		if (tint == null) { return "A Barrel"; }
 		String n = PatentBlaster.PRETTY_IMG_NAMES[imgIndex];
 		if (resistance != null) {
 			n = resistance.name() + "-" + n;

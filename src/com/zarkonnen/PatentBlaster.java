@@ -356,7 +356,7 @@ public class PatentBlaster implements Game {
 				Weapon w = null;
 				cooldown = 20;
 				do {
-					w = Weapon.make(System.currentTimeMillis() + attempt++ * 1234, power + difficultyLevel.shopBonus, NUM_IMAGES);
+					w = Weapon.make(System.currentTimeMillis() + attempt++ * 1234, power + difficultyLevel.shopBonus);
 				} while (attempt < 50 && !l.player.isUseful(w));
 				l.shopItems.add(w);
 				EnumSet<Item.Type> takenTypes = EnumSet.noneOf(Item.Type.class);
@@ -429,15 +429,15 @@ public class PatentBlaster implements Game {
 						l.moved = true;
 					}
 				}
-				if (l.player.ticksSinceBottom == 1) {
+				if (l.player.ticksSinceBottom == 1 && l.player.slipperiness == 0) {
 					l.player.dx = 0;
 				}
-				if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (in.keyDown(key("LEFT")) || in.keyDown(key("A")))) {
+				if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (l.player.slipperiness == 0 || Math.abs(l.player.dx) < 0.5) && (in.keyDown(key("LEFT")) || in.keyDown(key("A")))) {
 					l.player.dx = -(l.player.ticksSinceSide < Creature.AIR_STEERING ? Math.min(2.5, l.player.totalSpeed()) : l.player.totalSpeed());
 					l.player.flipped = false;
 					l.moved = true;
 				}
-				if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (in.keyDown(key("RIGHT")) || in.keyDown(key("D")))) {
+				if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (l.player.slipperiness == 0 || Math.abs(l.player.dx) < 0.5) && (in.keyDown(key("RIGHT")) || in.keyDown(key("D")))) {
 					l.player.dx = l.player.ticksSinceSide < Creature.AIR_STEERING ? Math.min(2.5, l.player.totalSpeed()) : l.player.totalSpeed();
 					l.player.flipped = true;
 					l.moved = true;
@@ -993,6 +993,9 @@ public class PatentBlaster implements Game {
 						d.blit(l.boss.img, l.boss.tint, x * Level.GRID_SIZE + scrollX + 20, y * Level.GRID_SIZE + scrollY + 20, Level.GRID_SIZE - 40, Level.GRID_SIZE - 40);
 					}
 				}
+			}
+			for (Barrel b : l.barrels) {
+				b.draw(d, l, scrollX, scrollY);
 			}
 			for (Creature c : l.monsters) {
 				c.draw(d, l, scrollX, scrollY);

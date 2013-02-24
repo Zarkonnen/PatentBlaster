@@ -1,5 +1,6 @@
 package com.zarkonnen;
 
+import com.zarkonnen.catengine.Draw;
 import com.zarkonnen.catengine.util.Clr;
 import com.zarkonnen.catengine.util.Pt;
 import com.zarkonnen.catengine.util.Rect;
@@ -32,6 +33,13 @@ public class Shot extends Entity {
 	public int eatHPGain;
 	public int knownKills;
 	public int age = 0;
+	public double friction = 0.99;
+	public int stickiness = 0;
+	public int slipperiness = 0;
+	public Clr glint = null;
+	public boolean freeAgent = false;
+	public boolean flammable = false;
+	public boolean remains;
 	
 	public Shot(Level l, Creature hoverer) {
 		this.hoverer = hoverer;
@@ -44,6 +52,14 @@ public class Shot extends Entity {
 		this.tint = new Clr(100, 100, 255);
 		this.popOnWorldHit = true;
 		this.lifeLeft = (int) (Level.GRID_SIZE * (1.2 + l.r.nextDouble() * 0.5) / this.dy);
+	}
+	
+	@Override
+	public void draw(Draw d, Level l, double scrollX, double scrollY) {
+		super.draw(d, l, scrollX, scrollY);
+		if (glint != null) {
+			d.rect(glint, scrollX + x + 1, scrollY + y + 1, w - 1, 1);
+		}
 	}
 
 	public Shot(Level l, Weapon w, Creature shooter, double tx, double ty) {
@@ -91,6 +107,7 @@ public class Shot extends Entity {
 	}
 	
 	public Shot(Level l, Shot p) {
+		freeAgent = p.freeAgent;
 		weapon = p.weapon;
 		shooter = p.shooter;
 		tint = p.tint;
@@ -120,7 +137,7 @@ public class Shot extends Entity {
 			case ICE:
 				gravityMult = 0.12;
 				popOnWorldHit = true;
-				dmgMultiplier = 0.1 * PatentBlaster.shotDivider();
+				dmgMultiplier = 0.05 * PatentBlaster.shotDivider();
 				break;
 			case STEEL:
 				gravityMult = 0;
@@ -150,6 +167,10 @@ public class Shot extends Entity {
 	@Override
 	public void tick(Level l) {
 		age++;
+		if (ticksSinceBottom < 2) {
+			dx *= friction;
+			dy *= friction;
+		}
 		if (beingEatenBy != null && beingEatenBy.hp <= 0) {
 			beingEatenBy = null;
 		}
@@ -237,7 +258,9 @@ public class Shot extends Entity {
 					}
 					reborn.weapon.reloadLeft = reborn.weapon.reload;
 					for (Shot s : l.shots) { // No sneaking up!
-						s.immune.add(reborn);
+						if (s.remains) {
+							s.immune.add(reborn);
+						}
 					}
 				}
 				killMe = true;
