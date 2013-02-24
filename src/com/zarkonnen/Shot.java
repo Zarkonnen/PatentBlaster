@@ -30,6 +30,8 @@ public class Shot extends Entity {
 	public double sourceColorTransfer;
 	public boolean sourceThingsTransfer;
 	public int eatHPGain;
+	public int knownKills;
+	public int age = 0;
 	
 	public Shot(Level l, Creature hoverer) {
 		this.hoverer = hoverer;
@@ -118,7 +120,7 @@ public class Shot extends Entity {
 			case ICE:
 				gravityMult = 0.12;
 				popOnWorldHit = true;
-				dmgMultiplier = 0.05 * PatentBlaster.shotDivider();
+				dmgMultiplier = 0.1 * PatentBlaster.shotDivider();
 				break;
 			case STEEL:
 				gravityMult = 0;
@@ -147,6 +149,7 @@ public class Shot extends Entity {
 	
 	@Override
 	public void tick(Level l) {
+		age++;
 		if (beingEatenBy != null && beingEatenBy.hp <= 0) {
 			beingEatenBy = null;
 		}

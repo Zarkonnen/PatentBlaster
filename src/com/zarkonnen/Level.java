@@ -6,6 +6,7 @@ import com.zarkonnen.catengine.util.ScreenMode;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Random;
 
 public class Level implements MusicDone, Serializable {
@@ -37,7 +38,7 @@ public class Level implements MusicDone, Serializable {
 	public int backgroundW = 512;
 	public int backgroundH;
 	public ArrayList<Object> shopItems = new ArrayList<Object>();
-
+	public LinkedList<Integer> bbqVictims = new LinkedList<Integer>();
 	
 	public static final String[] MUSICS = { "DST-1990", "DST-4Tran", "DST-ClubNight", "DST-CreepAlong", "DST-Cv-X", "DST-AngryMod" };
 	public static final int[] BACKGROUND_HS = {406, 452, 512, 512, 256, 308};
@@ -115,6 +116,11 @@ public class Level implements MusicDone, Serializable {
 	}
 	
 	public void tick(Input in) {
+		for (Iterator<Integer> it = bbqVictims.iterator(); it.hasNext();) {
+			if (it.next() + PatentBlaster.FPS < tick) {
+				it.remove();
+			}
+		}
 		if (tick > 1 && !musicPlaying) {
 			musicPlaying = true;
 			if (PatentBlaster.musicVolume > 0) {
@@ -312,7 +318,36 @@ public class Level implements MusicDone, Serializable {
 
 	private boolean hitTest(Creature c, Shot s) {
 		if (s.weapon != null && intersectsShot(c, s) && !s.immune.contains(c)) {
+			int preHP = c.hp;
+			boolean preFrozen = c.frozen > 0;
+			boolean preOnFire = c.onFire > 0;
 			c.takeDamage(this, s);
+			double dx = s.x + s.w / 2 - player.x - player.w / 2;
+			double dy = s.y + s.h / 2 - player.y - player.h / 2;
+			if (s.shooter == player && dx * dx + dy * dy < 550 * 550 && dx * dx + dy * dy > player.w * player.w) {
+				if (preHP > 0 && c.hp <= 0) {
+					s.knownKills++;
+					if (s.knownKills == 1 && s.weapon.element == Element.ACID && s.age >= 5 && s.dy != 0 && s.dmgMultiplier < 1) {
+						texts.add(new FloatingText("ACID RAIN", s.x + s.w / 2, s.y));
+						soundRequests.add(new SoundRequest("acid_rain", s.x + s.w / 2, s.y + s.h / 2, 1.0));
+					}
+					if (s.knownKills == 3 && s.weapon.element == Element.STEEL) {
+						texts.add(new FloatingText("SHISH KEBAB", s.x + s.w / 2, s.y));
+						soundRequests.add(new SoundRequest("shish_kebab", s.x + s.w / 2, s.y + s.h / 2, 1.0));
+					}
+				}
+				if (!preFrozen && c.frozen > 0 && s.dmgMultiplier < 1 && s.weapon.element == Element.ICE && s.age >= 5) {
+					texts.add(new FloatingText("IT'S SNOWING", s.x + s.w / 2, s.y));
+					soundRequests.add(new SoundRequest("its_snowing", s.x + s.w / 2, s.y + s.h / 2, 1.0));
+				}
+				if (!preOnFire && c.onFire > 0 && s.weapon.element == Element.FIRE) {
+					bbqVictims.add(tick);
+					if (bbqVictims.size() == 3) {
+						texts.add(new FloatingText("BBQ", s.x + s.w / 2, s.y));
+						soundRequests.add(new SoundRequest("BBQ", s.x + s.w / 2, s.y + s.h / 2, 1.0));
+					}
+				}
+			}
 			if (c.massive || !s.weapon.penetrates() || s.weapon.homing) {
 				s.killMe = true;
 				return true;

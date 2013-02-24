@@ -352,12 +352,12 @@ public class PatentBlaster implements Game {
 				Weapon w = null;
 				cooldown = 20;
 				do {
-					w = Weapon.make(System.currentTimeMillis() + attempt++ * 1234, power, NUM_IMAGES);
+					w = Weapon.make(System.currentTimeMillis() + attempt++ * 1234, power + difficultyLevel.shopBonus, NUM_IMAGES);
 				} while (attempt < 50 && !l.player.isUseful(w));
 				l.shopItems.add(w);
 				EnumSet<Item.Type> takenTypes = EnumSet.noneOf(Item.Type.class);
 				for (int i = 0; i < 3; i++) {
-					Item it  = Item.make(System.currentTimeMillis() + i * 90238, power, l.player, takenTypes);
+					Item it  = Item.make(System.currentTimeMillis() + i * 90238, power + difficultyLevel.shopBonus, l.player, takenTypes);
 					takenTypes.add(it.type);
 					l.shopItems.add(it);
 				}
@@ -1157,7 +1157,7 @@ public class PatentBlaster implements Game {
 			l = (Level) ois.readObject();
 			ois.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			// Ignore.
 		}
 		if (l != null) { setup = false; }
 	}
