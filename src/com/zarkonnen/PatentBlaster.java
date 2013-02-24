@@ -512,7 +512,11 @@ public class PatentBlaster implements Game {
 		info = "";
 		hit(in);
 		if (info.equals("") && l.player.newThingTimer < 6 * FPS && l.player.newThing != null) {
-			info = l.player.newThing.desc(Clr.WHITE);
+			if (l.player.newThing instanceof Item) {
+				info = ((Item) l.player.newThing).desc(Clr.WHITE, true, true, l.player);
+			} else {
+				info = l.player.newThing.desc(Clr.WHITE);
+			}
 		} else {
 			l.player.newThing = null;
 		}
