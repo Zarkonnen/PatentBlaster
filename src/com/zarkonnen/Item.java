@@ -5,9 +5,153 @@ import java.util.Random;
 import static com.zarkonnen.PatentBlaster.round;
 import static com.zarkonnen.Util.*;
 import com.zarkonnen.catengine.Img;
+import java.util.ArrayList;
+import java.util.EnumSet;
 
-public class Item implements HasDesc {
+public class Item implements HasDesc, Comparable<Item> {
+	public static enum Type {
+		STEEL_RESIST(0, Element.STEEL.tint, 50) {
+			@Override
+			public void make(Item it, int power) {
+				it.resistanceVs = Element.STEEL;
+				it.resistance = 1 - 1 / (power / 6.0 + 1);
+			}
+		},
+		ACID_RESIST(0, Element.ACID.tint, 50) {
+			@Override
+			public void make(Item it, int power) {
+				it.resistanceVs = Element.ACID;
+				it.resistance = 1 - 1 / (power / 6.0 + 1);
+			}
+		},
+		FIRE_RESIST(0, Element.FIRE.tint, 50) {
+			@Override
+			public void make(Item it, int power) {
+				it.resistanceVs = Element.FIRE;
+				it.resistance = 1 - 1 / (power / 8.0 + 1);
+			}
+		},
+		ICE_RESIST(0, Element.ICE.tint, 50) {
+			@Override
+			public void make(Item it, int power) {
+				it.resistanceVs = Element.ICE;
+				it.resistance = 1 - 1 / (power / 8.0 + 1);
+			}
+		},
+		HP_BONUS(0, new Clr(150, 50, 0), 100) {
+			@Override
+			public void make(Item it, int power) {
+				it.hpBonus = (int) (BASE_HP_BONUS * powerLvl(power));
+			}
+		},
+		HP_REGEN(0, new Clr(255, 100, 100), 50) {
+			@Override
+			public void make(Item it, int power) {
+				it.hpRegen = BASE_REGEN * powerLvl(power);
+			}
+		},
+		SPEED_MULT(2, new Clr(255, 255, 0), 100) {
+			@Override
+			public void make(Item it, int power) {
+				it.speedMult = 1.25;
+				if (power > 2) {
+					it.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(2)));
+				}
+			}
+			@Override
+			public boolean useful(Creature c) { return c.totalSpeed() < Creature.MAX_SPEED; }
+		},
+		GIVES_INFO(3, new Clr(0, 255, 255), 50) {
+			@Override
+			public void make(Item it, int power) {
+				it.givesInfo = true;
+				if (power > 3) {
+					it.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(3)));
+				}
+			}
+			@Override
+			public boolean useful(Creature c) { return !c.canSeeStats; }
+		},
+		RESURRECT(4, new Clr(180, 180, 255), 100) {
+			@Override
+			public void make(Item it, int power) {
+				it.resurrect = true;
+				if (power > 4) {
+					it.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(4)));
+				}
+			}
+		},
+		SHIELD(4, Clr.GREY, 100) {
+			@Override
+			public void make(Item it, int power) {
+				it.shield = true;
+				if (power > 4) {
+					it.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(4)));
+				}
+			}
+		},
+		HOVER(4, new Clr(100, 127, 100), 100) {
+			@Override
+			public void make(Item it, int power) {
+				it.hover = true;
+				if (power > 5) {
+					it.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(5)));
+				}
+			}
+			@Override
+			public boolean useful(Creature c) { return !c.canHover(); }
+		},
+		EATING(5, Clr.RED, 50) {
+			@Override
+			public void make(Item it, int power) {
+				it.eating = Math.min(1.0 / 50, power * 0.002);
+				if (power > 5) {
+					it.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(5)));
+				}
+			}
+			@Override
+			public boolean useful(Creature c) { return c.totalEating() < 1.0; }
+		},
+		VAMPIRE(7, new Clr(100, 0, 100), 30) {
+			@Override
+			public void make(Item it, int power) {
+				it.vampireMult = Math.min(1.0, power * 0.05);
+				if (power > 7) {
+					it.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(7)));
+				}
+			}
+			@Override
+			public boolean useful(Creature c) { return c.totalVamp() < 1.0; }
+		},
+		FLY(9, new Clr(200, 255, 200), 50) {
+			@Override
+			public void make(Item it, int power) {
+				it.fly = true;
+				if (power > 9) {
+					it.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(9)));
+				}
+			}
+			@Override
+			public boolean useful(Creature c) { return !c.canFly(); }
+		};
+		// etc.
+		
+		public final int minPower;
+		public final Clr tint;
+		public final int freq;
+		public abstract void make(Item it, int power);
+		public boolean useful(Creature c) { return true; }
+
+		private Type(int minPower, Clr tint, int freq) {
+			this.minPower = minPower;
+			this.tint = tint;
+			this.freq = freq;
+		}
+	}
+	
 	public String name;
+	public Type type;
+	public int power;
 	public int imgIndex;
 	public Img img;
 	public Clr tint;
@@ -17,6 +161,7 @@ public class Item implements HasDesc {
 	public double hpRegen;
 	public int hpBonus = 0;
 	public boolean fly;
+	public boolean hover;
 	public boolean shield;
 	public double vampireMult;
 	public boolean givesInfo;
@@ -36,79 +181,43 @@ public class Item implements HasDesc {
 		}
 	}
 	
-	public static Item make(long seed, int power, int numImages) {
+	@Override
+	public int compareTo(Item t) {
+		int tc = type.compareTo(t.type);
+		if (tc != 0) { return tc; }
+		int pc = power - t.power;
+		if (pc != 0) { return pc; }
+		return name.compareTo(t.name);
+	}
+	
+	public static Item make(long seed, int power, Creature forC, EnumSet<Type> alreadyChosen) {
 		Random r = new Random(seed);
-		Item i = new Item();
-		i.seed = seed;
-		int type = r.nextInt(77) % (Math.min(power * 2 + 1, power > 9 ? 10 : 9));
-		switch (type) {
-			case 0:
-				i.resistanceVs = Element.values()[r.nextInt(Element.values().length)];
-				double div = (i.resistanceVs == Element.FIRE || i.resistanceVs == Element.ICE) ? 8.0 : 6.0;
-				i.resistance = 1 - 1 / (power / div + 1);
-				/*i.resistance = r.nextInt(Math.min(7, power * 3)) * 0.1 + 0.2;*/
-				i.tint = i.resistanceVs.tint;
-				break;
-			case 1:
-				//i.hpBonus = (int) ((2 + r.nextInt(4)) * Math.pow(power, 1.2) * 3) + 15;
-				i.hpBonus = (int) (BASE_HP_BONUS * powerLvl(power));
-				i.tint = new Clr(150, 50, 0);
-				break;
-			case 2:
-				i.speedMult = 1.1 + r.nextInt(Math.min(8, power)) * 0.1;
-				double value = i.speedMult * BASE_HP_BONUS;
-				i.creatureHPBonus = (int) (BASE_HP_BONUS * powerLvl(power) - value);
-				i.tint = Clr.YELLOW;
-				break;
-			case 3:
-				//i.hpRegen = r.nextInt((int) Math.pow(power, 1.2) / 2 + 1) * 0.005 + 0.005;
-				i.hpRegen = BASE_REGEN * powerLvl(power);
-				i.tint = new Clr(255, 100, 100);
-				break;
-			case 4:
-				i.eating = Math.min(1.0 / 50, power * 0.001);
-				if (power > 20) {
-					i.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(20)));
-				}
-				i.tint = Clr.RED;
-				break;
-			case 5:
-				i.tint = new Clr(0, 255, 255);
-				if (power > 5) {
-					i.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(5)));
-				}
-				i.givesInfo = true;
-				break;
-			case 6:
-				i.tint = Clr.GREY;
-				i.shield = true;
-				if (power > 8) {
-					i.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(8)));
-				}
-				break;
-			case 7:
-				i.tint = new Clr(100, 0, 100);
-				i.vampireMult = Math.min(1.0, power * 0.05);
-				if (power > 20) {
-					i.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(20)));
-				}
-				break;
-			case 8:
-				i.resurrect = true;
-				i.tint = new Clr(180, 180, 255);
-				break;
-			case 9:
-				i.tint = new Clr(200, 255, 200);
-				i.fly = true;
-				if (power > 10) {
-					i.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(10)));
-				}
-				break;
+		Item it = new Item();
+		it.seed = seed;
+		it.imgIndex = r.nextInt(PatentBlaster.NUM_IMAGES);
+		it.img = PatentBlaster.CREATURE_IMGS.get(PatentBlaster.IMG_NAMES[it.imgIndex]);
+		it.name = Names.pick(r);
+		
+		ArrayList<Type> ts = new ArrayList<Type>();
+		int range = 0;
+		for (Type t : Type.values()) {
+			if (t.minPower <= power && (forC == null || t.useful(forC)) && (alreadyChosen == null || !alreadyChosen.contains(t))) {
+				ts.add(t);
+				range += t.freq;
+			}
 		}
-		i.imgIndex = r.nextInt(numImages);
-		i.img = PatentBlaster.CREATURE_IMGS.get(PatentBlaster.IMG_NAMES[i.imgIndex]);
-		i.name = Names.pick(r);
-		return i;
+		
+		int pick = r.nextInt(range);
+		int pickIndex = 0;
+		while (pick > ts.get(pickIndex).freq) {
+			pick -= ts.get(pickIndex++).freq;
+		}
+		ts.get(pickIndex).make(it, power);
+		it.type = ts.get(pickIndex);
+		it.tint = it.type.tint;
+		it.power = power;
+		
+		return it;
 	}
 	
 	public String name() {
@@ -117,25 +226,37 @@ public class Item implements HasDesc {
 	
 	@Override
 	public String desc(Clr textTint) {
-		return desc(textTint, true, true);
+		return desc(textTint, true, true, null);
 	}
 	
-	public String desc(Clr textTint, boolean showName, boolean inset) {
+	public String desc(Clr textTint, boolean showName, boolean inset, Creature forC) {
 		String is = inset ? "  " : "";
 		StringBuilder sb = new StringBuilder();
 		if (showName) { sb.append("").append(name.toUpperCase()).append("\n"); }
 		sb.append("[").append(tint.mix(0.4, textTint).toString()).append("]");
 		if (resistanceVs != null) {
 			sb.append(is).append(round(resistance * 100, 0)).append("% resistance to ").append(resistanceVs.name()).append("\n");
+			if (forC != null) {
+				sb.append(is).append("Current ").append(resistanceVs.name()).append(" resistance: ").append(round(forC.resistance(resistanceVs) * 100, 0)).append("%\n");
+			}
 		}
 		if (speedMult != 1) {
 			sb.append(is).append(round((speedMult - 1) * 100, 0)).append("% speed increase\n");
+			if (forC != null) {
+				sb.append(is).append("Current speed: ").append(round(forC.totalSpeed() * PatentBlaster.FPS, 0)).append(" px/sec\n");
+			}
 		}
 		if (hpRegen != 0) {
 			sb.append(is).append(round(hpRegen * PatentBlaster.FPS, 1)).append(" HP regeneration/sec\n");
+			if (forC != null) {
+				sb.append(is).append("Current regeneration: ").append(round(forC.baseHPRegen() * PatentBlaster.FPS, 1)).append(" HP/sec\n");
+			}
 		}
 		if (hpBonus > 0) {
 			sb.append(is).append(hpBonus).append(" max HP increase\n");
+			if (forC != null) {
+				sb.append(is).append("Current max HP: ").append(forC.totalMaxHP()).append("\n");
+			}
 		}
 		if (givesInfo) {
 			sb.append(is).append("Gives detailed enemy info\n");
@@ -147,18 +268,45 @@ public class Item implements HasDesc {
 			} else {
 				sb.append(is).append("Active\n");
 			}
+			if (forC != null) {
+				int shields = 0;
+				for (Item it2 : forC.items) {
+					if (it2.shield) { shields++; }
+				}
+				if (shields != 0) {
+					sb.append(is).append("Currently: ").append(shields).append(" shields\n");
+				}
+			}
 		}
 		if (vampireMult > 0) {
 			sb.append(is).append(round(vampireMult * 100, 0)).append("% of damage gained as HP\n");
+			if (forC != null) {
+				sb.append(is).append("Currently: ").append(round(forC.totalVamp() * 100, 0)).append(" %\n");
+			}
 		}
 		if (fly) {
 			sb.append(is).append("Ability to fly\n");
 		}
+		if (hover) {
+			sb.append(is).append("Ability to hover\n");
+		}
 		if (eating > 0) {
 			sb.append(is).append("Eating flesh gives you ").append(round(eating * 100 * 50, 0)).append("% of the victim's HP\n");
+			if (forC != null) {
+				sb.append(is).append("Currently: ").append(round(forC.totalEating() * 100 * 50, 0)).append("%\n");
+			}
 		}
 		if (resurrect) {
 			sb.append(is).append("Resurrects once\n");
+			if (forC != null) {
+				int reses = 0;
+				for (Item it2 : forC.items) {
+					if (it2.resurrect) { reses++; }
+				}
+				if (reses != 0) {
+					sb.append(is).append("Currently: ").append(reses).append(" resurrections\n");
+				}
+			}
 		}
 		sb.append("[]");
 		return sb.toString();
@@ -171,8 +319,10 @@ public class Item implements HasDesc {
 		it.givesInfo = givesInfo;
 		it.hpBonus = hpBonus / 4;
 		it.hpRegen = hpRegen / 4;
+		it.imgIndex = imgIndex;
 		it.img = img;
 		it.name = name;
+		it.type = type;
 		it.resistance = resistance;
 		it.resistanceVs = resistanceVs;
 		it.shield = shield;
@@ -182,11 +332,14 @@ public class Item implements HasDesc {
 		it.tint = tint;
 		it.vampireMult = vampireMult;
 		it.resurrect = resurrect;
+		it.creatureHPBonus = creatureHPBonus / 4;
+		it.hover = hover;
 		return it;
 	}
 
 	boolean samePowersAs(Item it) {
 		return
+				hover == it.hover &&
 				fly == it.fly &&
 				givesInfo == it.givesInfo &&
 				resurrect == it.resurrect &&

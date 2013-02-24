@@ -14,6 +14,7 @@ import com.zarkonnen.catengine.Img;
 import java.util.Collections;
 
 public class Creature extends Entity implements HasDesc {
+	public static final double MAX_SPEED = 6;
 	public static final double HOP_BONUS = 3.5;
 	public static final int AIR_STEERING = 10;
 	public static final int ABOVE_PREF = Level.GRID_SIZE * 5 / 2;
@@ -112,6 +113,10 @@ public class Creature extends Entity implements HasDesc {
 	public int absorbTimer = 0;
 	public boolean noTargetInRangeWarning;
 	
+	public MoveMode playerMoveModeSelection = MoveMode.SLIDE;
+	public int ticksSinceGainingHover = 0;
+	public int ticksSinceGainingFlight = 0;
+	
 	public boolean fireproof() {
 		return resistance(Element.FIRE) >= 0.5;
 	}
@@ -131,7 +136,7 @@ public class Creature extends Entity implements HasDesc {
 	public double totalSpeed() {
 		double s = speed;
 		for (Item it : items) { s *= it.speedMult; }
-		if (s > 6) { s = 6; }
+		if (s > MAX_SPEED) { s = MAX_SPEED; }
 		return s * (charging ? 2 : 1);
 	}
 	
@@ -152,10 +157,10 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public MoveMode realMoveMode() {
-		for (Item it : items) {
-			if (it.fly) { return MoveMode.FLY; }
+		if (playerControlled) {
+			return playerMoveModeSelection;
 		}
-		return moveMode;
+		return canFly() ? MoveMode.FLY : canHover() ? MoveMode.HOVER : moveMode;
 	}
 	
 	public int shieldAmt() {
@@ -331,7 +336,7 @@ public class Creature extends Entity implements HasDesc {
 		
 		l.shotsToAdd.addAll(bloodShots);
 		
-		if (dropItem && !doesResurrect() && !reviens && !items.isEmpty() && l.player.isUseful(items.get(0))) {
+		if (dropItem && !doesResurrect() && !reviens && !items.isEmpty() && items.get(0).type.useful(l.player)) {
 			l.goodies.add(new Goodie(this, items.get(0)));
 			sound("drop", l);
 		}
@@ -401,25 +406,6 @@ public class Creature extends Entity implements HasDesc {
 		return true;
 	}
 	
-	public boolean isUseful(Item it) {
-		if (it.fly) {
-			return realMoveMode() != MoveMode.FLY;
-		}
-		if (it.givesInfo) {
-			return !canSeeStats;
-		}
-		if (it.speedMult > 0) {
-			return totalSpeed() < 6;
-		}
-		if (it.eating > 0) {
-			return totalEating() < 1;
-		}
-		if (it.vampireMult > 0) {
-			return totalVamp() < 1;
-		}
-		return true;
-	}
-	
 	public Creature makeTinyVersion(Level l) {
 		Creature t = new Creature();
 		t.img = img;
@@ -473,6 +459,8 @@ public class Creature extends Entity implements HasDesc {
 		if (jar) {
 			return;
 		}
+		if (canFly()) { ticksSinceGainingFlight++; }
+		if (canHover()) { ticksSinceGainingHover++; }
 		if (frozen == 0) {
 			if (eatSoundTimer > 0) { eatSoundTimer--; }
 			if (fuse) {
@@ -495,7 +483,11 @@ public class Creature extends Entity implements HasDesc {
 			double relCycle = animCycle * 1.0 / animCycleLength;
 			angle = 0;
 			switch (realMoveMode()) {
+				case SLIDE:
+					gravityMult = 1;
+					break;
 				case CANTER:
+					gravityMult = 1;
 					if (PatentBlaster.lowGraphics) {
 						angle = 0;
 					} else {
@@ -511,19 +503,19 @@ public class Creature extends Entity implements HasDesc {
 					ticksSinceBottom = 0;
 					break;
 				case HOP:
+					gravityMult = 1;
 					if (animCycle == 0 && ticksSinceBottom < AIR_STEERING) {
 						dy = -totalSpeed() - HOP_BONUS;
 					}
 					break;
 				case HOVER:
-					gravityMult = 0.3;
+					gravityMult = hoverPowerOff ? 1 : 0.3;
 					if (l.tick % 5 == 0 && !hoverPowerOff) {
 						if (l.tick % (5 * 5) == 0 && Math.abs(x + w / 2 - l.player.x - l.player.w / 2) < 700) {
 							sound("hover", l);
 						}
 						l.shotsToAdd.add(new Shot(l, this));
 					}
-					hoverPowerOff = false;
 					break;
 			}
 			weapon.tick();
@@ -602,6 +594,7 @@ public class Creature extends Entity implements HasDesc {
 					boolean xFar = Math.abs(xpd) > (w / 2 + l.player.w / 2 + 10);
 					boolean yFar = Math.abs(ypd) > (h / 2 + l.player.h / 2 + 10);
 					fuse = explodes && Math.abs(xpd) < (w / 2 + l.player.w / 2 + 160);
+					hoverPowerOff = false;
 					if (ticksSinceBottom < AIR_STEERING && dodges && l.player.weapon.reloadLeft != 0 && l.player.weapon.reloadLeft >= l.player.weapon.reload - PatentBlaster.FPS) {
 						switch (realMoveMode()) {
 							case CANTER:
@@ -929,7 +922,7 @@ public class Creature extends Entity implements HasDesc {
 		c.weapons.add(w);
 		Element el = Element.values()[r.nextInt(Element.values().length)];
 		
-		Item it = Item.make(seed, power, numImages);
+		Item it = Item.make(seed, power, c, null);
 		c.items.add(it);
 		c.canSeeStats = it.givesInfo;
 		
@@ -1227,7 +1220,17 @@ public class Creature extends Entity implements HasDesc {
 	}
 
 	boolean canFly() {
-		return realMoveMode() == MoveMode.FLY;
+		for (Item it : items) {
+			if (it.fly) { return true; }
+		}
+		return moveMode == MoveMode.FLY;
+	}
+	
+	boolean canHover() {
+		for (Item it : items) {
+			if (it.hover) { return true; }
+		}
+		return moveMode == MoveMode.HOVER;
 	}
 
 	void heal() {

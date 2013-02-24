@@ -25,6 +25,8 @@ import com.zarkonnen.trigram.Trigrams;
 import java.awt.Desktop;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -117,11 +119,13 @@ public class PatentBlaster implements Game {
 		p("Move right    ", p("D",     "RIGHT")),
 		p("Move up / jump", p("W",     "UP")),
 		p("Move down     ", p("S",     "DOWN")),
+		p("Toggle hover  ", p("H",     (String) null)),
+		p("Toggle flight ", p("F",     (String) null)),
 		p("Prev weapon   ", p("Q",     (String) null)),
 		p("Next weapon   ", p("E",     (String) null)),
 		p("Autofire      ", p("SPACE", (String) null)),
 		p("Pause         ", p("P",     (String) null)),
-		p("Show FPS      ", p("F",     (String) null))
+		p("Show FPS      ", p("I",     (String) null))
 	);
 	
 	static {
@@ -240,7 +244,7 @@ public class PatentBlaster implements Game {
 		if (cooldown > 0) { cooldown--; }
 		hoverWeapon = null;
 		
-		if (cooldown == 0 && in.keyDown(key("F"))) {
+		if (cooldown == 0 && in.keyDown(key("I"))) {
 			showFPS = !showFPS;
 			cooldown = 10;
 		}
@@ -298,7 +302,7 @@ public class PatentBlaster implements Game {
 		
 		if (cooldown == 0 && in.keyDown(key("P"))) {
 			paused = !paused;
-			cooldown = 10;
+			cooldown = 20;
 		}
 		
 		if (paused) {
@@ -342,25 +346,45 @@ public class PatentBlaster implements Game {
 					w = Weapon.make(System.currentTimeMillis() + attempt++ * 1234, power, NUM_IMAGES);
 				} while (attempt < 50 && !l.player.isUseful(w));
 				shopItems.add(w);
+				EnumSet<Item.Type> takenTypes = EnumSet.noneOf(Item.Type.class);
 				for (int i = 0; i < 3; i++) {
-					Item it = null;
-					attempt = 0;
-					lp: do {
-						it = Item.make(System.currentTimeMillis() + i * 90238 + attempt++ * 1299, power, NUM_IMAGES);
-						for (Object i2 : shopItems) {
-							if (i2 instanceof Item && ((Item) i2).samePowersAs(it)) {
-								continue lp;
-							}
-						}
-					} while (attempt < 500 && !l.player.isUseful(it));
+					Item it  = Item.make(System.currentTimeMillis() + i * 90238, power, l.player, takenTypes);
+					takenTypes.add(it.type);
 					shopItems.add(it);
 				}
 			}
 		}
 		
 		if (l.player.frozen == 0 && l.player.hp > 0) {
+			// Stealing means dropping.
+			if (l.player.playerMoveModeSelection == MoveMode.HOVER && !l.player.canHover()) {
+				l.player.playerMoveModeSelection = MoveMode.SLIDE;
+			}
+			if (l.player.playerMoveModeSelection == MoveMode.FLY && !l.player.canFly()) {
+				l.player.playerMoveModeSelection = MoveMode.SLIDE;
+			}
+			// Hover on
+			if (cooldown == 0 && l.player.playerMoveModeSelection != MoveMode.HOVER && l.player.canHover() && in.keyDown(key("H"))) {
+				cooldown = 10;
+				l.player.playerMoveModeSelection = MoveMode.HOVER;
+			}
+			// Hover off
+			if (cooldown == 0 && l.player.playerMoveModeSelection == MoveMode.HOVER && in.keyDown(key("H"))) {
+				cooldown = 10;
+				l.player.playerMoveModeSelection = MoveMode.SLIDE;
+			}
+			// Flight on
+			if (cooldown == 0 && l.player.playerMoveModeSelection != MoveMode.FLY && l.player.canFly() && in.keyDown(key("F"))) {
+				cooldown = 10;
+				l.player.playerMoveModeSelection = MoveMode.FLY;
+			}
+			// Flight off
+			if (cooldown == 0 && l.player.playerMoveModeSelection == MoveMode.FLY && in.keyDown(key("F"))) {
+				cooldown = 10;
+				l.player.playerMoveModeSelection = MoveMode.SLIDE;
+			}
 			if (l.player.knockedBack == 0) {
-				if (l.player.canFly()) {
+				if (l.player.realMoveMode() == MoveMode.FLY) {
 					l.player.dx = 0;
 					l.player.dy = 0;
 					if ((in.keyDown(key("UP")) || in.keyDown(key("W")))) {
@@ -369,6 +393,16 @@ public class PatentBlaster implements Game {
 					}
 					if ((in.keyDown(key(("DOWN"))) || in.keyDown(key("S")))) {
 						l.player.dy = l.player.totalSpeed();
+						l.moved = true;
+					}
+				} else if (l.player.realMoveMode() == MoveMode.HOVER) {
+					l.player.hoverPowerOff = false;
+					if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (in.keyDown(key("UP")) || in.keyDown(key("W")))) {
+						l.player.dy = -l.player.totalSpeed();
+						l.moved = true;
+					}
+					if ((in.keyDown(key(("DOWN"))) || in.keyDown(key("S")))) {
+						l.player.hoverPowerOff = true;
 						l.moved = true;
 					}
 				} else {
@@ -870,7 +904,7 @@ public class PatentBlaster implements Game {
 						tint = ((Weapon) o).tint;
 					} else if (o instanceof Item) {
 						name = ((Item) o).name();
-						desc = ((Item) o).desc(Clr.BLACK, false, false);
+						desc = ((Item) o).desc(Clr.BLACK, false, false, l.player);
 						img = ((Item) o).img;
 						tint = ((Item) o).tint;
 					} 
@@ -1031,7 +1065,9 @@ public class PatentBlaster implements Game {
 		if ((l.player.items.size() + 1) * 40 > sm.width) {
 			spacing = Math.max(1, sm.width / (l.player.items.size()));
 		}
-		for (final Item it : l.player.items) {
+		ArrayList<Item> sortedItems = new ArrayList<Item>(l.player.items);
+		Collections.sort(sortedItems);
+		for (final Item it : sortedItems) {
 			Clr t = it.tint;
 			if (it == l.player.newThing && hilite) {
 				t = (l.tick / 20) % 2 == 0 ? Clr.WHITE : t;
