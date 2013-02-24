@@ -858,11 +858,16 @@ public class PatentBlaster implements Game {
 						if (type == Hook.Type.HOVER) {
 							menuHover = "BACKTOMAIN";
 						} else {
+							setup = false;
 							mainMenu = true;
 							cooldown = 10;
 						}
 					}
 				});
+				
+				// CYA
+				Rect cyaR = d.textSize("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, 0, 0);
+				d.text("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, sm.width - cyaR.width - spacing, sm.height - spacing - cyaR.height);
 			}
 		} else if (!shopItems.isEmpty()) {
 			int spacing = 12;
@@ -935,7 +940,9 @@ public class PatentBlaster implements Game {
 				}
 			}
 			
-			showEquipment(d, sm, FOUNT, textBGTint, false);
+			// CYA
+			Rect cyaR = d.textSize("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, 0, 0);
+			d.text("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, sm.width - cyaR.width - spacing, sm.height - 40 - cyaR.height);
 		} else {
 			// Background texture
 			if (!lowGraphics && l.background != -1) {
@@ -995,6 +1002,7 @@ public class PatentBlaster implements Game {
 			d.text(textBGTint + key("W") + " or " + key("UP") + " to jump", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.lineHeight / 2 - 50);
 		}
 		Clr recC = Clr.RED;
+		boolean tooFar = false;
 		if (!setup && !mainMenu && l != null && shopItems.isEmpty() && l.player.hp > 0) {
 			double dx = curs.x - scrollX - l.player.gunX(), dy = curs.y - scrollY - l.player.gunY();
 			double dist = Math.sqrt(dx * dx + dy * dy);
@@ -1002,18 +1010,27 @@ public class PatentBlaster implements Game {
 				if (dist <= l.player.weapon.range()) {
 					recC = Clr.WHITE;
 				} else {
-					recC = new Clr(150, 150, 150);
+					tooFar = true;
+					recC = new Clr(200, 200, 200);
 				}
 			}
-			if (cursOverride == null && !l.player.weapon.swarm && (dx != 0 || dy != 0)) {
+			tooFar = dist > l.player.weapon.range();
+			if (cursOverride == null && !l.player.weapon.swarm && (dx != 0 || dy != 0) && !tooFar) {
 				double angle = Math.atan2(dy, dx);
 				d.rect(recC, l.player.gunX() + scrollX + Math.cos(angle + l.player.weapon.jitter) * dist - 1, l.player.gunY() + scrollY + Math.sin(angle + l.player.weapon.jitter) * dist - 1, 2, 2);
 				d.rect(recC, l.player.gunX() + scrollX + Math.cos(angle - l.player.weapon.jitter) * dist - 1, l.player.gunY() + scrollY + Math.sin(angle - l.player.weapon.jitter) * dist - 1, 2, 2);
 			}
 		}
 		if (cursOverride == null) {
-			d.rect(recC, fireCursor().x - 1, fireCursor().y - 8, 2, 16);
-			d.rect(recC, fireCursor().x - 8, fireCursor().y - 1, 16, 2);
+			if (tooFar) {
+				d.rect(recC, fireCursor().x - 1, fireCursor().y - 10, 2, 5);
+				d.rect(recC, fireCursor().x - 1, fireCursor().y + 5, 2, 5);
+				d.rect(recC, fireCursor().x - 10, fireCursor().y - 1, 5, 2);
+				d.rect(recC, fireCursor().x + 5, fireCursor().y - 1, 5, 2);
+			} else {
+				d.rect(recC, fireCursor().x - 1, fireCursor().y - 10, 2, 20);
+				d.rect(recC, fireCursor().x - 10, fireCursor().y - 1, 20, 2);
+			}
 		}
 		if (!setup && !mainMenu && l != null && l.power == 1 && l.moved && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal() && cursOverride == null) {
 			if (l.shotsFired == 0) {
