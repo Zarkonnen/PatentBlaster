@@ -367,6 +367,7 @@ public class PatentBlaster implements Game {
 			if (cooldown == 0 && l.player.playerMoveModeSelection != MoveMode.HOVER && l.player.canHover() && in.keyDown(key("H"))) {
 				cooldown = 10;
 				l.player.playerMoveModeSelection = MoveMode.HOVER;
+				l.player.hovered = true;
 			}
 			// Hover off
 			if (cooldown == 0 && l.player.playerMoveModeSelection == MoveMode.HOVER && in.keyDown(key("H"))) {
@@ -377,6 +378,7 @@ public class PatentBlaster implements Game {
 			if (cooldown == 0 && l.player.playerMoveModeSelection != MoveMode.FLY && l.player.canFly() && in.keyDown(key("F"))) {
 				cooldown = 10;
 				l.player.playerMoveModeSelection = MoveMode.FLY;
+				l.player.flown = true;
 			}
 			// Flight off
 			if (cooldown == 0 && l.player.playerMoveModeSelection == MoveMode.FLY && in.keyDown(key("F"))) {
@@ -867,7 +869,7 @@ public class PatentBlaster implements Game {
 				
 				// CYA
 				Rect cyaR = d.textSize("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, 0, 0);
-				d.text("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, sm.width - cyaR.width - spacing, sm.height - spacing - cyaR.height);
+				d.text("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, sm.width - cyaR.width, sm.height - cyaR.height);
 			}
 		} else if (!shopItems.isEmpty()) {
 			int spacing = 12;
@@ -940,9 +942,11 @@ public class PatentBlaster implements Game {
 				}
 			}
 			
+			showEquipment(d, sm, FOUNT, textBGTint, false);
+			
 			// CYA
 			Rect cyaR = d.textSize("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, 0, 0);
-			d.text("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, sm.width - cyaR.width - spacing, sm.height - 40 - cyaR.height);
+			d.text("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, sm.width - cyaR.width, 2);
 		} else {
 			// Background texture
 			if (!lowGraphics && l.background != -1) {
@@ -1000,6 +1004,12 @@ public class PatentBlaster implements Game {
 			d.text(textBGTint + key("A") + " or " + key("LEFT") + " to move left", FOUNT, sm.width / 2 - 50 - sz.x, sm.height * 2 / 3 - FOUNT.lineHeight / 2);
 			sz = d.textSize(key("W") + " or " + key("UP") + " to jump", FOUNT);
 			d.text(textBGTint + key("W") + " or " + key("UP") + " to jump", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.lineHeight / 2 - 50);
+		} else if (!setup && !mainMenu && l != null && !l.player.hovered && l.player.ticksSinceGainingHover < FPS * 8 && l.player.canHover() && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.BRUTAL.ordinal()) {
+			Pt sz = d.textSize(key("H") + " to toggle hover mode", FOUNT);
+			d.text(textBGTint + key("H") + " to toggle hover mode", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.lineHeight / 2 - 50);
+		} else if (!setup && !mainMenu && l != null && !l.player.flown && l.player.ticksSinceGainingFlight < FPS * 8 && l.player.canFly() && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.BRUTAL.ordinal()) {
+			Pt sz = d.textSize(key("F") + " to toggle flight mode", FOUNT);
+			d.text(textBGTint + key("F") + " to toggle flight mode", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.lineHeight / 2 - 50);
 		}
 		Clr recC = Clr.RED;
 		boolean tooFar = false;
@@ -1092,7 +1102,7 @@ public class PatentBlaster implements Game {
 			d.blit(it.img, t, 15 + i * spacing, sm.height - 45, 30, 30, new Hook(Hook.Type.HOVER) {
 				@Override
 				public void run(Input in, Pt p, Hook.Type type) {
-					info = it.desc(Clr.WHITE);
+					info = it.desc(Clr.WHITE, true, true, l.player);
 				}
 			});
 			i++;

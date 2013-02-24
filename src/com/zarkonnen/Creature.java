@@ -49,6 +49,9 @@ public class Creature extends Entity implements HasDesc {
 	public boolean absorber;
 	public MoveMode moveMode;
 	
+	public boolean hovered = false;
+	public boolean flown = false;
+	
 	public boolean unsplorted = false;
 	
 	public double heat;
@@ -548,7 +551,7 @@ public class Creature extends Entity implements HasDesc {
 						if (victim.hp <= 0) { continue; }
 						if (victim.w >= w) { continue; }
 						if (victim.reviens) { continue; }
-						if (victim.resurrects) { continue; }
+						if (victim.doesResurrect()) { continue; }
 						if (victim.finalForm != null) { continue; }
 						if (victim.explodes) { continue; }
 						if (victim.jar) { continue; }
@@ -589,14 +592,16 @@ public class Creature extends Entity implements HasDesc {
 					}
 				}
 				if (spotted && knockedBack == 0) {
+					MoveMode rmm = realMoveMode();
 					charging = Math.abs(xpd) < weapon.range() / 3;
-					boolean far = Math.abs(distSq) > (w / 2 + l.player.w / 2 + 10) * (h / 2 + l.player.h / 2 + 10); 
-					boolean xFar = Math.abs(xpd) > (w / 2 + l.player.w / 2 + 10);
-					boolean yFar = Math.abs(ypd) > (h / 2 + l.player.h / 2 + 10);
+					boolean far = Math.abs(distSq) > (w / 2 + l.player.w / 2 + 10) * (h / 2 + l.player.h / 2 + 10);
+					double farBonus = rmm == MoveMode.FLY ? 100 : 10;
+					boolean xFar = Math.abs(xpd) > (w / 2 + l.player.w / 2 + farBonus);
+					boolean yFar = Math.abs(ypd) > (h / 2 + l.player.h / 2 + farBonus);
 					fuse = explodes && Math.abs(xpd) < (w / 2 + l.player.w / 2 + 160);
 					hoverPowerOff = false;
 					if (ticksSinceBottom < AIR_STEERING && dodges && l.player.weapon.reloadLeft != 0 && l.player.weapon.reloadLeft >= l.player.weapon.reload - PatentBlaster.FPS) {
-						switch (realMoveMode()) {
+						switch (rmm) {
 							case CANTER:
 							case HOP:
 							case SLIDE:
@@ -613,7 +618,6 @@ public class Creature extends Entity implements HasDesc {
 								break;
 						}
 					} else {
-						MoveMode rmm = realMoveMode();
 						if (ticksSinceBottom < AIR_STEERING) {
 							if (((charges && explodes) || far || fleeing || thief)) {
 								dx = 0;
@@ -638,7 +642,7 @@ public class Creature extends Entity implements HasDesc {
 										}
 									}
 									if (rmm == MoveMode.FLY) {
-										if (Math.abs(ypd + (charges && !xFar ? 0 : ABOVE_PREF + flyHeightBonus)) > ts + w) {
+										if (Math.abs(ypd + (charges && !xFar ? 0 : ABOVE_PREF + flyHeightBonus)) > ts + h) {
 											if (ypd + (charges && !xFar ? 0 : ABOVE_PREF + flyHeightBonus) > 0) {
 												dy = -ts;
 											} else {
@@ -853,7 +857,7 @@ public class Creature extends Entity implements HasDesc {
 				l.soundRequests.add(new SoundRequest(jar ? "jarhit" : "splt", shot.x, shot.y, spltVolume));
 			}
 		} else {
-			if (!reviens && !resurrects && finalForm == null) {
+			if (!reviens && !doesResurrect() && finalForm == null) {
 				bloodShots = explode(l);
 			} else {
 				explode(l); // Shots not edible.
