@@ -1,6 +1,8 @@
 package com.zarkonnen;
 
-public class SoundRequest {
+import java.io.Serializable;
+
+public class SoundRequest implements Serializable {
 	public String sound;
 	public double x;
 	public double y;

@@ -5,10 +5,11 @@ import java.util.Random;
 import static com.zarkonnen.PatentBlaster.round;
 import static com.zarkonnen.Util.*;
 import com.zarkonnen.catengine.Img;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.EnumSet;
 
-public class Item implements HasDesc, Comparable<Item> {
+public class Item implements HasDesc, Comparable<Item>, Serializable {
 	public static enum Type {
 		STEEL_RESIST(0, Element.STEEL.tint, 50) {
 			@Override

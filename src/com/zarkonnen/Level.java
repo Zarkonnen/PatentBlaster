@@ -3,11 +3,12 @@ package com.zarkonnen;
 import com.zarkonnen.catengine.Input;
 import com.zarkonnen.catengine.MusicDone;
 import com.zarkonnen.catengine.util.ScreenMode;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 
-public class Level implements MusicDone {
+public class Level implements MusicDone, Serializable {
 	public static final int GRID_SIZE = 60;
 	public static final double G = 0.2;
 	public static final double MAX_SPEED = 10;
@@ -28,13 +29,15 @@ public class Level implements MusicDone {
 	public Creature boss;
 	public ArrayList<SoundRequest> soundRequests = new ArrayList<SoundRequest>();
 	public String music;
-	public boolean musicPlaying = false;
+	public transient boolean musicPlaying = false;
 	public int power;
 	public int shotsFired = 0;
 	public boolean moved = false;
 	public int background = -1;
 	public int backgroundW = 512;
 	public int backgroundH;
+	public ArrayList<Object> shopItems = new ArrayList<Object>();
+
 	
 	public static final String[] MUSICS = { "DST-1990", "DST-4Tran", "DST-ClubNight", "DST-CreepAlong", "DST-Cv-X", "DST-AngryMod" };
 	public static final int[] BACKGROUND_HS = {406, 452, 512, 512, 256, 308};

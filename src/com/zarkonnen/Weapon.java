@@ -5,8 +5,9 @@ import java.util.Random;
 import static com.zarkonnen.PatentBlaster.round;
 import static com.zarkonnen.Util.*;
 import com.zarkonnen.catengine.Img;
+import java.io.Serializable;
 
-public class Weapon implements HasDesc {
+public class Weapon implements HasDesc, Serializable {
 	public static final int MIN_RELOAD = PatentBlaster.FPS / 4;
 	public static final int MAX_RELOAD = PatentBlaster.FPS * 2;
 	public static final int AVG_RELOAD = MIN_RELOAD / 2 + MAX_RELOAD / 2;

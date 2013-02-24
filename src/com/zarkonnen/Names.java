@@ -25,6 +25,7 @@ public class Names {
 						/ 1000 // ms -> s
 						/ 3600 // s -> h
 						/ 24; // h -> d
+				daysSinceLastReceived = 10;
 				if (daysSinceLastReceived < 3) {
 					synchronized (names) {
 						for (int page = 0; page < 10; page++) {
@@ -40,9 +41,7 @@ public class Names {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		if (!names.isEmpty()) {
-			namesLoaded = true;
-		} else {
+		if (names.isEmpty()) {
 			Runnable r = new Runnable() {
 				@Override
 				public void run() {
@@ -78,7 +77,6 @@ public class Names {
 									e.printStackTrace();
 								}
 							}
-							namesLoaded = true;
 							names.notifyAll();
 						}
 						br.close();
@@ -98,11 +96,9 @@ public class Names {
 		}
 	}
 	
-	public static void init() {
-		// Does nothing, but causes WP name fetcher to run.
+	public static boolean namesLoaded() {
+		return !names.isEmpty();
 	}
-	
-	public static volatile boolean namesLoaded = false;
 	
 	public static String pick(Random r) {
 		try {

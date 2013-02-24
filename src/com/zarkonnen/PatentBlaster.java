@@ -23,7 +23,12 @@ import java.util.HashMap;
 import static com.zarkonnen.catengine.util.Utils.*;
 import com.zarkonnen.trigram.Trigrams;
 import java.awt.Desktop;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -69,7 +74,8 @@ public class PatentBlaster implements Game {
 	}
 			
 	public static void main(String[] args) {
-		Names.init();
+		Names.namesLoaded();
+		autoLoad();
 		Engine e = new SlickEngine("Patent Blaster", "/com/zarkonnen/images/", "/com/zarkonnen/sounds/", FPS);
 		e.setup(new PatentBlaster());
 		e.runUntil(Condition.ALWAYS);
@@ -79,16 +85,15 @@ public class PatentBlaster implements Game {
 	Hooks pastH;
 	double scrollX = 0;
 	double scrollY = 0;
-	Level l;
+	static Level l;
 	Pt curs = new Pt(0, 0);
 	Pt cursOverride = null;
 	int nextLvlTime = 0;
 	int power = 1;
 	String info = "";
 	boolean screened = false;
-	boolean setup = true;
+	static boolean setup = true;
 	ArrayList<Creature> setupCreatures = new ArrayList<Creature>();
-	ArrayList<Object> shopItems = new ArrayList<Object>();
 	int cooldown = 0;
 	Weapon hoverWeapon;
 	boolean paused = false;
@@ -209,6 +214,7 @@ public class PatentBlaster implements Game {
 					in.quit();
 				}
 			} else {
+				autoSave();
 				mainMenu = true;
 				cooldown = 15;
 			}
@@ -277,7 +283,7 @@ public class PatentBlaster implements Game {
 		}
 		
 		if (setup) {
-			if (Names.namesLoaded && setupCreatures.isEmpty()) {
+			if (Names.namesLoaded() && setupCreatures.isEmpty()) {
 				cooldown = 10;
 				for (int i = 0; i < 4; i++) {
 					Creature c = Creature.make(System.currentTimeMillis() + i * 32980, difficultyLevel.playerLevel, NUM_IMAGES, false, true, false);
@@ -288,7 +294,7 @@ public class PatentBlaster implements Game {
 			return;
 		}
 		
-		if (!shopItems.isEmpty()) {
+		if (!l.shopItems.isEmpty()) {
 			info = "";
 			hit(in);
 			if (cooldown == 0 && hoverWeapon != null && l.player.weapons.size() > 1 && (in.keyDown("DELETE") || in.keyDown("BACKSPACE") || in.keyDown("BACK"))) {
@@ -319,10 +325,12 @@ public class PatentBlaster implements Game {
 		if (l.lost()) {
 			nextLvlTime++;
 			if (nextLvlTime >= 140) {
+				l = null;
+				autoSave();
 				setup = true;
 				nextLvlTime = 0;
 				power = 1;
-				
+				return;
 			}
 		} else if (l.won()) {
 			if (power == DEMO_LEVELS && DEMO) {
@@ -346,13 +354,14 @@ public class PatentBlaster implements Game {
 				do {
 					w = Weapon.make(System.currentTimeMillis() + attempt++ * 1234, power, NUM_IMAGES);
 				} while (attempt < 50 && !l.player.isUseful(w));
-				shopItems.add(w);
+				l.shopItems.add(w);
 				EnumSet<Item.Type> takenTypes = EnumSet.noneOf(Item.Type.class);
 				for (int i = 0; i < 3; i++) {
 					Item it  = Item.make(System.currentTimeMillis() + i * 90238, power, l.player, takenTypes);
 					takenTypes.add(it.type);
-					shopItems.add(it);
+					l.shopItems.add(it);
 				}
+				autoSave();
 			}
 		}
 		
@@ -878,7 +887,7 @@ public class PatentBlaster implements Game {
 				Rect cyaR = d.textSize("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, 0, 0);
 				d.text("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, sm.width - cyaR.width, sm.height - cyaR.height);
 			}
-		} else if (!shopItems.isEmpty()) {
+		} else if (!l.shopItems.isEmpty()) {
 			int spacing = 12;
 			if (lowGraphics) {
 				d.rect(PAPER, 0, 0, sm.width, sm.height);
@@ -906,7 +915,7 @@ public class PatentBlaster implements Game {
 			int tileW = availableW / 2;
 			for (int tileY = 0; tileY < 2; tileY++) {
 				for (int tileX = 0; tileX < 2; tileX++) {
-					final Object o = shopItems.get(tileY * 2 + tileX);
+					final Object o = l.shopItems.get(tileY * 2 + tileX);
 					String name = "";
 					String desc = "";
 					Img img = null;
@@ -943,7 +952,7 @@ public class PatentBlaster implements Game {
 							}
 							l.player.weapon.reloadLeft = 10;
 							l.player.weapon.clickEmptyTimer = 12;
-							shopItems.clear();
+							l.shopItems.clear();
 						}
 					});
 				}
@@ -953,7 +962,7 @@ public class PatentBlaster implements Game {
 			
 			// CYA
 			Rect cyaR = d.textSize("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, 0, 0);
-			d.text("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, sm.width - cyaR.width, 2);
+			d.text("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, sm.width - cyaR.width, 3);
 		} else {
 			// Background texture
 			if (!lowGraphics && l.background != -1) {
@@ -1020,7 +1029,7 @@ public class PatentBlaster implements Game {
 		}
 		Clr recC = Clr.RED;
 		boolean tooFar = false;
-		if (!setup && !mainMenu && l != null && shopItems.isEmpty() && l.player.hp > 0) {
+		if (!setup && !mainMenu && l != null && l.shopItems.isEmpty() && l.player.hp > 0) {
 			double dx = curs.x - scrollX - l.player.gunX(), dy = curs.y - scrollY - l.player.gunY();
 			double dist = Math.sqrt(dx * dx + dy * dy);
 			if (l.player.weapon.reloadLeft == 0) {
@@ -1083,7 +1092,7 @@ public class PatentBlaster implements Game {
 				@Override
 				public void run(Input in, Pt p, Hook.Type type) {
 					hoverWeapon = w;
-					info = w.desc(Clr.WHITE) + (l.player.weapons.size() > 1 && !shopItems.isEmpty() ? "Hit delete to delete weapon from inventory." : "");
+					info = w.desc(Clr.WHITE) + (l.player.weapons.size() > 1 && !l.shopItems.isEmpty() ? "Hit delete to delete weapon from inventory." : "");
 				}
 			});
 			if (i < 11 && l.player.weapons.size() > 1 && hilite) {
@@ -1091,7 +1100,7 @@ public class PatentBlaster implements Game {
 			}
 			i++;
 		}
-		if (shopItems.isEmpty() && !l.player.changedGun && l.player.weapons.size() > 1 && l.player.weapons.size() < 5 && l.player.showingWeaponSwitchInfo++ < FPS * 10 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
+		if (l.shopItems.isEmpty() && !l.player.changedGun && l.player.weapons.size() > 1 && l.player.weapons.size() < 5 && l.player.showingWeaponSwitchInfo++ < FPS * 10 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
 			d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "Press " + key("Q") + " and " + key("E") + " or the number keys to switch weapons.", FOUNT, 20 + i * 40, 20);
 		}
 		i = 0;
@@ -1122,5 +1131,30 @@ public class PatentBlaster implements Game {
 			return "" + ((int) Math.round(amt));
 		}
 		return "" + (((int) Math.round(amt * Math.pow(10, decimals))) * 1.0 / (Math.pow(10, decimals)));
+	}
+	
+	public static void autoSave() {
+		File f = new File("patentblaster_autosave");
+		try {
+			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
+			oos.writeObject(l);
+			oos.flush();
+			oos.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void autoLoad() {
+		File f = new File("patentblaster_autosave");
+		if (!f.exists()) { return; }
+		try {
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
+			l = (Level) ois.readObject();
+			ois.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (l != null) { setup = false; }
 	}
 }

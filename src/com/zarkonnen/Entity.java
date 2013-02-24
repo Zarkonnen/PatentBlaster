@@ -3,8 +3,9 @@ package com.zarkonnen;
 import com.zarkonnen.catengine.Draw;
 import com.zarkonnen.catengine.Img;
 import com.zarkonnen.catengine.util.Clr;
+import java.io.Serializable;
 
-public abstract class Entity {
+public abstract class Entity implements Serializable {
 	public Img img = null;
 	public Clr tint;
 	public double x, y, w, h, dx, dy;

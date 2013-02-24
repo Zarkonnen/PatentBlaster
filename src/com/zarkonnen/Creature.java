@@ -11,6 +11,7 @@ import java.util.Random;
 import static com.zarkonnen.PatentBlaster.round;
 import static com.zarkonnen.Util.*;
 import com.zarkonnen.catengine.Img;
+import java.io.Serializable;
 import java.util.Collections;
 
 public class Creature extends Entity implements HasDesc {
@@ -119,6 +120,8 @@ public class Creature extends Entity implements HasDesc {
 	public MoveMode playerMoveModeSelection = MoveMode.SLIDE;
 	public int ticksSinceGainingHover = 0;
 	public int ticksSinceGainingFlight = 0;
+	
+	public int flyerHysteresis = 0;
 	
 	public boolean fireproof() {
 		return resistance(Element.FIRE) >= 0.5;
@@ -595,7 +598,7 @@ public class Creature extends Entity implements HasDesc {
 					MoveMode rmm = realMoveMode();
 					charging = Math.abs(xpd) < weapon.range() / 3;
 					boolean far = Math.abs(distSq) > (w / 2 + l.player.w / 2 + 10) * (h / 2 + l.player.h / 2 + 10);
-					double farBonus = rmm == MoveMode.FLY ? 100 : 10;
+					double farBonus = rmm == MoveMode.FLY ? flyerHysteresis : 10;
 					boolean xFar = Math.abs(xpd) > (w / 2 + l.player.w / 2 + farBonus);
 					boolean yFar = Math.abs(ypd) > (h / 2 + l.player.h / 2 + farBonus);
 					fuse = explodes && Math.abs(xpd) < (w / 2 + l.player.w / 2 + 160);
@@ -640,6 +643,9 @@ public class Creature extends Entity implements HasDesc {
 										} else {
 											dx = ts;
 										}
+										flyerHysteresis = 0;
+									} else {
+										flyerHysteresis = 100;
 									}
 									if (rmm == MoveMode.FLY) {
 										if (Math.abs(ypd + (charges && !xFar ? 0 : ABOVE_PREF + flyHeightBonus)) > ts + h) {
