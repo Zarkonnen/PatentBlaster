@@ -15,28 +15,28 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 			@Override
 			public void make(Item it, int power) {
 				it.resistanceVs = Element.STEEL;
-				it.resistance = 1 - 1 / (power / 6.0 + 1);
+				it.resistance = 1 - 1 / (power / 20.0 + 1);
 			}
 		},
 		ACID_RESIST(0, Element.ACID.tint, 50) {
 			@Override
 			public void make(Item it, int power) {
 				it.resistanceVs = Element.ACID;
-				it.resistance = 1 - 1 / (power / 6.0 + 1);
+				it.resistance = 1 - 1 / (power / 20.0 + 1);
 			}
 		},
 		FIRE_RESIST(0, Element.FIRE.tint, 50) {
 			@Override
 			public void make(Item it, int power) {
 				it.resistanceVs = Element.FIRE;
-				it.resistance = 1 - 1 / (power / 8.0 + 1);
+				it.resistance = 1 - 1 / (power / 30.0 + 1);
 			}
 		},
 		ICE_RESIST(0, Element.ICE.tint, 50) {
 			@Override
 			public void make(Item it, int power) {
 				it.resistanceVs = Element.ICE;
-				it.resistance = 1 - 1 / (power / 8.0 + 1);
+				it.resistance = 1 - 1 / (power / 30.0 + 1);
 			}
 		},
 		HP_BONUS(0, new Clr(150, 50, 0), 100) {

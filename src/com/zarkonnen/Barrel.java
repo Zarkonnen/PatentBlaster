@@ -15,6 +15,7 @@ public class Barrel extends Entity {
 				s.friction = 0.98;
 				s.glint = new Clr(250, 240, 230);
 				s.flammable = true;
+				s.flammableWeapon = b.weapon;
 				return s;
 			}
 		},
@@ -150,6 +151,8 @@ public class Barrel extends Entity {
 				weapon.element = Element.ICE;	
 				weapon.tint = Element.ICE.tint;	
 				break;
+			case OIL:
+				weapon.dmg *= 3;
 			case EXPLOSIVES:
 				weapon.element = Element.FIRE;
 				weapon.tint = Element.FIRE.tint;	
