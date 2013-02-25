@@ -42,7 +42,7 @@ public class PatentBlaster implements Game {
 	public static final boolean DEMO = false;
 	public static final int DEMO_LEVELS = 4;
 	
-	public static final int NUM_IMAGES = DEMO ? 3 : 5;
+	public static final int NUM_IMAGES = DEMO ? 3 : 6;
 	public static final int NUM_VOICES = DEMO ? 3 : 14;
 	public static final int FPS = 60;
 	public static final String ALPHABET = " qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890-=+_!?<>,.;:\"'@£$%^&*()[]{}|\\~/±";

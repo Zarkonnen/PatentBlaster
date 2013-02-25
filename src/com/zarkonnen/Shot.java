@@ -39,6 +39,7 @@ public class Shot extends Entity {
 	public Clr glint = null;
 	public boolean freeAgent = false;
 	public boolean flammable = false;
+	public Weapon flammableWeapon = null;
 	public boolean remains;
 	
 	public Shot(Level l, Creature hoverer) {
@@ -132,12 +133,12 @@ public class Shot extends Entity {
 			case FIRE:
 				gravityMult = -0.1;
 				popOnWorldHit = true;
-				dmgMultiplier = 0.01 * PatentBlaster.shotDivider();
+				dmgMultiplier = 0.03 * PatentBlaster.shotDivider();
 				break;
 			case ICE:
 				gravityMult = 0.12;
 				popOnWorldHit = true;
-				dmgMultiplier = 0.05 * PatentBlaster.shotDivider();
+				dmgMultiplier = 0.04 * PatentBlaster.shotDivider();
 				break;
 			case STEEL:
 				gravityMult = 0;

@@ -217,11 +217,11 @@ public class Level implements MusicDone, Serializable {
 					for (Shot s2 : shots) {
 						if (!s2.flammable) { continue; }
 						if (intersects(s, s2)) {
-							s2.weapon = s.weapon;
+							s2.weapon = s2.flammableWeapon;
 							s2.shooter = s.shooter;
-							s2.dmgMultiplier = 4.0 / s.weapon.reload * s.weapon.numBullets;
+							s2.dmgMultiplier = 0; // All damage done via spray.
 							s2.slipperiness = 0;
-							s2.sprayProbability = 0.1;
+							s2.sprayProbability = 0.03;
 							s2.tint = Element.FIRE.tint;
 							s2.flammable = false;
 							s2.remains = true;
@@ -307,15 +307,15 @@ public class Level implements MusicDone, Serializable {
 		}
 		e.x += e.dx;
 		if (!e.collides) { e.y += e.dy; return; }
-		int left = (int) Math.floor(e.x / GRID_SIZE);
-		int right = (int) Math.floor((e.x + e.w) / GRID_SIZE);
-		int top = (int) Math.floor(e.y / GRID_SIZE);
-		int bottom = (int) Math.floor((e.y + e.h) / GRID_SIZE);
+		int left = Math.max(0, (int) Math.floor(e.x / GRID_SIZE));
+		int right = Math.min(LVL_W - 1, (int) Math.floor((e.x + e.w) / GRID_SIZE));
+		int top = Math.max(0, (int) Math.floor(e.y / GRID_SIZE));
+		int bottom = Math.min(LVL_H - 1, (int) Math.floor((e.y + e.h) / GRID_SIZE));
 		if (e.dx < 0 && (grid[top][left] >= SOLID_START || grid[bottom][left] >= SOLID_START)) {
 			e.x = (left + 1) * GRID_SIZE + 0.001;
 			e.dx = 0;
-			left = (int) Math.floor(e.x / GRID_SIZE);
-			right = (int) Math.floor((e.x + e.w) / GRID_SIZE);
+			left = Math.max(0, (int) Math.floor(e.x / GRID_SIZE));
+			right = Math.min(LVL_W - 1, (int) Math.floor((e.x + e.w) / GRID_SIZE));
 			e.ticksSinceBottom = 0;
 			e.ticksSinceSide = 0;
 			e.leftPress += e.pressAmount;
@@ -323,16 +323,16 @@ public class Level implements MusicDone, Serializable {
 		} else if (e.dx > 0 && (grid[top][right] >= SOLID_START || grid[bottom][right] >= SOLID_START)) {
 			e.x = right * GRID_SIZE - e.w - 0.001;
 			e.dx = 0;
-			left = (int) Math.floor(e.x / GRID_SIZE);
-			right = (int) Math.floor((e.x + e.w) / GRID_SIZE);
+			left = Math.max(0, (int) Math.floor(e.x / GRID_SIZE));
+			right = Math.min(LVL_W - 1, (int) Math.floor((e.x + e.w) / GRID_SIZE));
 			e.ticksSinceBottom = 0;
 			e.ticksSinceSide = 0;
 			e.rightPress += e.pressAmount;
 			if (e.popOnWorldHit) { e.killMe = true; }
 		}
 		e.y += e.dy;
-		top = (int) Math.floor(e.y / GRID_SIZE);
-		bottom = (int) Math.floor((e.y + e.h) / GRID_SIZE);
+		top = Math.max(0, (int) Math.floor(e.y / GRID_SIZE));
+		bottom = Math.min(LVL_H - 1, (int) Math.floor((e.y + e.h) / GRID_SIZE));
 		if (e.dy > 0 && (grid[bottom][left] >= SOLID_START || grid[bottom][right] >= SOLID_START)) {
 			e.y = bottom * GRID_SIZE - e.h - 0.001;
 			if (e.dy > G * 2) {
@@ -383,7 +383,7 @@ public class Level implements MusicDone, Serializable {
 	}
 
 	private boolean hitTest(Creature c, Shot s) {
-		if (s.weapon != null && intersectsShot(c, s) && !s.immune.contains(c)) {
+		if (s.weapon != null && intersectsShot(c, s) && (!s.immune.contains(c) || s.freeAgent)) {
 			int preHP = c.hp;
 			boolean preFrozen = c.frozen > 0;
 			boolean preOnFire = c.onFire > 0;

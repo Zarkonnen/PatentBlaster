@@ -15,8 +15,8 @@ import java.io.Serializable;
 import java.util.Collections;
 
 public class Creature extends Entity implements HasDesc {
-	public static final double MAX_SPEED = 6;
-	public static final double HOP_BONUS = 3.5;
+	public static final double MAX_SPEED = 5;
+	public static final double HOP_BONUS = 2;
 	public static final int AIR_STEERING = 10;
 	public static final int ABOVE_PREF = Level.GRID_SIZE * 5 / 2;
 	public static final Clr JAR_CLR = new Clr(110, 90, 85);
@@ -232,7 +232,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public void jump() {
-		dy = -totalSpeed() - HOP_BONUS * (stickiness > 0 ? 0.2 : 1);
+		dy = -totalSpeed() * 0.5 - HOP_BONUS * (stickiness > 0 ? 0.2 : 1);
 		jumpElongate = maxPress;
 	}
 	
@@ -898,6 +898,9 @@ public class Creature extends Entity implements HasDesc {
 		if (hp <= 0) { return 0; }
 		Weapon src = shot.weapon;
 		int dmg = (int) (src.dmg * shot.dmgMultiplier);
+		if (dmg == 0 && src.dmg > 0 && l.r.nextDouble() <= src.dmg * shot.dmgMultiplier) {
+			dmg = 1;
+		}
 		if (jar) {
 			dmg *= 10;
 		}

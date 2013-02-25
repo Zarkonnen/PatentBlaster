@@ -15,6 +15,7 @@ public class Barrel extends Entity {
 				s.friction = 0.98;
 				s.glint = new Clr(250, 240, 230);
 				s.flammable = true;
+				s.flammableWeapon = b.weapon;
 				return s;
 			}
 		},
@@ -120,6 +121,7 @@ public class Barrel extends Entity {
 	}
 	
 	public Barrel(Type t, long seed, int power, double x, double y, Random r) {
+		t = Type.OIL;
 		if (t.name().length() > 6) {
 			textShift = r.nextInt(t.name().length() - 5);
 		}
@@ -150,6 +152,8 @@ public class Barrel extends Entity {
 				weapon.element = Element.ICE;	
 				weapon.tint = Element.ICE.tint;	
 				break;
+			case OIL:
+				weapon.dmg *= 3;
 			case EXPLOSIVES:
 				weapon.element = Element.FIRE;
 				weapon.tint = Element.FIRE.tint;	
