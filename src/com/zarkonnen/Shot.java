@@ -191,7 +191,7 @@ public class Shot extends Entity {
 					if (revenant) {
 						// Make bleeder into zombie.
 						bleeder.tint = new Clr(100, 130, 90);
-						bleeder.maxHP *= 2.7;
+						bleeder.maxHP *= 2.4;
 						bleeder.weapon.element = Element.ACID;
 						bleeder.weapon.shotSpeed /= 2;
 						bleeder.weapon.shotLife *= 1.2;

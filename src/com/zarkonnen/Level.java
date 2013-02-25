@@ -392,7 +392,7 @@ public class Level implements MusicDone, Serializable {
 			if (s.shooter == player && dx * dx + dy * dy < 550 * 550 && dx * dx + dy * dy > player.w * player.w) {
 				if (preHP > 0 && c.hp <= 0) {
 					s.knownKills++;
-					if (s.knownKills == 1 && s.weapon.element == Element.ACID && s.age >= 5 && s.dy != 0 && s.dmgMultiplier < 1) {
+					if (s.knownKills == 1 && s.weapon.element == Element.ACID && s.age >= 10 && s.dy != 0 && s.dmgMultiplier < 1) {
 						texts.add(new FloatingText("ACID RAIN", s.x + s.w / 2, s.y));
 						soundRequests.add(new SoundRequest("acid_rain", s.x + s.w / 2, s.y + s.h / 2, 1.0));
 					}
@@ -401,7 +401,7 @@ public class Level implements MusicDone, Serializable {
 						soundRequests.add(new SoundRequest("shish_kebab", s.x + s.w / 2, s.y + s.h / 2, 1.0));
 					}
 				}
-				if (!preFrozen && c.frozen > 0 && s.dmgMultiplier < 1 && s.weapon.element == Element.ICE && s.age >= 5) {
+				if (!preFrozen && c.frozen > 0 && s.dmgMultiplier < 1 && s.weapon.element == Element.ICE && s.age >= 10) {
 					texts.add(new FloatingText("IT'S SNOWING", s.x + s.w / 2, s.y));
 					soundRequests.add(new SoundRequest("its_snowing", s.x + s.w / 2, s.y + s.h / 2, 1.0));
 				}

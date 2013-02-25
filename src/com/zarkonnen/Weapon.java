@@ -85,7 +85,7 @@ public class Weapon implements HasDesc, Serializable {
 		w.name = Names.pick(r);
 		w.imgIndex = r.nextInt(PatentBlaster.NUM_IMAGES);
 		w.img = PatentBlaster.CREATURE_IMGS.get(PatentBlaster.IMG_NAMES[w.imgIndex]);
-		w.dmg = Math.max(1, (int) Math.ceil(dmg * powerLvl(power)));
+		w.dmg = Math.max(1, (int) Math.ceil(dmg * Math.pow(powerLvl(power), 1.2)));
 		w.shotSpeed *= w.element.speedMult;
 		return w;
 	}

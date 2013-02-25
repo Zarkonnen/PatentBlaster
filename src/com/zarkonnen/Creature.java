@@ -265,16 +265,16 @@ public class Creature extends Entity implements HasDesc {
 		}
 		
 		double width = w / PatentBlaster.IMG_W[imgIndex];
-		double height = h / PatentBlaster.IMG_W[imgIndex];
+		double height = h / PatentBlaster.IMG_H[imgIndex];
 		double ex = x + scrollX - width / 2 + w / 2;
 		double ey = y + scrollY - height + h;
 		d.blit(flipped ? flippedImg : img, t, ex, ey, width, height, angle);
 		if (!PatentBlaster.lowGraphics) {
 			if (frozen > 0) {
-				d.rect(new Clr(100, 110, 200, 120), ex - w / 10, ey - h / 10, width + w / 5, height + w / 5, angle);
+				d.rect(new Clr(100, 110, 200, 120), scrollX + x - w / 10, scrollY + y - h / 10, w + w / 5, h + h / 5, angle);
 			}
 			if (shield > 0) {
-				d.rect(new Clr(255, 255, 255, shield), ex - w / 10, ey - h / 10, width + w / 5, height + w / 5, angle);
+				d.rect(new Clr(255, 255, 255, shield), scrollX + x - w / 10, scrollY + y - h / 10, w + w / 5, h + h / 5, angle);
 			}
 		}
 		if (l.player.canSeeStats || this == l.player) {
@@ -301,6 +301,12 @@ public class Creature extends Entity implements HasDesc {
 				d.rect(Element.ICE.tint, x + scrollX + 1, y + scrollY + h - 14, (w - 4) * (- heat) * 4 / tmh, 4);
 			}
 		}
+		/*
+		d.rect(Clr.WHITE, x + scrollX, y + scrollY, w, 1);
+		d.rect(Clr.WHITE, x + scrollX, y + scrollY + h - 1, w, 1);
+		d.rect(Clr.WHITE, x + scrollX, y + scrollY, 1, h);
+		d.rect(Clr.WHITE, x + scrollX + w - 1, y + scrollY, 1, h);
+		*/
 	}
 	
 	public Clr bloodClr() {
@@ -329,7 +335,7 @@ public class Creature extends Entity implements HasDesc {
 		}
 		
 		double gw = w / PatentBlaster.IMG_W[imgIndex];
-		double gh = h / PatentBlaster.IMG_W[imgIndex];
+		double gh = h / PatentBlaster.IMG_H[imgIndex];
 		double gx = x - gw / 2 + w / 2;
 		double gy = y - gh + h;
 		
@@ -846,7 +852,7 @@ public class Creature extends Entity implements HasDesc {
 			// Finally, adjust squish.
 			if (leftPress > 0) {
 				double newW = normalW * (1.0 - squish() * leftPress / maxPress);
-				x -= newW - w + 0.001;
+				x -= newW - w - 0.0001;
 				dx += newW - w;
 				w = newW;
 			} else if (rightPress > 0) {
@@ -1068,7 +1074,7 @@ public class Creature extends Entity implements HasDesc {
 			c.reproduces = true;
 			hp *= 0.8;
 		}
-		if (!player && power > 2 && !c.splitsIntoFour && r.nextInt((boss ? 10 : 30) / power + (boss ? 3 : 6)) == 0) {
+		if (!player && power > 2 && !c.splitsIntoFour && r.nextInt((boss ? 10 : 30) / power + (boss ? 4 : 10)) == 0) {
 			c.resurrects = true;
 			hp *= 0.9;
 		}
@@ -1076,7 +1082,7 @@ public class Creature extends Entity implements HasDesc {
 			c.finalForm = make(seed + 1349, power * 5 / 4, numImages, boss, player, false);
 			hp *= 0.9;
 		}
-		if (!player && power > 2 && c.finalForm == null && !c.splitsIntoFour && !c.resurrects && r.nextInt(30 / power + 5) == 0) {
+		if (!player && power > 2 && c.finalForm == null && !c.splitsIntoFour && !c.resurrects && r.nextInt(30 / power + 8) == 0) {
 			c.reviens = true;
 			hp *= 0.9;
 		}
@@ -1116,7 +1122,7 @@ public class Creature extends Entity implements HasDesc {
 		c.tint = c.resistance != null ? c.resistance.tint : new Clr(red, green, blue);
 		c.animCycleLength = 10 + r.nextInt(100);
 		c.w = sz * PatentBlaster.IMG_W[c.imgIndex];
-		c.h = sz * PatentBlaster.IMG_W[c.imgIndex];
+		c.h = sz * PatentBlaster.IMG_H[c.imgIndex];
 		c.normalW = c.w;
 		c.normalH = c.h;
 		c.size = sz;

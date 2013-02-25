@@ -976,7 +976,7 @@ public class PatentBlaster implements Game {
 			// Background texture
 			if (!lowGraphics && l.background != -1) {
 				for (int y = -l.backgroundH; y < (Level.LVL_H + 1) * Level.GRID_SIZE + 300; y += l.backgroundH - 2) {
-					for (int x = -l.backgroundW; x < (Level.LVL_W + 1) * Level.GRID_SIZE; x += l.backgroundW) {
+					for (int x = -l.backgroundW; x < (Level.LVL_W + 1) * Level.GRID_SIZE + 300; x += l.backgroundW) {
 						d.blit("background_" + l.background, x + scrollX, y + scrollY);
 					}
 				}
