@@ -121,6 +121,7 @@ public class Barrel extends Entity {
 	}
 	
 	public Barrel(Type t, long seed, int power, double x, double y, Random r) {
+		t = Type.OIL;
 		if (t.name().length() > 6) {
 			textShift = r.nextInt(t.name().length() - 5);
 		}
