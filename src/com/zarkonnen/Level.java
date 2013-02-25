@@ -50,6 +50,7 @@ public class Level implements MusicDone, Serializable {
 		this.player = player;
 		r = new Random(seed);
 		boolean hasBarrels = power > 1 && r.nextBoolean();
+		hasBarrels = true;
 		Barrel.Type bType = Barrel.Type.values()[r.nextInt(Barrel.Type.values().length)];
 		music = MUSICS[r.nextInt(MUSICS.length)];
 		background = r.nextInt(NUM_BACKGROUNDS);
@@ -75,7 +76,7 @@ public class Level implements MusicDone, Serializable {
 				if (r.nextInt(8) == 0) {
 					grid[LVL_H - 2 - h][i] = 1;
 				} else if (hasBarrels && r.nextInt(9) == 0) {
-					barrels.add(new Barrel(bType, seed, power, i * GRID_SIZE + r.nextInt(8), (LVL_H - gridH[i] - 1) * GRID_SIZE - 61));
+					barrels.add(new Barrel(bType, seed, power, i * GRID_SIZE + r.nextInt(8), (LVL_H - gridH[i] - 1) * GRID_SIZE - 61, r));
 				}
 			}
 		}

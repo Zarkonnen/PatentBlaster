@@ -2,6 +2,7 @@ package com.zarkonnen;
 
 import com.zarkonnen.catengine.Draw;
 import com.zarkonnen.catengine.util.Clr;
+import java.util.Random;
 
 public class Barrel extends Entity {
 	public static enum Type {
@@ -110,14 +111,18 @@ public class Barrel extends Entity {
 	public Type t;
 	public Weapon weapon;
 	public Creature meatSource;
+	public int textShift;
 	
 	@Override
 	public void draw(Draw d, Level l, double scrollX, double scrollY) {
 		super.draw(d, l, scrollX, scrollY);
-		d.text("[bg=dddd88][BLACK]" + t.name().substring(0, Math.min(t.name().length(), 6)).replace("_", " "), PatentBlaster.SMOUNT, x + scrollX + 1, y + scrollY + 20);
+		d.text("[bg=dddd88][BLACK]" + t.name().substring(textShift, Math.min(t.name().length(), 6) + textShift).replace("_", " "), PatentBlaster.SMOUNT, x + scrollX + 1, y + scrollY + 20);
 	}
 	
-	public Barrel(Type t, long seed, int power, double x, double y) {
+	public Barrel(Type t, long seed, int power, double x, double y, Random r) {
+		if (t.name().length() > 6) {
+			textShift = r.nextInt(t.name().length() - 5);
+		}
 		this.t = t;
 		this.x = x;
 		this.y = y;
