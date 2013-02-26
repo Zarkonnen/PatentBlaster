@@ -121,7 +121,6 @@ public class Barrel extends Entity {
 	}
 	
 	public Barrel(Type t, long seed, int power, double x, double y, Random r) {
-		t = Type.OIL;
 		if (t.name().length() > 6) {
 			textShift = r.nextInt(t.name().length() - 5);
 		}
@@ -153,7 +152,7 @@ public class Barrel extends Entity {
 				weapon.tint = Element.ICE.tint;	
 				break;
 			case OIL:
-				weapon.dmg *= 3;
+				weapon.dmg *= 6;
 			case EXPLOSIVES:
 				weapon.element = Element.FIRE;
 				weapon.tint = Element.FIRE.tint;	

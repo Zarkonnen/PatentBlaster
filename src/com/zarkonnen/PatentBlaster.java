@@ -92,7 +92,6 @@ public class PatentBlaster implements Game {
 	Pt curs = new Pt(0, 0);
 	Pt cursOverride = null;
 	int nextLvlTime = 0;
-	int power = 1;
 	String info = "";
 	boolean screened = false;
 	static boolean setup = true;
@@ -333,11 +332,10 @@ public class PatentBlaster implements Game {
 				autoSave();
 				setup = true;
 				nextLvlTime = 0;
-				power = 1;
 				return;
 			}
 		} else if (l.won()) {
-			if (power == DEMO_LEVELS && DEMO) {
+			if (l.power == DEMO_LEVELS && DEMO) {
 				l.player.hp = -1;
 				l.player.explodes = true;
 				l.player.lastShooter = null;
@@ -349,19 +347,19 @@ public class PatentBlaster implements Game {
 			nextLvlTime++;
 			if (nextLvlTime >= 140) {
 				l.player.newThing = null;
-				l = new Level(System.currentTimeMillis(), ++power, l.player);
+				l = new Level(System.currentTimeMillis(), l.power + 1, l.player);
 				l.player.heal();
 				nextLvlTime = 0;
 				int attempt = 0;
 				Weapon w = null;
 				cooldown = 20;
 				do {
-					w = Weapon.make(System.currentTimeMillis() + attempt++ * 1234, power + difficultyLevel.shopBonus);
+					w = Weapon.make(System.currentTimeMillis() + attempt++ * 1234, l.power + difficultyLevel.shopBonus);
 				} while (attempt < 50 && !l.player.isUseful(w));
 				l.shopItems.add(w);
 				EnumSet<Item.Type> takenTypes = EnumSet.noneOf(Item.Type.class);
 				for (int i = 0; i < 3; i++) {
-					Item it  = Item.make(System.currentTimeMillis() + i * 90238, power + difficultyLevel.shopBonus, l.player, takenTypes);
+					Item it  = Item.make(System.currentTimeMillis() + i * 90238, l.power + difficultyLevel.shopBonus, l.player, takenTypes);
 					takenTypes.add(it.type);
 					l.shopItems.add(it);
 				}
@@ -865,7 +863,7 @@ public class PatentBlaster implements Game {
 							@Override
 							public void run(Input in, Pt p, Hook.Type type) {
 								if (cooldown != 0) { return; }
-								l = new Level(System.currentTimeMillis() + 10981, power = 1, c);
+								l = new Level(System.currentTimeMillis() + 10981, 1, c);
 								l.player.makePlayerAble();
 								l.player.heal();
 								l.player.weapon.reloadLeft = 10;
@@ -1018,8 +1016,8 @@ public class PatentBlaster implements Game {
 			}*/
 			
 			showEquipment(d, sm, FOUNT, textBGTint, true);
-			Pt ts = d.textSize("Level " + power, FOUNT);
-			d.text("Level " + power, FOUNT, sm.width - ts.x - 10, 10);
+			Pt ts = d.textSize("Level " + l.power, FOUNT);
+			d.text("Level " + l.power, FOUNT, sm.width - ts.x - 10, 10);
 		}
 		
 		if (showFPS) {

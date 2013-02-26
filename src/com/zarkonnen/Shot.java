@@ -13,7 +13,7 @@ public class Shot extends Entity {
 	public Creature shooter;
 	public double sprayProbability;
 	public double dmgMultiplier = 1;
-	public ArrayList<Creature> immune = new ArrayList<Creature>();
+	public ArrayList<Creature> immune = null;
 	public int lifeLeft = 0;
 	public Creature hoverer;
 	public Creature bleeder;
@@ -75,6 +75,9 @@ public class Shot extends Entity {
 				target = l.player;
 			}
 		}
+		if (w.penetrates()) {
+			immune = new ArrayList<Creature>();
+		}
 		this.weapon = w;
 		this.shooter = shooter;
 		this.tint = w.element.tint;
@@ -90,7 +93,6 @@ public class Shot extends Entity {
 		dx = w.shotSpeed * Math.cos(angle);
 		dy = w.shotSpeed * Math.sin(angle);
 		lifeLeft = w.shotLife;
-		immune.add(shooter);
 		switch (w.element) {
 			case ACID:
 				sprayProbability = 0.05;
@@ -105,9 +107,15 @@ public class Shot extends Entity {
 				sprayProbability = 0;
 				break;
 		}
+		if (w.shotgun) {
+			sprayProbability /= 8;
+		}
 	}
 	
 	public Shot(Level l, Shot p) {
+		if (p.weapon.penetrates()) {
+			immune = new ArrayList<Creature>();
+		}
 		freeAgent = p.freeAgent;
 		weapon = p.weapon;
 		shooter = p.shooter;
@@ -133,12 +141,12 @@ public class Shot extends Entity {
 			case FIRE:
 				gravityMult = -0.1;
 				popOnWorldHit = true;
-				dmgMultiplier = 0.03 * PatentBlaster.shotDivider();
+				dmgMultiplier = 0.015 * PatentBlaster.shotDivider();
 				break;
 			case ICE:
 				gravityMult = 0.12;
 				popOnWorldHit = true;
-				dmgMultiplier = 0.04 * PatentBlaster.shotDivider();
+				dmgMultiplier = 0.02 * PatentBlaster.shotDivider();
 				break;
 			case STEEL:
 				gravityMult = 0;
@@ -146,7 +154,6 @@ public class Shot extends Entity {
 				dmgMultiplier = 0.2 * PatentBlaster.shotDivider();
 				break;
 		}
-		immune.add(shooter);
 	}
 	
 	public boolean doNotEndLevel() {
@@ -258,8 +265,9 @@ public class Shot extends Entity {
 						l.texts.add(new FloatingText("FINAL FORM", bleeder.x + bleeder.w / 2, bleeder.y));
 					}
 					reborn.weapon.reloadLeft = reborn.weapon.reload;
-					for (Shot s : l.shots) { // No sneaking up!
-						if (s.remains) {
+					for (Shot s : l.shots) {
+						if (s.weapon != null) {
+							if (s.immune == null) { s.immune = new ArrayList<Creature>(); }
 							s.immune.add(reborn);
 						}
 					}

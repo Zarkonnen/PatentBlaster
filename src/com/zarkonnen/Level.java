@@ -97,7 +97,7 @@ public class Level implements MusicDone, Serializable {
 		player.x = GRID_SIZE * 2;
 		player.y = (LVL_H - gridH[2] - 1) * GRID_SIZE - player.h - (player.moveMode == MoveMode.FLY || player.moveMode == MoveMode.HOVER ? player.h / 4 : 0) - 1;
 		
-		boss = Creature.make(seed + 92318, power + 2, PatentBlaster.NUM_IMAGES, true, false, true);
+		boss = Creature.make(seed + 92318, power * 4 / 3 + 1, PatentBlaster.NUM_IMAGES, true, false, true);
 		boss.x = (LVL_W - 8) * GRID_SIZE;
 		boss.y = (LVL_H - gridH[LVL_W - 8] - 1) * GRID_SIZE - boss.h - (boss.moveMode == MoveMode.FLY || boss.moveMode == MoveMode.HOVER ? boss.h / 4 : 0) - 1;
 		if (r.nextBoolean()) {
@@ -357,8 +357,12 @@ public class Level implements MusicDone, Serializable {
 	
 	public boolean intersectsShot(Creature c, Shot s) {
 		if (!intersects(c, s)) { return false; }
-		int myX = (int) ((s.x + s.w / 2 - c.x) / c.w * Grids.GRID_SZ);
-		int myY = (int) ((s.y + s.h / 2 - c.y) / c.h * Grids.GRID_SZ);
+		double imgW = c.w / PatentBlaster.IMG_W[c.imgIndex];
+		double imgH = c.h / PatentBlaster.IMG_H[c.imgIndex];
+		double imgX = c.x - imgW / 2 + c.w / 2;
+		double imgY = c.y - imgH + c.h;
+		int myX = (int) ((s.x + s.w / 2 - imgX) / imgW * Grids.GRID_SZ);
+		int myY = (int) ((s.y + s.h / 2 - imgY) / imgH * Grids.GRID_SZ);
 		if (myX < 0 || myY < 0 || myX >= Grids.GRID_SZ || myY >= Grids.GRID_SZ) {
 			return false;
 		}
@@ -382,7 +386,7 @@ public class Level implements MusicDone, Serializable {
 	}
 
 	private boolean hitTest(Creature c, Shot s) {
-		if (s.weapon != null && intersectsShot(c, s) && (!s.immune.contains(c) || s.freeAgent)) {
+		if (s.weapon != null && intersectsShot(c, s) && (s.freeAgent || (s.shooter != c && (s.immune == null || !s.immune.contains(c))))) {
 			int preHP = c.hp;
 			boolean preFrozen = c.frozen > 0;
 			boolean preOnFire = c.onFire > 0;
@@ -392,24 +396,24 @@ public class Level implements MusicDone, Serializable {
 			if (s.shooter == player && dx * dx + dy * dy < 550 * 550 && dx * dx + dy * dy > player.w * player.w) {
 				if (preHP > 0 && c.hp <= 0) {
 					s.knownKills++;
-					if (s.knownKills == 1 && s.weapon.element == Element.ACID && s.age >= 10 && s.dy != 0 && s.dmgMultiplier < 1) {
+					if (s.knownKills == 1 && s.weapon.element == Element.ACID && s.age >= 20 && s.dy != 0 && s.dmgMultiplier < 1) {
 						texts.add(new FloatingText("ACID RAIN", s.x + s.w / 2, s.y));
-						soundRequests.add(new SoundRequest("acid_rain", s.x + s.w / 2, s.y + s.h / 2, 1.0));
+						//soundRequests.add(new SoundRequest("acid_rain", s.x + s.w / 2, s.y + s.h / 2, 1.0));
 					}
 					if (s.knownKills == 3 && s.weapon.element == Element.STEEL) {
 						texts.add(new FloatingText("SHISH KEBAB", s.x + s.w / 2, s.y));
-						soundRequests.add(new SoundRequest("shish_kebab", s.x + s.w / 2, s.y + s.h / 2, 1.0));
+						//soundRequests.add(new SoundRequest("shish_kebab", s.x + s.w / 2, s.y + s.h / 2, 1.0));
 					}
 				}
-				if (!preFrozen && c.frozen > 0 && s.dmgMultiplier < 1 && s.weapon.element == Element.ICE && s.age >= 10) {
+				if (!preFrozen && c.frozen > 0 && s.dmgMultiplier < 1 && s.weapon.element == Element.ICE && s.age >= 20) {
 					texts.add(new FloatingText("IT'S SNOWING", s.x + s.w / 2, s.y));
-					soundRequests.add(new SoundRequest("its_snowing", s.x + s.w / 2, s.y + s.h / 2, 1.0));
+					//soundRequests.add(new SoundRequest("its_snowing", s.x + s.w / 2, s.y + s.h / 2, 1.0));
 				}
 				if (!preOnFire && c.onFire > 0 && s.weapon.element == Element.FIRE) {
 					bbqVictims.add(tick);
 					if (bbqVictims.size() == 3) {
 						texts.add(new FloatingText("BBQ", s.x + s.w / 2, s.y));
-						soundRequests.add(new SoundRequest("BBQ", s.x + s.w / 2, s.y + s.h / 2, 1.0));
+						//soundRequests.add(new SoundRequest("BBQ", s.x + s.w / 2, s.y + s.h / 2, 1.0));
 					}
 				}
 			}
@@ -417,7 +421,7 @@ public class Level implements MusicDone, Serializable {
 				s.killMe = true;
 				return true;
 			} else {
-				if (!s.remains) {
+				if (s.immune != null) {
 					s.immune.add(c);
 				}
 			}

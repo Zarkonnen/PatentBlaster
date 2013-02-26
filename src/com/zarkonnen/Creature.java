@@ -264,11 +264,11 @@ public class Creature extends Entity implements HasDesc {
 			}
 		}
 		
-		double width = w / PatentBlaster.IMG_W[imgIndex];
-		double height = h / PatentBlaster.IMG_H[imgIndex];
-		double ex = x + scrollX - width / 2 + w / 2;
-		double ey = y + scrollY - height + h;
-		d.blit(flipped ? flippedImg : img, t, ex, ey, width, height, angle);
+		double imgW = w / PatentBlaster.IMG_W[imgIndex];
+		double imgH = h / PatentBlaster.IMG_H[imgIndex];
+		double imgX = x + scrollX - imgW / 2 + w / 2;
+		double imgY = y + scrollY - imgH + h;
+		d.blit(flipped ? flippedImg : img, t, imgX, imgY, imgW, imgH, angle);
 		if (!PatentBlaster.lowGraphics) {
 			if (frozen > 0) {
 				d.rect(new Clr(100, 110, 200, 120), scrollX + x - w / 10, scrollY + y - h / 10, w + w / 5, h + h / 5, angle);
@@ -426,7 +426,12 @@ public class Creature extends Entity implements HasDesc {
 				tiny.dy = dy;
 				tiny.heal();
 				l.monstersToAdd.add(tiny);
-				for (Shot s : l.shots) { s.immune.add(tiny); }
+				for (Shot s : l.shots) {
+					if (s.weapon != null) {
+						if (s.immune == null) { s.immune = new ArrayList<Creature>(); }
+						s.immune.add(tiny);
+					}
+				}
 			}
 		}
 		if (jar) {
@@ -440,7 +445,12 @@ public class Creature extends Entity implements HasDesc {
 				tiny.knockedBack = 120;
 				tiny.weapon.reloadLeft = (int) (tiny.weapon.reload * l.r.nextDouble());
 				l.monstersToAdd.add(tiny);
-				for (Shot s : l.shots) { s.immune.add(tiny); }
+				for (Shot s : l.shots) {
+					if (s.weapon != null) {
+						if (s.immune == null) { s.immune = new ArrayList<Creature>(); }
+						s.immune.add(tiny);
+					}
+				}
 			}
 		}
 		
@@ -801,6 +811,7 @@ public class Creature extends Entity implements HasDesc {
 			if (l.tick % PatentBlaster.shotDivider() == 0) {
 				Shot fireShot = new Shot(l, fireWeapon, fireShooter, x + w / 2, -10000);
 				fireShot.sprayProbability = alwaysOnFire ? 0.1 : 0.5;
+				fireShot.immune = new ArrayList<Creature>();
 				fireShot.immune.add(this);
 				fireShot.dx = 0;
 				fireShot.dy = 0;
@@ -836,7 +847,12 @@ public class Creature extends Entity implements HasDesc {
 					baby.dx = l.r.nextDouble() * 8 - 4;
 					baby.dy = -l.r.nextDouble() * 3 - 1;
 					l.monstersToAdd.add(baby);
-					for (Shot s : l.shots) { s.immune.add(baby); }
+					for (Shot s : l.shots) {
+					if (s.weapon != null) {
+							if (s.immune == null) { s.immune = new ArrayList<Creature>(); }
+							s.immune.add(baby);
+						}
+					}
 					babies.add(baby);
 				}
 			}
@@ -1077,15 +1093,15 @@ public class Creature extends Entity implements HasDesc {
 			c.reproduces = true;
 			hp *= 0.8;
 		}
-		if (!player && power > 2 && !c.splitsIntoFour && r.nextInt((boss ? 10 : 30) / power + (boss ? 4 : 10)) == 0) {
+		if (!player && power > 2 && !c.splitsIntoFour && r.nextInt((boss ? 10 : 30) / power + (boss ? 4 : 15)) == 0) {
 			c.resurrects = true;
 			hp *= 0.9;
 		}
-		if (!player && !PatentBlaster.DEMO && allowFinalForm && power > 3 && !c.splitsIntoFour && r.nextInt((boss ? 10 : 30) / power + (boss ? 3 : 6)) == 0) {
+		if (!player && !PatentBlaster.DEMO && allowFinalForm && power > 3 && !c.splitsIntoFour && r.nextInt((boss ? 10 : 30) / power + (boss ? 3 : 12)) == 0) {
 			c.finalForm = make(seed + 1349, power * 5 / 4, numImages, boss, player, false);
 			hp *= 0.9;
 		}
-		if (!player && power > 2 && c.finalForm == null && !c.splitsIntoFour && !c.resurrects && r.nextInt(30 / power + 8) == 0) {
+		if (!player && power > 2 && c.finalForm == null && !c.splitsIntoFour && !c.resurrects && r.nextInt(30 / power + 12) == 0) {
 			c.reviens = true;
 			hp *= 0.9;
 		}

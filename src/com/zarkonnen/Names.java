@@ -25,7 +25,6 @@ public class Names {
 						/ 1000 // ms -> s
 						/ 3600 // s -> h
 						/ 24; // h -> d
-				daysSinceLastReceived = 10;
 				if (daysSinceLastReceived < 3) {
 					synchronized (names) {
 						for (int page = 0; page < 10; page++) {
