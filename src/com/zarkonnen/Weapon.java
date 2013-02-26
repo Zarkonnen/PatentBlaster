@@ -3,7 +3,7 @@ package com.zarkonnen;
 import com.zarkonnen.catengine.util.Clr;
 import java.util.Random;
 import static com.zarkonnen.PatentBlaster.round;
-import static com.zarkonnen.Util.*;
+import static com.zarkonnen.Const.*;
 import com.zarkonnen.catengine.Img;
 import java.io.Serializable;
 

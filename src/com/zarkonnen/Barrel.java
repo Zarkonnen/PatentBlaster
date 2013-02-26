@@ -8,12 +8,13 @@ public class Barrel extends Entity {
 	public static enum Type {
 		OIL(4, "squelch") {
 			final Clr TINT = new Clr(10, 5, 0);
+			final Clr GLINT = new Clr(10, 5, 0);
 			@Override
 			public Shot makeShot(Level l, Barrel b, double x, double y) {
 				Shot s = new Shot(TINT, chunkSize + 2, false, 10000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 3 - 1.5, l.r.nextDouble() * 3 - 1.5, 1.0, null, false, false, false, x, y, 0);
 				s.slipperiness = 2;
 				s.friction = 0.98;
-				s.glint = new Clr(250, 240, 230);
+				s.glint = GLINT;
 				s.flammable = true;
 				s.flammableWeapon = b.weapon;
 				return s;
@@ -127,20 +128,20 @@ public class Barrel extends Entity {
 		this.t = t;
 		this.x = x;
 		this.y = y;
-		hp = (int) (Util.BASE_BARREL_HP * Util.powerLvl(power)) + 1;
+		hp = (int) (Const.BASE_BARREL_HP * Const.powerLvl(power)) + 1;
 		initialHP = hp;
 		this.w = 42;
 		this.h = 60;
 		tint = Clr.GREY;
 		meatSource = new Creature();
-		meatSource.maxHP = (int) (Util.BASE_HP * Util.powerLvl(power)) + 1;
+		meatSource.maxHP = (int) (Const.BASE_HP * Const.powerLvl(power)) + 1;
 		meatSource.x = x;
 		meatSource.y = y;
 		meatSource.w = w;
 		meatSource.h = h;
 		
 		weapon = new Weapon();
-		weapon.dmg = (int) (0.4 * Util.BASE_DMG * Util.powerLvl(power)) + 1;
+		weapon.dmg = (int) (0.4 * Const.BASE_DMG * Const.powerLvl(power)) + 1;
 		weapon.shotSize = 4;
 		weapon.shotLife = 75;
 		weapon.shotSpeed = 6;

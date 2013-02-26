@@ -60,6 +60,10 @@ public class PatentBlaster implements Game {
 	public static final double[] IMG_H =       { 0.79, 1.00, 0.89, 1.00, 1.00, 0.49 };
 	
 	public static final Clr PAPER = new Clr(230, 230, 225);
+	public static final Clr PAINTING_FRAME = new Clr(70, 50, 20);
+	public static final Clr PAINTING_BG = new Clr(255, 255, 230);
+	public static final Clr TOO_FAR_CURSOR = new Clr(200, 200, 200);
+	public static final Clr DYING = new Clr(255, 100, 100, 32);
 	
 	public static final HashMap<String, Img> CREATURE_IMGS;
 	
@@ -986,8 +990,8 @@ public class PatentBlaster implements Game {
 						d.rect(Clr.GREY, x * Level.GRID_SIZE + scrollX, y * Level.GRID_SIZE + scrollY, Level.GRID_SIZE, Level.GRID_SIZE);
 					}
 					if (l.grid[y][x] == 1) {
-						d.rect(new Clr(70, 50, 20), x * Level.GRID_SIZE + scrollX + 5, y * Level.GRID_SIZE + scrollY + 5, Level.GRID_SIZE - 10, Level.GRID_SIZE - 10);
-						d.rect(new Clr(255, 255, 230), x * Level.GRID_SIZE + scrollX + 10, y * Level.GRID_SIZE + scrollY + 10, Level.GRID_SIZE - 20, Level.GRID_SIZE - 20);
+						d.rect(PAINTING_FRAME, x * Level.GRID_SIZE + scrollX + 5, y * Level.GRID_SIZE + scrollY + 5, Level.GRID_SIZE - 10, Level.GRID_SIZE - 10);
+						d.rect(PAINTING_BG, x * Level.GRID_SIZE + scrollX + 10, y * Level.GRID_SIZE + scrollY + 10, Level.GRID_SIZE - 20, Level.GRID_SIZE - 20);
 						d.blit(l.boss.img, l.boss.tint, x * Level.GRID_SIZE + scrollX + 20, y * Level.GRID_SIZE + scrollY + 20, Level.GRID_SIZE - 40, Level.GRID_SIZE - 40);
 					}
 				}
@@ -1009,7 +1013,7 @@ public class PatentBlaster implements Game {
 				ft.draw(d, l, scrollX, scrollY);
 			}
 			if (!lowGraphics && l.player.hp < l.player.totalMaxHP() / 10) {
-				d.rect(new Clr(255, 100, 100, 32), 0, 0, sm.width, sm.height);
+				d.rect(DYING, 0, 0, sm.width, sm.height);
 			}
 			/*if (l.tick < 1000) {
 				d.text(l.player.desc(), new Fount("LiberationMono18", 12, 12, 24), 20, 20);
@@ -1047,7 +1051,7 @@ public class PatentBlaster implements Game {
 					recC = Clr.WHITE;
 				} else {
 					tooFar = true;
-					recC = new Clr(200, 200, 200);
+					recC = TOO_FAR_CURSOR;
 				}
 			}
 			tooFar = dist > l.player.weapon.range();

@@ -8,6 +8,8 @@ import java.util.ArrayList;
 
 public class Shot extends Entity {
 	public static final Clr ACID_ALT = new Clr(230, 210, 40);
+	public static final Clr HOVER = new Clr(100, 100, 255);
+	public static final Clr ZOMBIE = new Clr(100, 130, 90);
 	
 	public Weapon weapon;
 	public Creature shooter;
@@ -50,7 +52,7 @@ public class Shot extends Entity {
 		this.dy = 5;
 		this.w = hoverer.w / 2;
 		this.h = 2;
-		this.tint = new Clr(100, 100, 255);
+		this.tint = HOVER;
 		this.popOnWorldHit = true;
 		this.lifeLeft = (int) (Level.GRID_SIZE * (1.2 + l.r.nextDouble() * 0.5) / this.dy);
 	}
@@ -198,7 +200,7 @@ public class Shot extends Entity {
 					bleeder.unsplorted = true;
 					if (revenant) {
 						// Make bleeder into zombie.
-						bleeder.tint = new Clr(100, 130, 90);
+						bleeder.tint = ZOMBIE;
 						bleeder.maxHP *= 2.4;
 						bleeder.weapon.element = Element.ACID;
 						bleeder.weapon.shotSpeed /= 2;

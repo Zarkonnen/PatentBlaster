@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 import static com.zarkonnen.PatentBlaster.round;
-import static com.zarkonnen.Util.*;
+import static com.zarkonnen.Const.*;
 import com.zarkonnen.catengine.Img;
 import java.io.Serializable;
 import java.util.Collections;
@@ -20,6 +20,8 @@ public class Creature extends Entity implements HasDesc {
 	public static final int AIR_STEERING = 10;
 	public static final int ABOVE_PREF = Level.GRID_SIZE * 5 / 2;
 	public static final Clr JAR_CLR = new Clr(110, 90, 85);
+	public static final Clr FROZEN_CLR = new Clr(100, 110, 200);;
+	public static final Clr FROZEN_CUBE_CLR = new Clr(100, 110, 200, 120);
 	
 	public int imgIndex;
 	public Img flippedImg;
@@ -256,7 +258,7 @@ public class Creature extends Entity implements HasDesc {
 		}
 		if (PatentBlaster.lowGraphics) {
 			if (frozen > 0) {
-				t = new Clr(100, 110, 200);
+				t = FROZEN_CLR;
 			}
 			if (shield > 0) {
 				int amt = 100 + ((l.tick / 5) % 2) * 35 + shield;
@@ -271,7 +273,7 @@ public class Creature extends Entity implements HasDesc {
 		d.blit(flipped ? flippedImg : img, t, imgX, imgY, imgW, imgH, angle);
 		if (!PatentBlaster.lowGraphics) {
 			if (frozen > 0) {
-				d.rect(new Clr(100, 110, 200, 120), scrollX + x - w / 10, scrollY + y - h / 10, w + w / 5, h + h / 5, angle);
+				d.rect(FROZEN_CUBE_CLR, scrollX + x - w / 10, scrollY + y - h / 10, w + w / 5, h + h / 5, angle);
 			}
 			if (shield > 0) {
 				d.rect(new Clr(255, 255, 255, shield), scrollX + x - w / 10, scrollY + y - h / 10, w + w / 5, h + h / 5, angle);
