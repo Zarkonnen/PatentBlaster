@@ -5,6 +5,7 @@ import com.zarkonnen.catengine.util.Clr;
 import java.util.Random;
 
 public class Barrel extends Entity {
+	public static final Clr GLUE_TINT = new Clr(220, 220, 190);
 	public static enum Type {
 		OIL(4, "squelch") {
 			final Clr TINT = new Clr(10, 5, 0);
@@ -21,11 +22,10 @@ public class Barrel extends Entity {
 			}
 		},
 		GLUE(4, "squelch") {
-			final Clr TINT = new Clr(220, 220, 210);
 			@Override
 			public Shot makeShot(Level l, Barrel b, double x, double y) {
-				Shot s = new Shot(TINT, chunkSize, false, 10000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 6 - 3, l.r.nextDouble() * 6 - 3, 1.0, null, false, false, false, x, y, 0);
-				s.stickiness = 5;
+				Shot s = new Shot(GLUE_TINT, chunkSize, false, 10000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 10 - 5, l.r.nextDouble() * 10 - 8, 1.0, null, false, false, false, x, y, 0);
+				s.stickiness = Const.powerLvl(l.power);
 				s.friction = 0.9;
 				return s;
 			}
@@ -122,6 +122,7 @@ public class Barrel extends Entity {
 	}
 	
 	public Barrel(Type t, long seed, int power, double x, double y, Random r) {
+		t = Type.GLUE; // qqDPS
 		if (t.name().length() > 6) {
 			textShift = r.nextInt(t.name().length() - 5);
 		}

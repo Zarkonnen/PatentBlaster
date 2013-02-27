@@ -50,6 +50,7 @@ public class Level implements MusicDone, Serializable {
 		this.player = player;
 		r = new Random(seed);
 		boolean hasBarrels = power > 1 && r.nextBoolean();
+		hasBarrels = true; // qqDPS
 		Barrel.Type bType = Barrel.Type.values()[r.nextInt(Barrel.Type.values().length)];
 		music = MUSICS[r.nextInt(MUSICS.length)];
 		background = r.nextInt(NUM_BACKGROUNDS);
@@ -241,15 +242,42 @@ public class Level implements MusicDone, Serializable {
 						hitTest(player, s);
 					}
 				}
-				if (s.stickiness > 0 || s.slipperiness > 0) {
+				if (s.slipperiness > 0) {
 					if (intersects(player, s)) {
-						player.stickiness = s.stickiness;
 						player.slipperiness = s.slipperiness;
 					}
 					for (Creature c : monsters) {
 						if (intersects(c, s)) {
-							c.stickiness = s.stickiness;
 							c.slipperiness = s.slipperiness;
+						}
+					}
+				}
+				if (s.stickiness > 0) {
+					boolean playerStuck = false;
+					if (s.shooter != player) {
+						if (intersectsShot(player, s)) {
+							if (s.stickiness > 0) {
+								s.killMe = true;
+								s.x -= player.x;
+								s.y -= player.y;
+								s.lifeLeft = PatentBlaster.FPS * 4;
+								player.stuckShots.add(s);
+								playerStuck = true;
+							}
+						}
+					}
+					if (!playerStuck) {
+						for (Creature c : monsters) {
+							if (s.shooter != c && intersectsShot(c, s)) {
+								if (s.stickiness > 0) {
+									s.killMe = true;
+									s.x -= c.x;
+									s.y -= c.y;
+									s.lifeLeft = PatentBlaster.FPS * 4;
+									c.stuckShots.add(s);
+									break;
+								}
+							}
 						}
 					}
 				}

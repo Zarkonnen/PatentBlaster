@@ -10,6 +10,7 @@ public class Shot extends Entity {
 	public static final Clr ACID_ALT = new Clr(230, 210, 40);
 	public static final Clr HOVER = new Clr(100, 100, 255);
 	public static final Clr ZOMBIE = new Clr(100, 130, 90);
+	public static final Clr STICKY_TINT = Element.ACID.tint.mix(0.5, Barrel.GLUE_TINT);
 	
 	public Weapon weapon;
 	public Creature shooter;
@@ -36,7 +37,7 @@ public class Shot extends Entity {
 	public int knownKills;
 	public int age = 0;
 	public double friction = 0.99;
-	public int stickiness = 0;
+	public double stickiness = 0;
 	public int slipperiness = 0;
 	public Clr glint = null;
 	public boolean freeAgent = false;
@@ -115,6 +116,10 @@ public class Shot extends Entity {
 		if (w.scattershot) {
 			sprayProbability /= 3;
 		}
+		if (w.sticky) {
+			stickiness = w.dmg * 3;
+			this.tint = STICKY_TINT;
+		}
 	}
 	
 	public Shot(Level l, Shot p) {
@@ -159,6 +164,8 @@ public class Shot extends Entity {
 				dmgMultiplier = 0.2 * PatentBlaster.shotDivider();
 				break;
 		}
+		
+		stickiness = p.stickiness * dmgMultiplier;
 	}
 	
 	public boolean doNotEndLevel() {

@@ -13,6 +13,7 @@ import static com.zarkonnen.Const.*;
 import com.zarkonnen.catengine.Img;
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.LinkedList;
 
 public class Creature extends Entity implements HasDesc {
 	public static final double MAX_SPEED = 5;
@@ -130,8 +131,9 @@ public class Creature extends Entity implements HasDesc {
 	public double normalH;
 	public int jumpElongate;
 	
-	public int stickiness = 0;
 	public int slipperiness = 0;
+	
+	public LinkedList<Shot> stuckShots = new LinkedList<Shot>();
 	
 	public double squish() {
 		if (resistance != null) {
@@ -165,8 +167,8 @@ public class Creature extends Entity implements HasDesc {
 		double s = speed;
 		for (Item it : items) { s *= it.speedMult; }
 		if (s > MAX_SPEED) { s = MAX_SPEED; }
-		if (stickiness > 0) {
-			s = Math.max(0, (s - 1) / 2);
+		if (getStickiness() > totalMaxHP() / 4) {
+			s = Math.max(0, (s - 1) / 3);
 		}
 		return s * (charging ? 2 : 1);
 	}
@@ -234,7 +236,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public void jump() {
-		dy = -totalSpeed() * 0.5 - HOP_BONUS * (stickiness > 0 ? 0.2 : 1);
+		dy = -totalSpeed() * 0.5 - HOP_BONUS * (getStickiness() > totalMaxHP() / 4 ? 0.1 : 1);
 		jumpElongate = maxPress;
 	}
 	
@@ -271,6 +273,11 @@ public class Creature extends Entity implements HasDesc {
 		double imgX = x + scrollX - imgW / 2 + w / 2;
 		double imgY = y + scrollY - imgH + h;
 		d.blit(flipped ? flippedImg : img, t, imgX, imgY, imgW, imgH, angle);
+		
+		for (Shot s : stuckShots) {
+			s.draw(d, l, scrollX + x, scrollY + y);
+		}
+		
 		if (!PatentBlaster.lowGraphics) {
 			if (frozen > 0) {
 				d.rect(FROZEN_CUBE_CLR, scrollX + x - w / 10, scrollY + y - h / 10, w + w / 5, h + h / 5, angle);
@@ -302,6 +309,11 @@ public class Creature extends Entity implements HasDesc {
 				d.rect(weapon.reloadLeft == 0 ? Clr.WHITE : Clr.LIGHT_GREY, x + scrollX, y + scrollY + h - 15, w, 6);
 				d.rect(Element.ICE.tint, x + scrollX + 1, y + scrollY + h - 14, (w - 4) * (- heat) * 4 / tmh, 4);
 			}
+			/*double stickiness = getStickiness();
+			if (stickiness > tmh / 16 && stickiness < tmh / 4) {
+				d.rect(weapon.reloadLeft == 0 ? Clr.WHITE : Clr.LIGHT_GREY, x + scrollX, y + scrollY + h - 20, w, 6);
+				d.rect(Barrel.GLUE_TINT, x + scrollX + 2, y + scrollY + h - 19, (w - 4) * (stickiness) * 4 / tmh, 4);
+			}*/
 		}
 		/*
 		d.rect(Clr.WHITE, x + scrollX, y + scrollY, w, 1);
@@ -513,8 +525,7 @@ public class Creature extends Entity implements HasDesc {
 	
 	@Override
 	public void tick(Level l) {
-		if (stickiness > 0) { stickiness--; }
-		double originalDx = dx, originalDy = dy;
+		double originalDx = dx;
 		if (slipperiness > 0) {
 			slipperiness--;
 		}
@@ -867,6 +878,14 @@ public class Creature extends Entity implements HasDesc {
 		}
 		
 		if (frozen == 0) {
+			for (Iterator<Shot> it = stuckShots.iterator(); it.hasNext();) {
+				Shot s = it.next();
+				s.lifeLeft--;
+				if (s.lifeLeft <= 0) {
+					it.remove();
+				}
+			}
+			
 			// Finally, adjust squish.
 			if (leftPress > 0) {
 				double newW = normalW * (1.0 - squish() * leftPress / maxPress);
@@ -1389,5 +1408,13 @@ public class Creature extends Entity implements HasDesc {
 			}
 		}
 		resurrects = false;
+	}
+
+	public double getStickiness() {
+		double stick = 0;
+		for (Shot s : stuckShots) {
+			stick += s.stickiness;
+		}
+		return stick;
 	}
 }
