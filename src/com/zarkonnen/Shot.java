@@ -336,8 +336,8 @@ public class Shot extends Entity {
 			if (target != null && target.hp > 0) {
 				double tdx = target.x + target.w / 2 - x - w / 2;
 				double tdy = target.y + target.h / 2 - y - h / 2;
-				dx += weapon.shotSpeed * 0.1 * tdx / (Math.abs(tdx) + Math.abs(tdy) + 1);
-				dy += weapon.shotSpeed * 0.1 * tdy / (Math.abs(tdx) + Math.abs(tdy) + 1);
+				dx += weapon.shotSpeed * 0.15 * tdx / (Math.abs(tdx) + Math.abs(tdy) + 1);
+				dy += weapon.shotSpeed * 0.15 * tdy / (Math.abs(tdx) + Math.abs(tdy) + 1);
 				double spdSq = dx * dx + dy * dy;
 				if (spdSq > weapon.shotSpeed * weapon.shotSpeed) {
 					double total = Math.abs(dx) + Math.abs(dy) + 1;
