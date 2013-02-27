@@ -135,6 +135,33 @@ public class Creature extends Entity implements HasDesc {
 	
 	public LinkedList<Shot> stuckShots = new LinkedList<Shot>();
 	
+	public Pt targetIntersect(Level l, double fromX, double fromY, double shotSpeed, int shotLife) {
+		Creature sim = new Creature();
+		sim.x = x;
+		sim.y = y;
+		sim.w = w;
+		sim.h = h;
+		sim.dx = dx;
+		sim.dy = dy;
+		sim.gravityMult = gravityMult;
+		if (realMoveMode() == MoveMode.HOVER) { sim.gravityMult = 0; sim.dy = 0; }
+		
+		int tick = 0;
+		while (tick <= shotLife) {
+			l.physics(sim);
+			tick++;
+			double xDelta = fromX - sim.x - sim.w / 2;
+			double yDelta = fromY - sim.y - sim.h / 2;
+			double distToShooter = Math.sqrt(xDelta * xDelta + yDelta * yDelta);
+			double distTravelled = tick * shotSpeed;
+			if (Math.abs(distToShooter - distTravelled) < sim.w / 4 + sim.h / 4) {
+				return new Pt(sim.x + sim.w / 2, sim.y + sim.h / 2);
+			}
+		}
+		
+		return null;
+	}
+	
 	public double squish() {
 		if (resistance != null) {
 			switch (resistance) {
@@ -791,12 +818,16 @@ public class Creature extends Entity implements HasDesc {
 							doShoot = true;
 						}
 						if (doShoot) {
-							/*if (trackingAim) {
-								double dist = Math.sqrt((l.player.x + l.player.w / 2 - x - w / 2) * (l.player.x + l.player.w / 2 - x - w / 2) + (l.player.y + l.player.h / 2 - y - h / 2) * (l.player.y + l.player.h / 2 - y - h / 2));
-								shoot(l.player.x + l.player.w / 2 + l.player.dx * dist / weapon.shotSpeed * 1.1, l.player.y + l.player.h / 2 + (l.player.dy == 0 ? 0 : l.player.dy * dist / weapon.shotSpeed + Level.G * dist * dist / weapon.shotSpeed / weapon.shotSpeed), l);
-							} else {*/
+							if (trackingAim) {
+								Pt solution = l.player.targetIntersect(l, gunX(), gunY(), weapon.shotSpeed, weapon.shotLife);
+								if (solution != null) {
+									shoot(solution.x, solution.y, l);
+								} else {
+									weapon.reloadLeft = 10;
+								}
+							} else {
 								shoot(l.player.x + l.player.w / 2, l.player.y + l.player.h / 2, l);
-							//}
+							}
 						}
 					}
 				}
@@ -1099,7 +1130,7 @@ public class Creature extends Entity implements HasDesc {
 		if (boss || (sz > 60 && r.nextInt(3) == 0)) {
 			c.massive = true;
 		}
-		if (!player && !PatentBlaster.DEMO && (power > 8 || r.nextInt(10 - power) == 0)) {
+		if (!player && !PatentBlaster.DEMO && r.nextInt(10 / power + 1) == 0) {
 			c.trackingAim = true;
 			hp *= 0.8;
 		}
