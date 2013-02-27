@@ -903,6 +903,11 @@ public class Creature extends Entity implements HasDesc {
 				s.dx *= sMult;
 				s.dy *= sMult;
 			}
+			if (weapon.scattershot) {
+				double sMult = l.r.nextDouble() * 0.2 + 0.9;
+				s.dx *= sMult;
+				s.dy *= sMult;
+			}
 			l.shotsToAdd.add(s);
 		}
 		return s;

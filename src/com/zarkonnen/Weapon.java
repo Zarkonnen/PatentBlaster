@@ -38,6 +38,7 @@ public class Weapon implements HasDesc, Serializable {
 	public boolean homing;
 	public boolean swarm;
 	public boolean shotgun;
+	public boolean scattershot;
 	public int numBullets = 1;
 	public String name;
 	public long seed;
@@ -76,11 +77,13 @@ public class Weapon implements HasDesc, Serializable {
 		w.swarm = w.homing && r.nextInt(2) == 0;
 		w.shotSize = MIN_SHOT_SIZE + (AVG_SHOT_SIZE - MIN_SHOT_SIZE) * dmg / BASE_DMG;
 		w.shotgun = !w.homing && !w.swarm && r.nextInt(10) == 0;
-		w.knockback = !w.swarm && !w.shotgun && r.nextInt(30) == 0;
+		w.scattershot = !w.homing && !w.swarm && !w.shotgun && r.nextInt(8) == 0;
+		w.knockback = !w.swarm && !w.shotgun && !w.scattershot && r.nextInt(30) == 0;
 		if (w.homing) { w.reload = w.reload * 3 / 2; dmg *= 0.8; w.shotLife = w.shotLife * 3 / 2; }
 		if (w.swarm) { dmg /= 8; w.shotSize = w.shotSize / 4 + 1; w.numBullets = 8; }
 		if (w.knockback) { dmg *= 0.8; }
 		if (w.shotgun) { w.reload = w.reload * 3 / 2; dmg /= 4; w.shotLife *= 0.4; w.shotSize = w.shotSize / 2 + 1; w.numBullets = 8; w.jitter += 0.28; }
+		if (w.scattershot) { dmg /= 10; w.shotSize = w.shotSize / 2 + 1; w.numBullets = 5; w.jitter += 0.08; }
 		w.tint = w.element.tint;
 		w.name = Names.pick(r);
 		w.imgIndex = r.nextInt(PatentBlaster.NUM_IMAGES);
@@ -150,6 +153,9 @@ public class Weapon implements HasDesc, Serializable {
 		}
 		if (shotgun) {
 			sb.append(is).append("Shotgun.\n");
+		}
+		if (scattershot) {
+			sb.append(is).append("Scattershot.\n");
 		}
 		if (homing) {
 			if (swarm) {

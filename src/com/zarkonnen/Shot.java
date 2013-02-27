@@ -112,6 +112,9 @@ public class Shot extends Entity {
 		if (w.shotgun) {
 			sprayProbability /= 8;
 		}
+		if (w.scattershot) {
+			sprayProbability /= 3;
+		}
 	}
 	
 	public Shot(Level l, Shot p) {
