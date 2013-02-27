@@ -1101,22 +1101,6 @@ public class Creature extends Entity implements HasDesc {
 		}
 		if (!player && !PatentBlaster.DEMO && allowFinalForm && power > 3 && !c.splitsIntoFour && r.nextInt((boss ? 10 : 30) / power + (boss ? 3 : 12)) == 0) {
 			c.finalForm = make(seed + 1349, power * 5 / 4, numImages, boss, player, false);
-			if (c.finalForm.w > c.w) {
-				double scaling = c.w / c.finalForm.w - 0.001;
-				c.finalForm.w *= scaling;
-				c.finalForm.h *= scaling;
-				c.finalForm.size *= scaling;
-				c.finalForm.normalW *= scaling;
-				c.finalForm.normalH *= scaling;
-			}
-			if (c.finalForm.h > c.h) {
-				double scaling = c.h / c.finalForm.h - 0.001;
-				c.finalForm.w *= scaling;
-				c.finalForm.h *= scaling;
-				c.finalForm.size *= scaling;
-				c.finalForm.normalW *= scaling;
-				c.finalForm.normalH *= scaling;
-			}
 			hp *= 0.9;
 		}
 		if (!player && power > 2 && c.finalForm == null && !c.splitsIntoFour && !c.resurrects && r.nextInt(30 / power + 12) == 0) {
@@ -1164,8 +1148,22 @@ public class Creature extends Entity implements HasDesc {
 		c.normalH = c.h;
 		c.size = sz;
 		if (c.finalForm != null) {
-			c.finalForm.w = sz; // Important so the game doesn't crash on reform.
-			c.finalForm.h = sz;
+			if (c.finalForm.w > c.w) {
+				double scaling = c.w / c.finalForm.w - 0.001;
+				c.finalForm.w *= scaling;
+				c.finalForm.h *= scaling;
+				c.finalForm.size *= scaling;
+				c.finalForm.normalW *= scaling;
+				c.finalForm.normalH *= scaling;
+			}
+			if (c.finalForm.h > c.h) {
+				double scaling = c.h / c.finalForm.h - 0.001;
+				c.finalForm.w *= scaling;
+				c.finalForm.h *= scaling;
+				c.finalForm.size *= scaling;
+				c.finalForm.normalW *= scaling;
+				c.finalForm.normalH *= scaling;
+			}
 		}
 		
 		switch (r.nextInt(4)) {
