@@ -278,7 +278,7 @@ public class Shot extends Entity {
 					}
 					reborn.weapon.reloadLeft = reborn.weapon.reload;
 					for (Shot s : l.shots) {
-						if (s.weapon != null) {
+						if (s != null && s.weapon != null) {
 							if (s.immune == null) { s.immune = new ArrayList<Creature>(); }
 							s.immune.add(reborn);
 						}

@@ -468,7 +468,7 @@ public class Creature extends Entity implements HasDesc {
 				tiny.heal();
 				l.monstersToAdd.add(tiny);
 				for (Shot s : l.shots) {
-					if (s.weapon != null) {
+					if (s != null && s.weapon != null) {
 						if (s.immune == null) { s.immune = new ArrayList<Creature>(); }
 						s.immune.add(tiny);
 					}
@@ -487,7 +487,7 @@ public class Creature extends Entity implements HasDesc {
 				tiny.weapon.reloadLeft = (int) (tiny.weapon.reload * l.r.nextDouble());
 				l.monstersToAdd.add(tiny);
 				for (Shot s : l.shots) {
-					if (s.weapon != null) {
+					if (s != null && s.weapon != null) {
 						if (s.immune == null) { s.immune = new ArrayList<Creature>(); }
 						s.immune.add(tiny);
 					}
@@ -892,7 +892,7 @@ public class Creature extends Entity implements HasDesc {
 					baby.dy = -l.r.nextDouble() * 3 - 1;
 					l.monstersToAdd.add(baby);
 					for (Shot s : l.shots) {
-					if (s.weapon != null) {
+						if (s != null && s.weapon != null) {
 							if (s.immune == null) { s.immune = new ArrayList<Creature>(); }
 							s.immune.add(baby);
 						}
