@@ -22,7 +22,8 @@ public class Level implements MusicCallback, Serializable {
 	public ArrayList<Creature> monsters = new ArrayList<Creature>();
 	public ArrayList<Creature> monstersToAdd = new ArrayList<Creature>();
 	public ArrayList<Goodie> goodies = new ArrayList<Goodie>();
-	public ArrayList<Shot> shots = new ArrayList<Shot>();
+	public ArrayList<Shot> shots = new ArrayList<Shot>(100);
+	public LinkedList<Shot> flammables = new LinkedList<Shot>();
 	public ArrayList<Shot> shotsToAdd = new ArrayList<Shot>();
 	public ArrayList<FloatingText> texts = new ArrayList<FloatingText>();
 	public ArrayList<Barrel> barrels = new ArrayList<Barrel>();
@@ -116,7 +117,7 @@ public class Level implements MusicCallback, Serializable {
 		if (!monsters.isEmpty()) { return false; }
 		if (!goodies.isEmpty()) { return false; }
 		if (!texts.isEmpty()) { return false; }
-		for (Shot s : shots) {
+		for (Shot s : shots) { if (s == null) { continue; }
 			if (s.doNotEndLevel()) { return false; }
 		}
 		return true;
@@ -138,7 +139,7 @@ public class Level implements MusicCallback, Serializable {
 			player.tick(this);
 			if (player.hp > 0) {
 				if (tick % PatentBlaster.FPS / 6 == 0 && player.totalEating() > 0) {
-					for (Shot s : shots) {
+					for (Shot s : shots) { if (s == null) { continue; }
 						eatTest(player, s);
 					}
 				}
@@ -156,7 +157,7 @@ public class Level implements MusicCallback, Serializable {
 			Creature c = it.next();
 			try {
 				if (tick % (PatentBlaster.FPS / 6) == cIndex++ % PatentBlaster.FPS / 6 && c.totalEating() > 0) {
-					for (Shot s : shots) {
+					for (Shot s : shots) {  if (s == null) { continue; }
 						eatTest(c, s);
 					}
 				}
@@ -201,8 +202,10 @@ public class Level implements MusicCallback, Serializable {
 			}
 			if (g.killMe) { it.remove(); }
 		}
-		for (Iterator<Shot> it = shots.iterator(); it.hasNext();) {
-			Shot s = it.next();
+		//for (Iterator<Shot> it = shots.iterator(); it.hasNext();) {
+		for (int i = 0; i < shots.size(); i++) {
+			Shot s = shots.get(i);//it.next();
+			if (s == null) { continue; }
 			try {
 				s.tick(this);
 				boolean kill = s.killMe;
@@ -213,21 +216,26 @@ public class Level implements MusicCallback, Serializable {
 					s.hoverer.ticksSinceBottom = 0;
 				}
 				if ((s.age < 2 || s.killMe) && s.weapon != null && s.weapon.element == Element.FIRE) {
-					for (Shot s2 : shots) {
-						if (!s2.flammable) { continue; }
-						if (intersects(s, s2)) {
-							s2.weapon = s2.flammableWeapon;
-							s2.shooter = s.shooter;
-							s2.dmgMultiplier = 0; // All damage done via spray.
-							s2.slipperiness = 0;
-							s2.sprayProbability = 0.03;
-							s2.tint = Element.FIRE.tint;
-							s2.flammable = false;
-							s2.remains = true;
-							s2.lifeLeft /= 10;
-							s2.freeAgent = true;
-							s2.dy = -1;
-							s2.age = 0;
+					for (Iterator<Shot> fit = flammables.iterator(); fit.hasNext();) {
+						Shot flam = fit.next();
+						if (flam.killMe) { // Doing some GC while we're at it.
+							fit.remove();
+							continue;
+						}
+						if (intersects(s, flam)) {
+							flam.weapon = flam.flammableWeapon;
+							flam.shooter = s.shooter;
+							flam.dmgMultiplier = 0; // All damage done via spray.
+							flam.slipperiness = 0;
+							flam.sprayProbability = 0.03;
+							flam.tint = Element.FIRE.tint;
+							flam.flammable = false;
+							fit.remove();
+							flam.remains = true;
+							flam.lifeLeft /= 10;
+							flam.freeAgent = true;
+							flam.dy = -1;
+							flam.age = 0;
 						}
 					}
 				}
@@ -297,10 +305,25 @@ public class Level implements MusicCallback, Serializable {
 				s.killMe = true;
 			}
 			if (s.killMe) {
-				it.remove();
+				//it.remove();
+				shots.set(i, null);
 			}
 		}
-		shots.addAll(shotsToAdd);
+		//shots.addAll(shotsToAdd);
+		int i = 0;
+		for (Shot s : shotsToAdd) {
+			if (s.flammable) {
+				flammables.add(s);
+			}
+			while (i < shots.size() && shots.get(i) != null) {
+				i++;
+			}
+			if (i == shots.size()) {
+				shots.add(s);
+			} else {
+				shots.set(i, s);
+			}
+		}
 		shotsToAdd.clear();
 		for (Iterator<FloatingText> it = texts.iterator(); it.hasNext();) {
 			FloatingText ft = it.next();

@@ -1037,7 +1037,7 @@ public class PatentBlaster implements Game {
 			for (Goodie g : l.goodies) {
 				g.draw(d, l, scrollX, scrollY);
 			}
-			for (Shot s : l.shots) {
+			for (Shot s : l.shots) { if (s == null) { continue; }
 				s.draw(d, l, scrollX, scrollY);
 			}
 			for (FloatingText ft : l.texts) {
