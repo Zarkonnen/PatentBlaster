@@ -2,12 +2,13 @@ package com.zarkonnen;
 
 import com.zarkonnen.catengine.Draw;
 import com.zarkonnen.catengine.util.Clr;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Barrel extends Entity {
 	public static final Clr GLUE_TINT = new Clr(220, 220, 190);
 	public static enum Type {
-		OIL(4, "squelch") {
+		OIL(4, "squelch", false) {
 			final Clr TINT = new Clr(10, 5, 0);
 			final Clr GLINT = new Clr(10, 5, 0);
 			@Override
@@ -21,7 +22,7 @@ public class Barrel extends Entity {
 				return s;
 			}
 		},
-		GLUE(4, "squelch") {
+		GLUE(4, "squelch", true) {
 			@Override
 			public Shot makeShot(Level l, Barrel b, double x, double y) {
 				Shot s = new Shot(GLUE_TINT, chunkSize, false, 10000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 10 - 5, l.r.nextDouble() * 10 - 8, 1.0, null, false, false, false, x, y, 0);
@@ -30,7 +31,7 @@ public class Barrel extends Entity {
 				return s;
 			}
 		},
-		EXPLOSIVES(3, "explode") {
+		EXPLOSIVES(3, "explode", true) {
 			@Override
 			public Shot makeShot(Level l, Barrel b, double x, double y) {
 				double dir = l.r.nextDouble() * 2 * Math.PI;
@@ -46,7 +47,7 @@ public class Barrel extends Entity {
 				return s;
 			}
 		},
-		LIQUID_NITROGEN(3, "explode") {
+		LIQUID_NITROGEN(3, "explode", false) {
 			@Override
 			public Shot makeShot(Level l, Barrel b, double x, double y) {
 				double dir = l.r.nextDouble() * 2 * Math.PI;
@@ -62,7 +63,7 @@ public class Barrel extends Entity {
 				return s;
 			}
 		},
-		ACID(5, "squelch") {
+		ACID(5, "squelch", false) {
 			@Override
 			public Shot makeShot(Level l, Barrel b, double x, double y) {
 				double dir = l.r.nextDouble() * 2 * Math.PI;
@@ -79,7 +80,7 @@ public class Barrel extends Entity {
 				return s;
 			}
 		},
-		WOMBAT_BLOOD(2, "squelch") {
+		WOMBAT_BLOOD(2, "squelch", false) {
 			@Override
 			public Shot makeShot(Level l, Barrel b, double x, double y) {
 				Shot s = new Shot(Clr.RED, chunkSize, false, 3000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 2 - 1, l.r.nextDouble() * 2 - 1, 1.0, b.meatSource, false, false, false, x, y, 0);
@@ -87,7 +88,7 @@ public class Barrel extends Entity {
 				return s;
 			}
 		},
-		HORSE_MEAT(9, "squelch") {
+		HORSE_MEAT(9, "squelch", true) {
 			final Clr TINT = new Clr(167, 82, 66);
 			@Override
 			public Shot makeShot(Level l, Barrel b, double x, double y) {
@@ -98,13 +99,29 @@ public class Barrel extends Entity {
 		},
 		;
 		
+		public static Type[] available() {
+			if (PatentBlaster.DEMO) {
+				ArrayList<Barrel.Type> ts = new ArrayList<Barrel.Type>();
+				for (Type t : values()) {
+					if (t.inDemo) {
+						ts.add(t);
+					}
+				}
+				return ts.toArray(new Type[ts.size()]);
+			} else {
+				return values();
+			}
+		}
+		
 		public final int chunkSize;
 		public final String breakSound;
+		public final boolean inDemo;
 		public abstract Shot makeShot(Level l, Barrel b, double x, double y);
 
-		private Type(int chunkSize, String breakSound) {
+		private Type(int chunkSize, String breakSound, boolean inDemo) {
 			this.breakSound = breakSound;
 			this.chunkSize = chunkSize;
+			this.inDemo = inDemo;
 		}
 	}
 	
@@ -122,7 +139,6 @@ public class Barrel extends Entity {
 	}
 	
 	public Barrel(Type t, long seed, int power, double x, double y, Random r) {
-		t = Type.GLUE; // qqDPS
 		if (t.name().length() > 6) {
 			textShift = r.nextInt(t.name().length() - 5);
 		}

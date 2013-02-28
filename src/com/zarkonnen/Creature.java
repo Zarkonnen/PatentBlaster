@@ -17,7 +17,7 @@ import java.util.LinkedList;
 
 public class Creature extends Entity implements HasDesc {
 	public static final double MAX_SPEED = 5;
-	public static final double HOP_BONUS = 2;
+	public static final double HOP_BONUS = 2.5;
 	public static final int AIR_STEERING = 10;
 	public static final int ABOVE_PREF = Level.GRID_SIZE * 5 / 2;
 	public static final Clr JAR_CLR = new Clr(110, 90, 85);
@@ -263,7 +263,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public void jump() {
-		dy = -totalSpeed() * 0.5 - HOP_BONUS * (getStickiness() > totalMaxHP() / 4 ? 0.1 : 1);
+		dy = -totalSpeed() * 0.2 - HOP_BONUS * (getStickiness() > totalMaxHP() / 4 ? 0.1 : 1);
 		jumpElongate = maxPress;
 	}
 	
@@ -1424,6 +1424,10 @@ public class Creature extends Entity implements HasDesc {
 		frozen = 0;
 		knockedBack = 0;
 		accumulatedRegen = 0;
+		stuckShots.clear();
+		for (Item it : items) {
+			it.shieldReload = 0;
+		}
 	}
 
 	void deResurrect(Level l) {

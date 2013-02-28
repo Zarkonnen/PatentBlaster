@@ -3,15 +3,21 @@ package com.zarkonnen.trigram;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 
 public class Trigrams {
@@ -99,6 +105,85 @@ public class Trigrams {
 		}
 	}
 	
+	static void writeNumber(ObjectOutputStream s, int n) throws IOException {
+		while (n / 128 > 0) {
+			s.writeByte(-(n % 128));
+			n /= 128;
+		}
+		s.writeByte(n % 128);
+	}
+	
+	static int readNumber(ObjectInputStream s) throws IOException {
+		int n = 0;
+		int mult = 1;
+		byte b = s.readByte();
+		while (b < 0) {
+			n -= b * mult;
+			mult *= 128;
+		}
+		n += b * mult;
+		return n;
+	}
+	
+	public void exportTo(ObjectOutputStream o) throws IOException {
+		FrequencyTable<String> words = new FrequencyTable<String>();
+		for (LinkedList<String> l : beginnings) {
+			for (String s : l) {
+				words.add(s);
+			}
+		}
+		for (Map.Entry<String, FrequencyTable<String>> e : trigrams.entrySet()) {
+			for (String s : e.getKey().split(" ")) {
+				words.add(s);
+			}
+			for (String s : e.getValue().freqs.keySet()) {
+				words.add(s);
+			}
+		}
+		
+		ArrayList<Map.Entry<String, Integer>> wordList = new ArrayList<Map.Entry<String, Integer>>(words.freqs.entrySet());
+		Collections.sort(wordList, new Comparator<Map.Entry<String, Integer>>() {
+			@Override
+			public int compare(Entry<String, Integer> t, Entry<String, Integer> t1) {
+				return t1.getValue() - t.getValue();
+			}
+		});
+		
+		HashMap<String, Integer> dict = new HashMap<String, Integer>();
+		int i = 0;
+		for (Map.Entry<String, Integer> e : wordList) {
+			dict.put(e.getKey(), i++);
+			o.writeUTF(e.getKey());
+		}
+		
+		writeNumber(o, beginnings.size());
+		for (LinkedList<String> l : beginnings) {
+			for (String s : l) {
+				writeNumber(o, dict.get(s));
+			}
+		}
+		writeNumber(o, trigrams.size());
+		for (Map.Entry<String, FrequencyTable<String>> e : trigrams.entrySet()) {
+			for (String s : e.getKey().split(" ")) {
+				writeNumber(o, dict.get(s));
+			}
+			writeNumber(o, e.getValue().freqs.size());
+			for (Map.Entry<String, Integer> f : e.getValue().freqs.entrySet()) {
+				writeNumber(o, dict.get(f.getKey()));
+				writeNumber(o, f.getValue());
+			}
+		}
+	}
+	
+	public static void main(String[] args) throws Exception {
+		File f = new File("/Users/zar/Desktop/trigrams");
+		FileOutputStream fos = new FileOutputStream(f);
+		ObjectOutputStream o = new ObjectOutputStream(fos);
+		TRIGRAMS.exportTo(o);
+		o.flush();
+		o.close();
+	}
+	
 	public void addFromDir(String dir) throws FileNotFoundException, IOException {
 		File dirF = new File(dir);
 		if (!dirF.exists() || !dirF.isDirectory()) {
@@ -117,7 +202,7 @@ public class Trigrams {
 		}
 	}
 	
-	public static void main(String[] args) throws Exception {
+	public static void main2(String[] args) throws Exception {
 		Trigrams t = new Trigrams();
 		t.addFromDir(args[0]);
 		//System.out.println(t.generate(100, new Random()) + "...");
@@ -127,20 +212,30 @@ public class Trigrams {
 		w.close();
 	}
 	
-	public static final Trigrams TRIGRAMS = new Trigrams();
+	public static Trigrams TRIGRAMS;
+	
 	static {
-		try {
-			BufferedReader r = new BufferedReader(new InputStreamReader(Trigrams.class.getResourceAsStream("trigrams.txt"), "UTF-8"));
-			TRIGRAMS.importFrom(r);
-			r.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-			LinkedList<String> ll = new LinkedList<String>();
-			ll.add(""); ll.add("");
-			TRIGRAMS.beginnings.add(ll);
-			TRIGRAMS.trigrams.put(" ", new FrequencyTable<String>());
-			TRIGRAMS.trigrams.get(" ").freqs.put("", 1);
-			TRIGRAMS.trigrams.get(" ").total = 1;
-		}
+		Thread t = new Thread("Trigram Loader") {
+			@Override
+			public void run() {
+				Trigrams ts = new Trigrams();
+				try {
+					BufferedReader r = new BufferedReader(new InputStreamReader(Trigrams.class.getResourceAsStream("trigrams.txt"), "UTF-8"));
+					ts.importFrom(r);
+					r.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+					LinkedList<String> ll = new LinkedList<String>();
+					ll.add(""); ll.add("");
+					ts.beginnings.add(ll);
+					ts.trigrams.put(" ", new FrequencyTable<String>());
+					ts.trigrams.get(" ").freqs.put("", 1);
+					ts.trigrams.get(" ").total = 1;
+				}
+				TRIGRAMS = ts;
+			}
+		};
+		t.setDaemon(true);
+		t.start();
 	}
 }

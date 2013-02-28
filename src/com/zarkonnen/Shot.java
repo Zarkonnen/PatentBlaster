@@ -117,7 +117,7 @@ public class Shot extends Entity {
 			sprayProbability /= 3;
 		}
 		if (w.sticky) {
-			stickiness = w.dmg * 3;
+			stickiness = w.dmg * 2;
 			this.tint = STICKY_TINT;
 		}
 	}

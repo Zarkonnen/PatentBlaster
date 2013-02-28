@@ -1,7 +1,7 @@
 package com.zarkonnen;
 
 import com.zarkonnen.catengine.Input;
-import com.zarkonnen.catengine.MusicDone;
+import com.zarkonnen.catengine.MusicCallback;
 import com.zarkonnen.catengine.util.ScreenMode;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 
-public class Level implements MusicDone, Serializable {
+public class Level implements MusicCallback, Serializable {
 	public static final int GRID_SIZE = 60;
 	public static final double G = 0.2;
 	public static final double MAX_SPEED = 10;
@@ -50,8 +50,7 @@ public class Level implements MusicDone, Serializable {
 		this.player = player;
 		r = new Random(seed);
 		boolean hasBarrels = power > 1 && r.nextBoolean();
-		hasBarrels = true; // qqDPS
-		Barrel.Type bType = Barrel.Type.values()[r.nextInt(Barrel.Type.values().length)];
+		Barrel.Type bType = Barrel.Type.available()[r.nextInt(Barrel.Type.available().length)];
 		music = MUSICS[r.nextInt(MUSICS.length)];
 		background = r.nextInt(NUM_BACKGROUNDS);
 		backgroundH = background > -1 ? BACKGROUND_HS[background] : 512;
@@ -132,7 +131,7 @@ public class Level implements MusicDone, Serializable {
 		if (tick > 1 && !musicPlaying) {
 			musicPlaying = true;
 			if (PatentBlaster.musicVolume > 0) {
-				in.playMusic(music, PatentBlaster.musicVolume * 1.0 / 9, this);
+				in.playMusic(music, PatentBlaster.musicVolume * 1.0 / 9, null, this);
 			}
 		}
 		try {

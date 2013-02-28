@@ -11,6 +11,7 @@ import com.zarkonnen.catengine.Hook.Type;
 import com.zarkonnen.catengine.Hooks;
 import com.zarkonnen.catengine.Img;
 import com.zarkonnen.catengine.Input;
+import com.zarkonnen.catengine.MusicCallback;
 import com.zarkonnen.catengine.SlickEngine;
 import com.zarkonnen.catengine.util.Clr;
 import com.zarkonnen.catengine.util.Pt;
@@ -62,7 +63,7 @@ public class PatentBlaster implements Game {
 	public static final Clr PAPER = new Clr(230, 230, 225);
 	public static final Clr PAINTING_FRAME = new Clr(70, 50, 20);
 	public static final Clr PAINTING_BG = new Clr(255, 255, 230);
-	public static final Clr TOO_FAR_CURSOR = new Clr(200, 200, 200);
+	public static final Clr RELOADING_CURSOR = new Clr(200, 200, 200);
 	public static final Clr DYING = new Clr(255, 100, 100, 32);
 	
 	public static final HashMap<String, Img> CREATURE_IMGS;
@@ -119,6 +120,8 @@ public class PatentBlaster implements Game {
 	String patentName;
 	long patN = System.currentTimeMillis();
 	boolean targetingBooped = false;
+	static boolean musicStarted = false;
+	boolean splash = true;
 	
 	// Prefs stuff
 	public static DifficultyLevel difficultyLevel = DifficultyLevel.EASY;
@@ -249,7 +252,17 @@ public class PatentBlaster implements Game {
 			in.setMode(chosenMode);
 			screened = true;
 			in.setCursorVisible(false);
-			if (musicVolume > 0) { in.playMusic(Level.MUSICS[0], musicVolume * 1.0 / 9, null); }
+			cooldown = 10;
+			if (musicVolume > 0) {
+				in.playMusic(Level.MUSICS[0], musicVolume * 1.0 / 9, new MusicCallback() {
+					@Override
+					public void run(String music, double volume) {
+						musicStarted = true;
+					}
+				}, null);
+			} else {
+				musicStarted = true;
+			}
 		}
 		if (!curs.equals(in.cursor())) {
 			cursOverride = null;
@@ -265,6 +278,14 @@ public class PatentBlaster implements Game {
 		
 		menuHover = "FISHCAKES";
 		
+		if (splash) {
+			if (Preload.allPreloaded() || cooldown == 0 && (in.clickButton() != 0 || in.lastKeyPressed() != null)) {
+				splash = false;
+				cooldown = 10;
+			}
+			return;
+		}
+		
 		if (mainMenu) {
 			if (inputMappingToDo != null) {
 				String newMapping = in.lastKeyPressed();
@@ -275,15 +296,17 @@ public class PatentBlaster implements Game {
 					savePrefs();
 				}
 			}
-			if (newPatentTimer > 0) {
-				newPatentTimer--;
-			} else {
-				Random r = new Random(patN += 32908);
-				patentText = Trigrams.TRIGRAMS.generate(65, r);
-				patentText = patentText.substring(0, patentText.length() - 1) + "...";
-				patentImg = r.nextInt(NUM_IMAGES);
-				patentName = "PAT " + (patN % 10000);
-				newPatentTimer = FPS * 20;
+			if (Trigrams.TRIGRAMS != null) {
+				if (newPatentTimer > 0) {
+					newPatentTimer--;
+				} else {
+					Random r = new Random(patN += 32908);
+					patentText = Trigrams.TRIGRAMS.generate(65, r);
+					patentText = patentText.substring(0, patentText.length() - 1) + "...";
+					patentImg = r.nextInt(NUM_IMAGES);
+					patentName = "PAT " + (patN % 10000);
+					newPatentTimer = FPS * 20;
+				}
 			}
 			hit(in);
 			return;
@@ -587,7 +610,10 @@ public class PatentBlaster implements Game {
 			return;
 		}
 		
-		if (mainMenu) {
+		if (splash) {
+			d.blit("splash.jpg", 0, 0);
+			d.text("[BLACK]" + Preload.preloadStatus(), FOUNT, 220, 620);
+		} else if (mainMenu) {
 			if (lowGraphics) {
 				d.rect(PAPER, 0, 0, sm.width, sm.height);
 			} else {
@@ -621,18 +647,20 @@ public class PatentBlaster implements Game {
 					Random r = new Random(patN += (tick % speed == 0 ? 1 : 0));
 					d.text("[BLACK]PAT " + (Math.abs(r.nextInt()) % 10000), FOUNT, sm.width / 2 + spacing * 2, y);
 				} else {
-					d.text("[BLACK]" + patentName, FOUNT, sm.width / 2 + spacing * 2, y);
-					d.blit("drawings/" + IMG_NAMES[patentImg] + "_drawing_large", PAPER, sm.width / 2 + spacing * 2, y + 40);
-					d.text("[BLACK]" + patentText, FOUNT, sm.width / 2 + spacing * 2, y + 465, sm.width / 2 - spacing * 4);
-					d.hook(sm.width / 2, 0, sm.width / 2, sm.height, new Hook(Type.MOUSE_1) {
-						@Override
-						public void run(Input in, Pt p, Type type) {
-							if (cooldown == 0) {
-								newPatentTimer = 0;
-								cooldown = 15;
+					if (patentName != null) {
+						d.text("[BLACK]" + patentName, FOUNT, sm.width / 2 + spacing * 2, y);
+						d.blit("drawings/" + IMG_NAMES[patentImg] + "_drawing_large", PAPER, sm.width / 2 + spacing * 2, y + 40);
+						d.text("[BLACK]" + patentText, FOUNT, sm.width / 2 + spacing * 2, y + 465, sm.width / 2 - spacing * 4);
+						d.hook(sm.width / 2, 0, sm.width / 2, sm.height, new Hook(Type.MOUSE_1) {
+							@Override
+							public void run(Input in, Pt p, Type type) {
+								if (cooldown == 0) {
+									newPatentTimer = 0;
+									cooldown = 15;
+								}
 							}
-						}
-					});
+						});
+					}
 				}
 				
 				
@@ -701,6 +729,9 @@ public class PatentBlaster implements Game {
 						@Override
 						public void run(Input in, Pt p, Hook.Type type) {
 							if (!DEMO || dl != DifficultyLevel.BRUTAL) {
+								if (difficultyLevel != dl) {
+									setupCreatures.clear();
+								}
 								difficultyLevel = dl;
 								savePrefs();
 							} else {
@@ -778,7 +809,7 @@ public class PatentBlaster implements Game {
 						public void run(Input in, Pt p, Type type) {
 							in.stopMusic();
 							if (ii != 0/* && ii != musicVolume*/) {
-								in.playMusic(Level.MUSICS[0], ii * 1.0 / 9, null);
+								in.playMusic(Level.MUSICS[0], ii * 1.0 / 9, null, null);
 							}
 							musicVolume = ii;
 							savePrefs();
@@ -1028,7 +1059,7 @@ public class PatentBlaster implements Game {
 			d.text(f.fps() + " FPS", FOUNT, sm.width - 100, 40);
 		}
 		
-		if (!setup && !mainMenu && l != null && !l.moved && l.power == 1 && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
+		if (!splash && !setup && !mainMenu && l != null && !l.moved && l.power == 1 && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
 			d.text(textBGTint + key("D") + " or " + key("RIGHT") + " to move right", FOUNT, sm.width / 2 + 50, sm.height * 2 / 3 - FOUNT.lineHeight / 2);
 			Pt sz = d.textSize(key("A") + " or " + key("LEFT") + " to move left", FOUNT);
 			d.text(textBGTint + key("A") + " or " + key("LEFT") + " to move left", FOUNT, sm.width / 2 - 50 - sz.x, sm.height * 2 / 3 - FOUNT.lineHeight / 2);
@@ -1043,16 +1074,11 @@ public class PatentBlaster implements Game {
 		}
 		Clr recC = Clr.RED;
 		boolean tooFar = false;
-		if (!setup && !mainMenu && l != null && l.shopItems.isEmpty() && l.player.hp > 0) {
+		if (!splash && !setup && !mainMenu && l != null && l.shopItems.isEmpty() && l.player.hp > 0) {
 			double dx = curs.x - scrollX - l.player.gunX(), dy = curs.y - scrollY - l.player.gunY();
 			double dist = Math.sqrt(dx * dx + dy * dy);
 			if (l.player.weapon.reloadLeft == 0) {
-				if (dist <= l.player.weapon.range()) {
-					recC = Clr.WHITE;
-				} else {
-					tooFar = true;
-					recC = TOO_FAR_CURSOR;
-				}
+				recC = RELOADING_CURSOR;
 			}
 			tooFar = dist > l.player.weapon.range();
 			if (cursOverride == null && !l.player.weapon.swarm && (dx != 0 || dy != 0) && !tooFar) {
@@ -1061,18 +1087,16 @@ public class PatentBlaster implements Game {
 				d.rect(recC, l.player.gunX() + scrollX + Math.cos(angle - l.player.weapon.jitter) * dist - 1, l.player.gunY() + scrollY + Math.sin(angle - l.player.weapon.jitter) * dist - 1, 2, 2);
 			}
 		}
-		if (cursOverride == null) {
-			if (tooFar) {
-				d.rect(recC, fireCursor().x - 1, fireCursor().y - 10, 2, 5);
-				d.rect(recC, fireCursor().x - 1, fireCursor().y + 5, 2, 5);
-				d.rect(recC, fireCursor().x - 10, fireCursor().y - 1, 5, 2);
-				d.rect(recC, fireCursor().x + 5, fireCursor().y - 1, 5, 2);
-			} else {
-				d.rect(recC, fireCursor().x - 1, fireCursor().y - 10, 2, 20);
-				d.rect(recC, fireCursor().x - 10, fireCursor().y - 1, 20, 2);
-			}
+		if (tooFar) {
+			d.rect(recC, fireCursor().x - 1, fireCursor().y - 10, 2, 5);
+			d.rect(recC, fireCursor().x - 1, fireCursor().y + 5, 2, 5);
+			d.rect(recC, fireCursor().x - 10, fireCursor().y - 1, 5, 2);
+			d.rect(recC, fireCursor().x + 5, fireCursor().y - 1, 5, 2);
+		} else {
+			d.rect(recC, fireCursor().x - 1, fireCursor().y - 10, 2, 20);
+			d.rect(recC, fireCursor().x - 10, fireCursor().y - 1, 20, 2);
 		}
-		if (!setup && !mainMenu && l != null && l.power == 1 && l.moved && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal() && cursOverride == null) {
+		if (!splash && !setup && !mainMenu && l != null && l.power == 1 && l.moved && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal() && cursOverride == null) {
 			if (l.shotsFired == 0) {
 				Pt sz = d.textSize("Click to shoot\nOr press " + key("SPACE") + " to auto-target", FOUNT);
 				d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "Click to shoot\nOr press " + key("SPACE") + " to auto-target", FOUNT, Math.min(sm.width - sz.x, fireCursor().x + 3), fireCursor().y + 3);
