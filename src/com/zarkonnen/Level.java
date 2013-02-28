@@ -98,7 +98,7 @@ public class Level implements MusicCallback, Serializable {
 		player.x = GRID_SIZE * 2;
 		player.y = (LVL_H - gridH[2] - 1) * GRID_SIZE - player.h - (player.moveMode == MoveMode.FLY || player.moveMode == MoveMode.HOVER ? player.h / 4 : 0) - 1;
 		
-		boss = Creature.make(seed + 92318, power * 3 / 2 + 1, PatentBlaster.NUM_IMAGES, true, false, true);
+		boss = Creature.make(seed + 92318, power * 3 / 2 + 5, PatentBlaster.NUM_IMAGES, true, false, true);
 		boss.x = (LVL_W - 8) * GRID_SIZE;
 		boss.y = (LVL_H - gridH[LVL_W - 8] - 1) * GRID_SIZE - boss.h - (boss.moveMode == MoveMode.FLY || boss.moveMode == MoveMode.HOVER ? boss.h / 4 : 0) - 1;
 		if (r.nextBoolean()) {
