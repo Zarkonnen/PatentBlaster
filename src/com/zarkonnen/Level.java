@@ -146,7 +146,7 @@ public class Level implements MusicCallback, Serializable {
 				physics(player);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			e.printStackTrace(PatentBlaster.ERR_STREAM);
 			player.killMe = true;
 			player.hp = -1;
 			texts.add(new FloatingText("KILLED BY PHYSICS!", player.x + player.w / 2, player.y));
@@ -164,7 +164,7 @@ public class Level implements MusicCallback, Serializable {
 				c.tick(this);
 				physics(c);
 			} catch (Exception e) {
-				e.printStackTrace();
+				e.printStackTrace(PatentBlaster.ERR_STREAM);
 				c.killMe = true;
 				c.hp = -1;
 				texts.add(new FloatingText("KILLED BY PHYSICS!", c.x + c.w / 2, c.y));
@@ -197,7 +197,7 @@ public class Level implements MusicCallback, Serializable {
 					soundRequests.add(new SoundRequest("pickup", player.x + player.w / 2, player.y + player.h / 2, 1.0));
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				e.printStackTrace(PatentBlaster.ERR_STREAM);
 				g.killMe = true;
 			}
 			if (g.killMe) { it.remove(); }
@@ -301,7 +301,7 @@ public class Level implements MusicCallback, Serializable {
 					}
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				e.printStackTrace(PatentBlaster.ERR_STREAM);
 				s.killMe = true;
 			}
 			if (s.killMe) {
@@ -331,7 +331,7 @@ public class Level implements MusicCallback, Serializable {
 				ft.tick(this);
 				physics(ft);
 			} catch (Exception e) {
-				e.printStackTrace();
+				e.printStackTrace(PatentBlaster.ERR_STREAM);
 				ft.killMe = true;
 			}
 			if (ft.killMe) { it.remove(); }

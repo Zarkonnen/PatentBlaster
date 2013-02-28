@@ -27,7 +27,7 @@ public class Grids {
 				R_GRID.put(PatentBlaster.IMG_NAMES[i], rGrid);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			e.printStackTrace(PatentBlaster.ERR_STREAM);
 		}
 	}
 	

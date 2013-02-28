@@ -30,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintStream;
 import java.net.URI;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -68,14 +69,24 @@ public class PatentBlaster implements Game {
 	
 	public static final HashMap<String, Img> CREATURE_IMGS;
 	
+	public static final PrintStream ERR_STREAM;
+	
 	static {
+		PrintStream es = System.err;
+		try {
+			es = new PrintStream(new FileOutputStream(new File("patent_blaster_log.txt"), true), true);
+		} catch (Exception e) {
+			e.printStackTrace(es);
+		}
+		ERR_STREAM = es;
+		
 		HashMap<String, Img> cis = null;
 		try {
 			InputStream is = PatentBlaster.class.getResourceAsStream("images/units.txt");
 			cis = Img.loadMap(is);
 			is.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			e.printStackTrace(ERR_STREAM);
 			System.exit(1);
 		}
 		CREATURE_IMGS = cis;
@@ -161,7 +172,7 @@ public class PatentBlaster implements Game {
 				kb.setValue(p.get("KEY_" + kb.getKey(), kb.getValue()));
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			e.printStackTrace(ERR_STREAM);
 		}
 	}
 	
@@ -180,7 +191,7 @@ public class PatentBlaster implements Game {
 		try {
 			p.flush();
 		} catch (Exception e) {
-			e.printStackTrace();
+			e.printStackTrace(ERR_STREAM);
 		}
 	}
 	
@@ -197,7 +208,7 @@ public class PatentBlaster implements Game {
 				sb.append(l).append("\n");
 			}
 			introTxt = sb.toString();
-		} catch (Exception e) { e.printStackTrace(); }
+		} catch (Exception e) { e.printStackTrace(ERR_STREAM); }
 	}
 	private int tick;
 	
@@ -1179,7 +1190,7 @@ public class PatentBlaster implements Game {
 			oos.flush();
 			oos.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			e.printStackTrace(ERR_STREAM);
 		}
 	}
 	

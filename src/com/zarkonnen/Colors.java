@@ -19,7 +19,7 @@ public class Colors {
 				String[] bits = l.split(" ", 4);
 				mapping.add(new Pair<Clr, String>(new Clr(Integer.parseInt(bits[0]), Integer.parseInt(bits[1]), Integer.parseInt(bits[2])), bits[3]));
 			}
-		} catch (Exception e) { e.printStackTrace(); }
+		} catch (Exception e) { e.printStackTrace(PatentBlaster.ERR_STREAM); }
 	}
 	
 	public static String getName(Clr c) {

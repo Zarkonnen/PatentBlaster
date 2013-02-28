@@ -38,7 +38,7 @@ public class Names {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			e.printStackTrace(PatentBlaster.ERR_STREAM);
 		}
 		if (names.isEmpty()) {
 			Runnable r = new Runnable() {
@@ -73,7 +73,7 @@ public class Names {
 									}
 									pn.flush();
 								} catch (Exception e) {
-									e.printStackTrace();
+									e.printStackTrace(PatentBlaster.ERR_STREAM);
 								}
 							}
 							names.notifyAll();
@@ -84,7 +84,7 @@ public class Names {
 							names.addAll(Arrays.asList(DEFAULT_NAMES));
 							names.notifyAll();
 						}
-						e.printStackTrace();
+						e.printStackTrace(PatentBlaster.ERR_STREAM);
 					}
 				}
 			};
