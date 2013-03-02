@@ -380,6 +380,11 @@ public class Creature extends Entity implements HasDesc {
 		double gx = x - gw / 2 + w / 2;
 		double gy = y - gh + h;
 		
+		double targetGw = w / PatentBlaster.IMG_W[imgIndex];
+		double targetGh = h / PatentBlaster.IMG_H[imgIndex];
+		double targetGx = x - gw / 2 + w / 2;
+		double targetGy = y - gh + h;
+		
 		Clr blood = bloodClr();
 		boolean[][] grid = grid();
 		boolean[][] reformGrid = grid;
@@ -388,6 +393,10 @@ public class Creature extends Entity implements HasDesc {
 		ArrayList<Pair<Integer, Integer>> reformPoints = new ArrayList<Pair<Integer, Integer>>();
 		if (finalForm != null && !doesResurrect()) {
 			reformGrid = finalForm.grid();
+			targetGw = finalForm.w / PatentBlaster.IMG_W[finalForm.imgIndex];
+			targetGh = finalForm.h / PatentBlaster.IMG_H[finalForm.imgIndex];
+			targetGx = gx + gw / 2 - targetGw / 2;
+			targetGy = gy + gh / 2 - targetGh / 2;
 		}
 		for (int by = 0; by < Grids.GRID_SZ; by++) {
 			for (int bx = 0; bx < Grids.GRID_SZ; bx++) {
@@ -407,8 +416,8 @@ public class Creature extends Entity implements HasDesc {
 					if (reformGridIndex < reformPoints.size()) {
 						double sx = gx + bx * gw / Grids.GRID_SZ;
 						double sy = gy + by * gh / Grids.GRID_SZ;
-						double tx = gx + reformPoints.get(reformGridIndex).a * gw / Grids.GRID_SZ;
-						double ty = gy + reformPoints.get(reformGridIndex).b * gh / Grids.GRID_SZ;
+						double tx = targetGx + reformPoints.get(reformGridIndex).a * targetGw / Grids.GRID_SZ;
+						double ty = targetGy + reformPoints.get(reformGridIndex).b * targetGh / Grids.GRID_SZ;
 						bloodShots.add(new Shot(blood, gw / Grids.GRID_SZ + 1, false, 120 + l.r.nextInt(80), sx, sy, (l.r.nextDouble() - 0.5) * gibsSpeedMult, (l.r.nextDouble() - 0.5) * gibsSpeedMult, 1.0, this, doesResurrect(), reviens, finalForm != null, tx, ty, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
 						reformGridIndex += skipAmt;
 					}
@@ -419,8 +428,8 @@ public class Creature extends Entity implements HasDesc {
 		while (reformGridIndex < reformPoints.size()) {
 			double sx = gx + gw / 2;
 			double sy = gy + gh / 2;
-			double tx = gx + reformPoints.get(reformGridIndex).a * gw / Grids.GRID_SZ;
-			double ty = gy + reformPoints.get(reformGridIndex).b * gh / Grids.GRID_SZ;
+			double tx = targetGx + reformPoints.get(reformGridIndex).a * targetGw / Grids.GRID_SZ;
+			double ty = targetGy + reformPoints.get(reformGridIndex).b * targetGh / Grids.GRID_SZ;
 			bloodShots.add(new Shot(blood, gw / Grids.GRID_SZ + 1, false, 120 + l.r.nextInt(80), sx, sy, (l.r.nextDouble() - 0.5) * gibsSpeedMult, (l.r.nextDouble() - 0.5) * gibsSpeedMult, 1.0, this, doesResurrect(), reviens, finalForm != null, tx, ty, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
 			reformGridIndex += skipAmt;
 		}
@@ -1163,8 +1172,8 @@ public class Creature extends Entity implements HasDesc {
 			hp *= 0.9;
 		}
 		if (!player && !PatentBlaster.DEMO && allowFinalForm && power > 3 && !c.splitsIntoFour && r.nextInt((boss ? 10 : 30) / power + (boss ? 3 : 12)) == 0) {
-			c.finalForm = make(seed + 1349, power * 5 / 4, numImages, boss, player, false);
-			hp *= 0.9;
+			c.finalForm = make(seed + 1349, power * 5 / 4 + 2, numImages, boss, player, false);
+			hp *= 0.8;
 		}
 		if (!player && power > 2 && c.finalForm == null && !c.splitsIntoFour && !c.resurrects && r.nextInt(30 / power + 12) == 0) {
 			c.reviens = true;
