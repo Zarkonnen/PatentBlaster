@@ -436,6 +436,8 @@ public class PatentBlaster implements Game {
 				l.player.playerMoveModeSelection = MoveMode.SLIDE;
 			}
 			if (l.player.knockedBack == 0) {
+				double oldDx = l.player.dx;
+				double oldDy = l.player.dy;
 				if (l.player.realMoveMode() == MoveMode.FLY) {
 					l.player.dx = 0;
 					l.player.dy = 0;
@@ -477,6 +479,24 @@ public class PatentBlaster implements Game {
 					l.player.dx = l.player.ticksSinceSide < Creature.AIR_STEERING ? Math.min(2.5, l.player.totalSpeed()) : l.player.totalSpeed();
 					l.player.flipped = true;
 					l.moved = true;
+				}
+				
+				if (l.player.realMoveMode() == MoveMode.FLY) {
+					l.player.dx = oldDx * 0.96 + l.player.dx * 0.04;
+					l.player.dy = oldDy * 0.96 + l.player.dy * 0.04;
+					double speedLimit = l.player.totalSpeed();
+					/*double speedSq = l.player.dx * l.player.dx + l.player.dy * l.player.dy;
+					if (speedSq > 0 && speedSq > speedLimit * speedLimit) {
+						double total = Math.abs(l.player.dx) + Math.abs(l.player.dx) + 1;
+						l.player.dx = l.player.dx * speedLimit / total;
+						l.player.dy = l.player.dy * speedLimit / total;
+					}*/
+					if (Math.abs(l.player.dx) > speedLimit) {
+						l.player.dx = l.player.dx / Math.abs(l.player.dx) * speedLimit;
+					}
+					if (Math.abs(l.player.dy) > speedLimit) {
+						l.player.dy = l.player.dy / Math.abs(l.player.dy) * speedLimit;
+					}
 				}
 			}
 			if (in.click() != null) {

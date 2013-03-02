@@ -553,6 +553,7 @@ public class Creature extends Entity implements HasDesc {
 	@Override
 	public void tick(Level l) {
 		double originalDx = dx;
+		double originalDy = dy;
 		if (slipperiness > 0) {
 			slipperiness--;
 		}
@@ -906,6 +907,11 @@ public class Creature extends Entity implements HasDesc {
 		
 		if (slipperiness > 0 && !playerControlled && Math.abs(originalDx) > 0.5) {
 			dx = originalDx;
+		} else {
+			if (realMoveMode() == MoveMode.FLY && !playerControlled) {
+				dx = 0.96 * originalDx + 0.04 * dx;
+				dy = 0.96 * originalDy + 0.04 * dy;
+			}
 		}
 		
 		if (frozen == 0) {
