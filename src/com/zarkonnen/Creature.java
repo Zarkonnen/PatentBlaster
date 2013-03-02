@@ -827,7 +827,9 @@ public class Creature extends Entity implements HasDesc {
 									weapon.reloadLeft = 10;
 								}
 							} else {
-								shoot(l.player.x + l.player.w / 2, l.player.y + l.player.h / 2, l);
+								if (xpd * xpd + ypd * ypd < weapon.range() * weapon.range() * 1.2) {
+									shoot(l.player.x + l.player.w / 2, l.player.y + l.player.h / 2, l);
+								}
 							}
 						}
 					}
