@@ -356,15 +356,15 @@ public class Level implements MusicCallback, Serializable {
 		}
 		e.x += e.dx;
 		if (!e.collides) { e.y += e.dy; return; }
-		int left = Math.max(0, (int) Math.floor(e.x / GRID_SIZE));
-		int right = Math.min(LVL_W - 1, (int) Math.floor((e.x + e.w) / GRID_SIZE));
-		int top = Math.max(0, (int) Math.floor(e.y / GRID_SIZE));
-		int bottom = Math.min(LVL_H - 1, (int) Math.floor((e.y + e.h) / GRID_SIZE));
+		int left = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor(e.x / GRID_SIZE)));
+		int right = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor((e.x + e.w) / GRID_SIZE)));
+		int top = Math.min(LVL_H - 1, Math.max(0, (int) Math.floor(e.y / GRID_SIZE)));
+		int bottom = Math.min(LVL_H - 1, Math.max(0, (int) Math.floor((e.y + e.h) / GRID_SIZE)));
 		if (/*e.dx < 0 && */(grid[top][left] >= SOLID_START || grid[bottom][left] >= SOLID_START)) {
 			e.x = (left + 1) * GRID_SIZE + 0.001;
 			e.dx = 0;
-			left = Math.max(0, (int) Math.floor(e.x / GRID_SIZE));
-			right = Math.min(LVL_W - 1, (int) Math.floor((e.x + e.w) / GRID_SIZE));
+			left = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor(e.x / GRID_SIZE)));
+			right = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor((e.x + e.w) / GRID_SIZE)));
 			e.ticksSinceBottom = 0;
 			e.ticksSinceSide = 0;
 			e.leftPress += e.pressAmount;
@@ -372,16 +372,16 @@ public class Level implements MusicCallback, Serializable {
 		} else if (/*e.dx > 0 && */(grid[top][right] >= SOLID_START || grid[bottom][right] >= SOLID_START)) {
 			e.x = right * GRID_SIZE - e.w - 0.001;
 			e.dx = 0;
-			left = Math.max(0, (int) Math.floor(e.x / GRID_SIZE));
-			right = Math.min(LVL_W - 1, (int) Math.floor((e.x + e.w) / GRID_SIZE));
+			left = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor(e.x / GRID_SIZE)));
+			right = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor((e.x + e.w) / GRID_SIZE)));
 			e.ticksSinceBottom = 0;
 			e.ticksSinceSide = 0;
 			e.rightPress += e.pressAmount;
 			if (e.popOnWorldHit) { e.killMe = true; }
 		}
 		e.y += e.dy;
-		top = Math.max(0, (int) Math.floor(e.y / GRID_SIZE));
-		bottom = Math.min(LVL_H - 1, (int) Math.floor((e.y + e.h) / GRID_SIZE));
+		top = Math.min(LVL_H - 1, Math.max(0, (int) Math.floor(e.y / GRID_SIZE)));
+		bottom = Math.min(LVL_H - 1, Math.max(0, (int) Math.floor((e.y + e.h) / GRID_SIZE)));
 		if (/*e.dy > 0 && */(grid[bottom][left] >= SOLID_START || grid[bottom][right] >= SOLID_START)) {
 			e.y = bottom * GRID_SIZE - e.h - 0.001;
 			if (e.dy > G * 2) {
