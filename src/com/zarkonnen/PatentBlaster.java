@@ -44,22 +44,22 @@ public class PatentBlaster implements Game {
 	public static final boolean DEMO = false;
 	public static final int DEMO_LEVELS = 4;
 	
-	public static final int NUM_IMAGES = DEMO ? 3 : 6;
+	public static final int NUM_IMAGES = DEMO ? 3 : 10;
 	public static final int NUM_VOICES = DEMO ? 3 : 14;
 	public static final int FPS = 60;
 	public static final String ALPHABET = " qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890-=+_!?<>,.;:\"'@£$%^&*()[]{}|\\~/±";
 	public static final Fount FOUNT = new Fount("LiberationMono18", 14, 24, 12, 24, ALPHABET);
 	public static final Fount SMOUNT = new Fount("Courier12", 10, 15, 7, 15, ALPHABET);
-	public static final String[] IMG_NAMES = {"bat", "bear", "elephant", "thing", "mummy", "tongue"};
-	public static final String[] PRETTY_IMG_NAMES = {"Bat", "Bear", "Elephant", "Brain-Thing", "Mummy", "Tongue"};
-	public static final int[] IMG_NUMS = { 1, 3, 3, 3, 1, 2 };
-	public static final double[] IMG_SHOOT_X = { 0.44, 0.45, 0.18, 0.56, 0.49, 0.50 };
-	public static final double[] IMG_SHOOT_Y = { 0.51, 0.65, 0.47, 0.08, 0.12, 0.14 };
-	public static final double[] IMG_MOUTH_X = { 0.44, 0.50, 0.10, 0.54, 0.47, 0.48 };
-	public static final double[] IMG_MOUTH_Y = { 0.51, 0.43, 0.83, 0.57, 0.24, 0.53 };
+	public static final String[] IMG_NAMES = {"bat", "bear", "elephant", "thing", "mummy", "tongue", "eye", "brain", "robot", "head"};
+	public static final String[] PRETTY_IMG_NAMES = {"Bat", "Bear", "Elephant", "Brain-Thing", "Mummy", "Tongue", "Eye", "Brain", "Robot", "Head"};
+	public static final int[] IMG_NUMS = { 1, 3, 3, 3, 1, 2, 0, 1, 4, 2 };
+	public static final double[] IMG_SHOOT_X = { 0.44, 0.45, 0.18, 0.56, 0.49, 0.50, 0.20, 0.37, 0.15, 0.50 };
+	public static final double[] IMG_SHOOT_Y = { 0.51, 0.65, 0.47, 0.08, 0.12, 0.14, 0.50, 0.37, 0.48, 0.28 };
+	public static final double[] IMG_MOUTH_X = { 0.44, 0.50, 0.10, 0.54, 0.47, 0.48, 0.20, 0.67, 0.47, 0.50 };
+	public static final double[] IMG_MOUTH_Y = { 0.51, 0.43, 0.83, 0.57, 0.24, 0.53, 0.50, 0.67, 0.18, 0.77 };
 	
-	public static final double[] IMG_W =       { 1.00, 0.82, 1.00, 0.83, 0.69, 1.00 };
-	public static final double[] IMG_H =       { 0.79, 1.00, 0.89, 1.00, 1.00, 0.49 };
+	public static final double[] IMG_W =       { 1.00, 0.82, 1.00, 0.83, 0.69, 1.00, 0.75, 1.00, 0.85, 0.71 };
+	public static final double[] IMG_H =       { 0.79, 1.00, 0.89, 1.00, 1.00, 0.49, 1.00, 0.79, 1.00, 1.00 };
 	
 	public static final Clr PAPER = new Clr(230, 230, 225);
 	public static final Clr PAINTING_FRAME = new Clr(70, 50, 20);
