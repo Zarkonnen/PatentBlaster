@@ -360,7 +360,7 @@ public class Level implements MusicCallback, Serializable {
 		int right = Math.min(LVL_W - 1, (int) Math.floor((e.x + e.w) / GRID_SIZE));
 		int top = Math.max(0, (int) Math.floor(e.y / GRID_SIZE));
 		int bottom = Math.min(LVL_H - 1, (int) Math.floor((e.y + e.h) / GRID_SIZE));
-		if (e.dx < 0 && (grid[top][left] >= SOLID_START || grid[bottom][left] >= SOLID_START)) {
+		if (/*e.dx < 0 && */(grid[top][left] >= SOLID_START || grid[bottom][left] >= SOLID_START)) {
 			e.x = (left + 1) * GRID_SIZE + 0.001;
 			e.dx = 0;
 			left = Math.max(0, (int) Math.floor(e.x / GRID_SIZE));
@@ -369,7 +369,7 @@ public class Level implements MusicCallback, Serializable {
 			e.ticksSinceSide = 0;
 			e.leftPress += e.pressAmount;
 			if (e.popOnWorldHit) { e.killMe = true; }
-		} else if (e.dx > 0 && (grid[top][right] >= SOLID_START || grid[bottom][right] >= SOLID_START)) {
+		} else if (/*e.dx > 0 && */(grid[top][right] >= SOLID_START || grid[bottom][right] >= SOLID_START)) {
 			e.x = right * GRID_SIZE - e.w - 0.001;
 			e.dx = 0;
 			left = Math.max(0, (int) Math.floor(e.x / GRID_SIZE));
@@ -382,7 +382,7 @@ public class Level implements MusicCallback, Serializable {
 		e.y += e.dy;
 		top = Math.max(0, (int) Math.floor(e.y / GRID_SIZE));
 		bottom = Math.min(LVL_H - 1, (int) Math.floor((e.y + e.h) / GRID_SIZE));
-		if (e.dy > 0 && (grid[bottom][left] >= SOLID_START || grid[bottom][right] >= SOLID_START)) {
+		if (/*e.dy > 0 && */(grid[bottom][left] >= SOLID_START || grid[bottom][right] >= SOLID_START)) {
 			e.y = bottom * GRID_SIZE - e.h - 0.001;
 			if (e.dy > G * 2) {
 				e.bottomPress = (int) (e.dy * e.bottomPressSpeedMult);
@@ -390,7 +390,7 @@ public class Level implements MusicCallback, Serializable {
 			e.dy = 0;
 			e.ticksSinceBottom = 0;
 			if (e.popOnWorldHit) { e.killMe = true; }
-		} else if (e.dy < 0 && (grid[top][left] >= SOLID_START || grid[top][right] >= SOLID_START)) {
+		} else if (/*e.dy < 0 && */(grid[top][left] >= SOLID_START || grid[top][right] >= SOLID_START)) {
 			e.y = (top + 1) * GRID_SIZE + 0.001;
 			e.dy = 0;
 			if (e.popOnWorldHit) { e.killMe = true; }
