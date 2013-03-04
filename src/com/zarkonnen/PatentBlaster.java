@@ -656,7 +656,7 @@ public class PatentBlaster implements Game {
 		//if (lowGraphics && (doRender = !doRender)) { return; } // Go down to 30 FPS for low gfx.
 		Draw d = new Draw(f);
 		ScreenMode sm = f.mode();
-		d.rect(lowGraphics && l != null && l.player != null && l.player.hp < l.player.totalMaxHP() / 10 ? new Clr(100, 20, 20) : new Clr(32, 32, 32), 0, 0, sm.width, sm.height);
+		d.rect(Clr.DARK_GREY, 0, 0, sm.width, sm.height);
 		String textBGTint = !lowGraphics ? "[bg=00000099]" : "[bg=222222]";
 		
 		if (chosenMode == null) {
@@ -1137,8 +1137,8 @@ public class PatentBlaster implements Game {
 		} else {
 			// Background texture
 			if (!lowGraphics && l.background != -1) {
-				for (int y = -l.backgroundH; y < (Level.LVL_H + 1) * Level.GRID_SIZE + 300; y += l.backgroundH) {
-					for (int x = -l.backgroundW; x < (Level.LVL_W + 1) * Level.GRID_SIZE + 300; x += l.backgroundW) {
+				for (int y = 0; y < (Level.LVL_H) * Level.GRID_SIZE; y += l.backgroundH) {
+					for (int x = 0; x < (Level.LVL_W) * Level.GRID_SIZE; x += l.backgroundW) {
 						d.blit("background_" + l.background, x + (int) scrollX, y + (int) scrollY);
 					}
 				}
@@ -1156,6 +1156,13 @@ public class PatentBlaster implements Game {
 					}
 				}
 			}
+			
+			// Bracket this in
+			// bottom
+			d.rect(Clr.DARK_GREY, scrollX - 600, scrollY + Level.LVL_H * Level.GRID_SIZE, Level.LVL_W * Level.GRID_SIZE + 1200, 600);
+			// right
+			d.rect(Clr.DARK_GREY, scrollX + Level.LVL_W * Level.GRID_SIZE, scrollY - 600, 600, Level.LVL_H * Level.GRID_SIZE + 1200);
+			
 			for (Barrel b : l.barrels) {
 				b.draw(d, l, scrollX, scrollY);
 			}
