@@ -82,7 +82,7 @@ public class Level implements MusicCallback, Serializable {
 		}
 		
 		for (int i = 10; i < LVL_W - 10; i++) {
-			if (r.nextInt(4) == 0) {
+			if (r.nextInt(3) == 0) {
 				int type = r.nextInt(4);
 				Creature c = Creature.make(seed + type * 12345, power, PatentBlaster.NUM_IMAGES, false, false, true);
 				int reach = (int) Math.floor(c.w / GRID_SIZE);
@@ -98,15 +98,32 @@ public class Level implements MusicCallback, Serializable {
 		player.x = GRID_SIZE * 2;
 		player.y = (LVL_H - gridH[2] - 1) * GRID_SIZE - player.h - (player.moveMode == MoveMode.FLY || player.moveMode == MoveMode.HOVER ? player.h / 4 : 0) - 1;
 		
-		boss = Creature.make(seed + 92318, power * 3 / 2 + 5, PatentBlaster.NUM_IMAGES, true, false, true);
-		boss.x = (LVL_W - 8) * GRID_SIZE;
-		boss.y = (LVL_H - gridH[LVL_W - 8] - 1) * GRID_SIZE - boss.h - (boss.moveMode == MoveMode.FLY || boss.moveMode == MoveMode.HOVER ? boss.h / 4 : 0) - 1;
-		if (r.nextBoolean()) {
-			boss.dropItem = true;
-		} else {
-			boss.dropWeapon = true;
+		int numBosses = power == 5 ? 4 : 1;
+		for (int b = 0; b < numBosses; b++) {
+			boss = Creature.make(seed + 92318, power * 3 / 2 + 5, PatentBlaster.NUM_IMAGES, true, false, true);
+			if (power == 5) {
+				boss = player.makeTinyVersion(this);
+				boss.encounterMessage = "MEET TINY YOU";
+			}
+			if (power == 10) {
+				boss = player.makeTwin(this);
+				boss.invert();
+				boss.encounterMessage = "MEET YOUR EVIL TWIN";
+			}
+			if (power == 15) {
+				boss = player.makeGiantVersion(this);
+				boss.encounterMessage = "MEET GIANT YOU";
+			}
+			boss.heal();
+			boss.x = (LVL_W - 8 - b) * GRID_SIZE;
+			boss.y = (LVL_H - gridH[LVL_W - 8 - b] - 1) * GRID_SIZE - boss.h - (boss.moveMode == MoveMode.FLY || boss.moveMode == MoveMode.HOVER ? boss.h / 4 : 0) - 1;
+			if (r.nextBoolean()) {
+				boss.dropItem = true;
+			} else {
+				boss.dropWeapon = true;
+			}
+			monsters.add(boss);
 		}
-		monsters.add(boss);
 	}
 	
 	public boolean lost() {

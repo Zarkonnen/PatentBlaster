@@ -42,7 +42,7 @@ import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
 
 public class PatentBlaster implements Game {
-	public static final boolean DEMO = true;
+	public static final boolean DEMO = false;
 	public static final int DEMO_LEVELS = 3;
 	
 	public static final int NUM_IMAGES = DEMO ? 3 : 10;
@@ -137,7 +137,8 @@ public class PatentBlaster implements Game {
 	boolean buyScreen = false;
 	boolean exitAfterBuyScreen = false;
 	boolean buyScreenAfterDefeat = false;
-	ArrayList<BuyScreenArgument> nagArguments = new ArrayList<BuyScreenArgument>();
+	ArrayList<BuyScreenArgument> buyArguments = new ArrayList<BuyScreenArgument>();
+	int gamesPlayed = 0;
 	
 	// Prefs stuff
 	public static DifficultyLevel difficultyLevel = DifficultyLevel.EASY;
@@ -249,7 +250,7 @@ public class PatentBlaster implements Game {
 				} else {
 					if (DEMO && plays > 1) {
 						buyScreen = true;
-						nagArguments.clear();
+						buyArguments.clear();
 						exitAfterBuyScreen = true;
 						cooldown = 10;
 					} else {
@@ -404,8 +405,8 @@ public class PatentBlaster implements Game {
 				autoSave();
 				setup = true;
 				nextLvlTime = 0;
-				if (buyScreenAfterDefeat) {
-					nagArguments.clear();
+				if (buyScreenAfterDefeat && gamesPlayed++ % 4 == 0) {
+					buyArguments.clear();
 					buyScreen = true;
 					exitAfterBuyScreen = false;
 				}
@@ -683,9 +684,9 @@ public class PatentBlaster implements Game {
 		}
 		
 		if (buyScreen) {
-			if (nagArguments.isEmpty()) {
-				nagArguments.addAll(Arrays.asList(BuyScreenArgument.values()));
-				Collections.shuffle(nagArguments);
+			if (buyArguments.isEmpty()) {
+				buyArguments.addAll(Arrays.asList(BuyScreenArgument.values()));
+				Collections.shuffle(buyArguments);
 			}
 			if (lowGraphics) {
 				d.rect(PAPER, 0, 0, sm.width, sm.height);
@@ -699,7 +700,7 @@ public class PatentBlaster implements Game {
 			
 			int spacing = 40;
 			for (int i = 0; i < 3; i++) {
-				BuyScreenArgument arg = nagArguments.get(i);
+				BuyScreenArgument arg = buyArguments.get(i);
 				int x = sm.width / 2 * (i % 2) + spacing;
 				int y = sm.height / 2 * (i / 2) + spacing;
 				d.text("[BLACK]" + arg.text, FOUNT, x, y);

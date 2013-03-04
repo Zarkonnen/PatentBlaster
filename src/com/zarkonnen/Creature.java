@@ -135,6 +135,8 @@ public class Creature extends Entity implements HasDesc {
 	
 	public LinkedList<Shot> stuckShots = new LinkedList<Shot>();
 	
+	public String encounterMessage = null;
+	
 	public Pt targetIntersect(Level l, double fromX, double fromY, double shotSpeed, int shotLife) {
 		Creature sim = new Creature();
 		sim.x = x;
@@ -539,7 +541,7 @@ public class Creature extends Entity implements HasDesc {
 		t.resistance = resistance;
 		t.w = w / 2;
 		t.h = h / 2;
-		t.speed = speed;
+		t.speed = speed * 1.5;
 		t.weapon = weapon.makeTinyVersion();
 		t.weapons.add(t.weapon);
 		t.animCycleLength = animCycleLength / 2 + 2;
@@ -551,6 +553,79 @@ public class Creature extends Entity implements HasDesc {
 		t.normalH = normalH / 2;
 		return t;
 	}
+	
+	public Creature makeGiantVersion(Level l) {
+		Creature t = new Creature();
+		t.img = img;
+		t.flippedImg = flippedImg;
+		t.imgIndex = imgIndex;
+		t.tint = tint;
+		t.canSeeStats = canSeeStats;
+		t.charges = charges;
+		t.dodges = dodges;
+		t.eating = eating;
+		t.explodes = explodes;
+		t.flipped = flipped;
+		t.maxHP = maxHP * 4;
+		t.randomShootDelay = randomShootDelay;
+		t.moveMode = moveMode;
+		if (!items.isEmpty()) {
+			t.items.add(items.get(0).makeGiantVersion());
+		}
+		t.reviens = reviens;
+		t.hpRegen = hpRegen;
+		t.resistance = resistance;
+		t.w = w * 2;
+		t.h = h * 2;
+		t.speed = speed * 0.7;
+		t.weapon = weapon.makeGiantVersion();
+		t.weapons.add(t.weapon);
+		t.animCycleLength = animCycleLength * 2;
+		t.alwaysOnFire = alwaysOnFire;
+		t.thief = thief;
+		t.flyHeightBonus = l.r.nextInt(Level.GRID_SIZE);
+		t.size = size * 2;
+		t.normalW = normalW * 2;
+		t.normalH = normalH * 2;
+		return t;
+	}
+	
+	public Creature makeTwin(Level l) {
+		Creature t = new Creature();
+		t.img = img;
+		t.flippedImg = flippedImg;
+		t.imgIndex = imgIndex;
+		t.tint = tint;
+		t.canSeeStats = canSeeStats;
+		t.charges = charges;
+		t.dodges = dodges;
+		t.eating = eating;
+		t.explodes = explodes;
+		t.flipped = flipped;
+		t.maxHP = maxHP;
+		t.randomShootDelay = randomShootDelay;
+		t.moveMode = moveMode;
+		if (!items.isEmpty()) {
+			t.items.add(items.get(0).makeTwin());
+		}
+		t.reviens = reviens;
+		t.hpRegen = hpRegen;
+		t.resistance = resistance;
+		t.w = w;
+		t.h = h;
+		t.speed = speed;
+		t.weapon = weapon.makeTwin();
+		t.weapons.add(t.weapon);
+		t.animCycleLength = animCycleLength;
+		t.alwaysOnFire = alwaysOnFire;
+		t.thief = thief;
+		t.flyHeightBonus = l.r.nextInt(Level.GRID_SIZE);
+		t.size = size;
+		t.normalW = normalW;
+		t.normalH = normalH;
+		return t;
+	}
+	
 	
 	public void makePlayerAble() {
 		playerControlled = true;
@@ -659,6 +734,11 @@ public class Creature extends Entity implements HasDesc {
 				if (voiceTimer > 0) { voiceTimer--; }
 				double xpd = x + w / 2 - l.player.x - l.player.w / 2;
 				
+				if (encounterMessage != null && xpd < 400) {
+					l.texts.add(new FloatingText(encounterMessage.toUpperCase(), x + w / 2, y));
+					encounterMessage = null;
+				}
+				
 				if (absorbTimer > 0) { absorbTimer--; }
 				// Absorbing.
 				if (absorber && Math.abs(xpd) < 400 && absorbTimer == 0) {
@@ -683,10 +763,10 @@ public class Creature extends Entity implements HasDesc {
 							for (Shot s : blood) {
 								s.eat(this, 1.0 / blood.size(), 1.0 / blood.size(), 0.4 / blood.size(), false);
 								s.tint = victim.tint.mix(0.4, Clr.WHITE);
-								s.lifeLeft = 40 + i++ * 4;
+								s.lifeLeft = 40 + i++ * 2;
 							}
 							blood.get(0).sourceThingsTransfer = true;
-							absorbTimer = PatentBlaster.FPS * 3;
+							absorbTimer = PatentBlaster.FPS * 2;
 							break;
 						}
 					}
@@ -987,10 +1067,7 @@ public class Creature extends Entity implements HasDesc {
 	public int takeDamage(Level l, Shot shot) {
 		if (hp <= 0) { return 0; }
 		Weapon src = shot.weapon;
-		int dmg = (int) (src.dmg * shot.dmgMultiplier);
-		if (dmg == 0 && src.dmg > 0 && l.r.nextDouble() <= src.dmg * shot.dmgMultiplier) {
-			dmg = 1;
-		}
+		double dmg = (int) (src.dmg * shot.dmgMultiplier);
 		if (jar) {
 			dmg *= 10;
 		}
@@ -1009,6 +1086,16 @@ public class Creature extends Entity implements HasDesc {
 				return 0;
 			}
 		}
+		
+		int intDmg = 0;
+		if (dmg == 0) {
+			if (src.dmg > 0 && l.r.nextDouble() <= src.dmg * shot.dmgMultiplier) {
+				intDmg = 1;
+			}
+		} else {
+			intDmg = (int) dmg;
+		}
+		
 		if (dmg <= 0) {
 			return 0;
 		}
@@ -1019,14 +1106,14 @@ public class Creature extends Entity implements HasDesc {
 		if (hp - dmg > 0) {
 			Clr blood = bloodClr();
 			if (resistance != null) { blood = resistance.tint; }
-			int nBlood = 20 * dmg / totalMaxHP() / PatentBlaster.shotDivider() + 1;
+			int nBlood = 20 * intDmg / totalMaxHP() / PatentBlaster.shotDivider() + 1;
 			for (int i = 0; i < nBlood; i++) {
 				bloodShots.add(new Shot(blood, w / 10, false, 120 + l.r.nextInt(80), shot.x + shot.w / 2 - w / 20, shot.y + shot.h / 2 - h / 20, l.r.nextDouble() * 4 - 2, l.r.nextDouble() * 4 - 2, 1.0, this, false, false, false, 0, 0, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
 			}
 			l.shotsToAdd.addAll(bloodShots);
 			if (src.knockback && !massive) {
-				dx += shot.dx * 0.7;
-				dy += shot.dy * 0.7;
+				dx += shot.dx * 0.5;
+				dy += shot.dy * 0.5;
 				knockedBack = 20;
 			}
 			double spltVolume = Math.min(1.3, 1.0 * dmg / totalMaxHP());
@@ -1049,15 +1136,15 @@ public class Creature extends Entity implements HasDesc {
 			bloodShots.get(0).eatHPGain = (int) (dmg * tv);
 		}
 		
-		hp -= dmg;
+		hp -= intDmg;
 		if (flees && hp < totalMaxHP() / 2) {
 			fleeing = true;
 		}
 		if (src.element == Element.FIRE && !fireproof()) {
-			heat += dmg;
+			heat += intDmg;
 		}
 		if (src.element == Element.ICE && !iceproof()) {
-			heat -= dmg;
+			heat -= intDmg;
 		}
 		if (heat > totalMaxHP() / 4 && hp > 0 && !fireproof()) {
 			onFire = 60;
@@ -1071,7 +1158,7 @@ public class Creature extends Entity implements HasDesc {
 			dx = 0;
 			dy = 0;
 		}
-		return dmg;
+		return intDmg;
 	}
 	
 	public double totalEating() {
@@ -1124,10 +1211,8 @@ public class Creature extends Entity implements HasDesc {
 		if (c.moveMode == MoveMode.FLY) {
 			hp *= 0.8;
 			c.speed *= 1.2;
-		} else if (c.moveMode == MoveMode.HOVER) {
-			hp *= 1.05;
 		} else {
-			if (!player &&!boss && !w.homing && w.shotgun && r.nextInt(8) == 0) {
+			if (!player && !boss && !w.homing && !w.shotgun && r.nextInt(4 / power + 4) == 0) {
 				c.explodes = true;
 				hp *= 0.9;
 			}
@@ -1468,5 +1553,43 @@ public class Creature extends Entity implements HasDesc {
 			stick += s.stickiness;
 		}
 		return stick;
+	}
+
+	void invert() {
+		if (resistance != null) {
+			switch (resistance) {
+				case ACID:
+					resistance = Element.STEEL;
+					break;
+				case STEEL:
+					resistance = Element.ACID;
+					break;
+				case FIRE:
+					resistance = Element.ICE;
+					break;
+				case ICE:
+					resistance = Element.FIRE;
+					break;
+			}
+			tint = resistance.tint;
+		} else {
+			tint = new Clr(255 - tint.r, 255 - tint.g, 255 - tint.b);
+		}
+		
+		switch (weapon.element) {
+			case ACID:
+				weapon.element = Element.STEEL;
+				break;
+			case STEEL:
+				weapon.element = Element.ACID;
+				break;
+			case FIRE:
+				weapon.element = Element.ICE;
+				break;
+			case ICE:
+				weapon.element = Element.FIRE;
+				break;
+		}
+		weapon.tint = weapon.element.tint;
 	}
 }

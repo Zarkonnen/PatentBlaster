@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 
 public class Item implements HasDesc, Comparable<Item>, Serializable {
+	public static final Clr SHIELD_ACTIVE = new Clr(215, 215, 215);
+	
 	public static enum Type {
 		STEEL_RESIST(0, Element.STEEL.tint, 50) {
 			@Override
@@ -173,12 +175,40 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 	public int creatureHPBonus = 0;
 	public long seed;
 	
+	public Item makeTwin() {
+		return new Item(name, type, power, imgIndex, img, tint, resistance, resistanceVs, hpRegen, fly, hover, shield, vampireMult, givesInfo, resurrect, seed);
+	}
+
+	public Item() {}
+	
+	public Item(String name, Type type, int power, int imgIndex, Img img, Clr tint, double resistance, Element resistanceVs, double hpRegen, boolean fly, boolean hover, boolean shield, double vampireMult, boolean givesInfo, boolean resurrect, long seed) {
+		this.name = name;
+		this.type = type;
+		this.power = power;
+		this.imgIndex = imgIndex;
+		this.img = img;
+		this.tint = tint;
+		this.resistance = resistance;
+		this.resistanceVs = resistanceVs;
+		this.hpRegen = hpRegen;
+		this.fly = fly;
+		this.hover = hover;
+		this.shield = shield;
+		this.vampireMult = vampireMult;
+		this.givesInfo = givesInfo;
+		this.resurrect = resurrect;
+		this.seed = seed;
+	}
+	
 	public void tick(Level l, Creature owner) {
 		if (shieldReload > 0) {
 			shieldReload--;
 			if (shieldReload == 0) {
 				owner.sound("shield_restore", l);
 			}
+		}
+		if (shield) {
+			tint = shieldReload == 0 ? SHIELD_ACTIVE : Type.SHIELD.tint;
 		}
 	}
 	
@@ -334,6 +364,31 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 		it.vampireMult = vampireMult;
 		it.resurrect = resurrect;
 		it.creatureHPBonus = creatureHPBonus / 4;
+		it.hover = hover;
+		return it;
+	}
+	
+	Item makeGiantVersion() {
+		Item it = new Item();
+		it.eating = eating;
+		it.fly = fly;
+		it.givesInfo = givesInfo;
+		it.hpBonus = hpBonus * 4;
+		it.hpRegen = hpRegen * 4;
+		it.imgIndex = imgIndex;
+		it.img = img;
+		it.name = name;
+		it.type = type;
+		it.resistance = resistance;
+		it.resistanceVs = resistanceVs;
+		it.shield = shield;
+		it.shieldReload = shieldReload;
+		it.shieldReloadTime = shieldReloadTime;
+		it.speedMult = speedMult;
+		it.tint = tint;
+		it.vampireMult = vampireMult;
+		it.resurrect = resurrect;
+		it.creatureHPBonus = creatureHPBonus * 4;
 		it.hover = hover;
 		return it;
 	}

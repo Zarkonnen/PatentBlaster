@@ -20,8 +20,8 @@ public class Weapon implements HasDesc, Serializable {
 	public static final int MAX_RANGE = 800;
 	public static final int AVG_RANGE = MIN_RANGE / 2 + MAX_RANGE / 2;
 	
-	public static final int MIN_SHOT_SIZE = 3;
-	public static final int AVG_SHOT_SIZE = 5;
+	public static final int MIN_SHOT_SIZE = 4;
+	public static final int AVG_SHOT_SIZE = 6;
 	
 	public int imgIndex;
 	public Img img;
@@ -84,7 +84,7 @@ public class Weapon implements HasDesc, Serializable {
 		if (w.homing) { w.reload = w.reload * 3 / 2; dmg *= 0.8; w.shotLife = w.shotLife * 3 / 2; }
 		if (w.swarm) { dmg /= 8; w.shotSize = w.shotSize / 4 + 1; w.numBullets = 8; }
 		if (w.knockback) { dmg *= 0.8; }
-		if (w.shotgun) { w.reload = w.reload * 3 / 2; dmg /= 4; w.shotLife *= 0.4; w.shotSize = w.shotSize / 2 + 1; w.numBullets = 8; w.jitter += 0.28; }
+		if (w.shotgun) { w.reload = w.reload * 3 / 2; dmg /= 4; w.shotLife *= 0.4; w.shotSize = w.shotSize / 2 + 1; w.numBullets = 8; w.jitter += 0.2; }
 		if (w.scattershot) { dmg /= 8; w.shotSize = w.shotSize / 2 + 1; w.numBullets = 5; w.jitter += 0.08; }
 		if (w.sticky) { dmg /= 2; w.shotSize = w.shotSize * 1.5 + 1; }
 		w.tint = w.element.tint;
@@ -100,7 +100,7 @@ public class Weapon implements HasDesc, Serializable {
 		if (swarm) { return ""; }
 		if (jitter == 0) { return "Perfect accuracy.\n"; }
 		if (jitter < 2 * Math.PI / 180) { return "Highly accurate (±" + round(jitter * 180 / Math.PI, 1) + " degrees)\n"; }
-		if (jitter < 6 * Math.PI / 180) { return "Accurate (±" + round(jitter * 180 / Math.PI, 0) + " degrees)\n"; }
+		if (jitter < 4 * Math.PI / 180) { return "Accurate (±" + round(jitter * 180 / Math.PI, 0) + " degrees)\n"; }
 		if (jitter < 9 * Math.PI / 180) { return ""; }
 		if (jitter < 15 * Math.PI / 180) { return "Inaccurate (±" + round(jitter * 180 / Math.PI, 0) + " degrees)\n"; }
 		return "Highly inaccurate (±" + round(jitter * 180 / Math.PI, 0) + " degrees)\n";
@@ -244,6 +244,62 @@ public class Weapon implements HasDesc, Serializable {
 		t.shotSize = shotSize / 2 + 1;
 		t.tint = tint;
 		t.shotSpeed = shotSpeed;
+		t.shotgun = shotgun;
+		t.scattershot = scattershot;
+		t.sticky = sticky;
+		t.homing = homing;
+		t.swarm = swarm;
+		t.numBullets = numBullets;
 		return t;
+	}
+	
+	public Weapon makeGiantVersion() {
+		Weapon t = new Weapon();
+		t.dmg = dmg * 3;
+		t.element = element;
+		t.img = img;
+		t.jitter = jitter * 0.7;
+		t.name = "Giant " + name;
+		t.reload = reload;
+		t.shotLife = shotLife * 3 / 2;
+		t.shotSize = shotSize * 2;
+		t.tint = tint;
+		t.shotSpeed = shotSpeed;
+		t.shotgun = shotgun;
+		t.scattershot = scattershot;
+		t.sticky = sticky;
+		t.homing = homing;
+		t.swarm = swarm;
+		t.numBullets = numBullets;
+		return t;
+	}
+	
+
+	public Weapon makeTwin() {
+		return new Weapon(imgIndex, img, tint, element, dmg, reload, reloadLeft, shotSpeed, jitter, shotSize, knockback, shotLife, homing, swarm, shotgun, scattershot, sticky, name, seed);
+	}
+	
+	public Weapon() {}
+
+	public Weapon(int imgIndex, Img img, Clr tint, Element element, int dmg, int reload, int reloadLeft, double shotSpeed, double jitter, double shotSize, boolean knockback, int shotLife, boolean homing, boolean swarm, boolean shotgun, boolean scattershot, boolean sticky, String name, long seed) {
+		this.imgIndex = imgIndex;
+		this.img = img;
+		this.tint = tint;
+		this.element = element;
+		this.dmg = dmg;
+		this.reload = reload;
+		this.reloadLeft = reloadLeft;
+		this.shotSpeed = shotSpeed;
+		this.jitter = jitter;
+		this.shotSize = shotSize;
+		this.knockback = knockback;
+		this.shotLife = shotLife;
+		this.homing = homing;
+		this.swarm = swarm;
+		this.shotgun = shotgun;
+		this.scattershot = scattershot;
+		this.sticky = sticky;
+		this.name = name;
+		this.seed = seed;
 	}
 }
