@@ -76,7 +76,7 @@ public class Level implements MusicCallback, Serializable {
 				if (r.nextInt(8) == 0) {
 					grid[LVL_H - 2 - h][i] = 1;
 				} else if (hasBarrels && r.nextInt(9) == 0) {
-					barrels.add(new Barrel(bType, seed, power, i * GRID_SIZE + r.nextInt(8), (LVL_H - gridH[i] - 1) * GRID_SIZE - 61, r));
+					barrels.add(new Barrel(bType, seed, power, i * GRID_SIZE + 1 + r.nextInt(7), (LVL_H - gridH[i] - 1) * GRID_SIZE - 61, r));
 				}
 			}
 		}

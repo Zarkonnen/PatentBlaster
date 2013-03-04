@@ -720,6 +720,7 @@ public class PatentBlaster implements Game {
 					menuItem("continue", "CONTINUE", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 						@Override
 						public void run(Input in, Pt p, Hook.Type type) {
+							setup = false;
 							mainMenu = false;
 							cooldown = 10;
 						}
