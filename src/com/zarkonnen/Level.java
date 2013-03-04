@@ -416,10 +416,10 @@ public class Level implements MusicCallback, Serializable {
 		if (myX < 0 || myY < 0 || myX >= Grids.GRID_SZ || myY >= Grids.GRID_SZ) {
 			return false;
 		}
-		return c.grid()[myY][myX];
+ 		return c.grid()[myY][myX];
 	}
-	
-	public boolean intersects(Entity e1, Entity e2) {
+    	
+	 public boolean intersects(Entity e1, Entity e2) {
 		return	
 				e1.collides && e2.collides &&
 				e1.x < e2.x + e2.w &&
