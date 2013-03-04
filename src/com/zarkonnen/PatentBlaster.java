@@ -32,6 +32,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -41,8 +42,8 @@ import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
 
 public class PatentBlaster implements Game {
-	public static final boolean DEMO = false;
-	public static final int DEMO_LEVELS = 4;
+	public static final boolean DEMO = true;
+	public static final int DEMO_LEVELS = 3;
 	
 	public static final int NUM_IMAGES = DEMO ? 3 : 10;
 	public static final int NUM_VOICES = DEMO ? 3 : 14;
@@ -133,12 +134,17 @@ public class PatentBlaster implements Game {
 	boolean targetingBooped = false;
 	static boolean musicStarted = false;
 	boolean splash = true;
+	boolean buyScreen = false;
+	boolean exitAfterBuyScreen = false;
+	boolean buyScreenAfterDefeat = false;
+	ArrayList<BuyScreenArgument> nagArguments = new ArrayList<BuyScreenArgument>();
 	
 	// Prefs stuff
 	public static DifficultyLevel difficultyLevel = DifficultyLevel.EASY;
 	public static final HashMap<String, String> keyBindings = new HashMap<String, String>();
 	public static int soundVolume = 9;
 	public static int musicVolume = 2;
+	public static int plays = 0;
 	
 	public static final List<Pair<String, Pair<String, String>>> KEY_NAMES = l(
 		p("Move left     ", p("A",     "LEFT")),
@@ -171,6 +177,9 @@ public class PatentBlaster implements Game {
 				//p.put("KEY_" + kb.getKey(), kb.getValue());
 				kb.setValue(p.get("KEY_" + kb.getKey(), kb.getValue()));
 			}
+			plays = p.getInt("plays", 0) + 1;
+			p.putInt("plays", plays);
+			p.flush();
 		} catch (Exception e) {
 			e.printStackTrace(ERR_STREAM);
 		}
@@ -227,12 +236,25 @@ public class PatentBlaster implements Game {
 		Preload.preload(in);
 		tick++;
 		if (in.keyDown("ESCAPE") || in.keyDown("ESC") || in.keyDown("⎋")) {
-			if (mainMenu && cooldown == 0) {
+			if (buyScreen && cooldown == 0) {
+				if (exitAfterBuyScreen) {
+					in.quit();
+				} else {
+					buyScreen = false;
+				}
+			} else if (mainMenu && cooldown == 0) {
 				if (showCredits) {
 					showCredits = false;
 					cooldown = 15;
 				} else {
-					in.quit();
+					if (DEMO && plays > 1) {
+						buyScreen = true;
+						nagArguments.clear();
+						exitAfterBuyScreen = true;
+						cooldown = 10;
+					} else {
+						in.quit();
+					}
 				}
 			} else {
 				autoSave();
@@ -288,6 +310,18 @@ public class PatentBlaster implements Game {
 		}
 		
 		menuHover = "FISHCAKES";
+		
+		if (buyScreen) {
+			hit(in);
+			if (cooldown == 0 && in.clickButton() != 0) {
+				if (exitAfterBuyScreen) {
+					in.quit();
+				} else {
+					buyScreen = false;
+				}
+			}
+			return;
+		}
 		
 		if (splash) {
 			if (Preload.allPreloaded() || cooldown == 0 && (in.clickButton() != 0 || in.lastKeyPressed() != null)) {
@@ -370,6 +404,12 @@ public class PatentBlaster implements Game {
 				autoSave();
 				setup = true;
 				nextLvlTime = 0;
+				if (buyScreenAfterDefeat) {
+					nagArguments.clear();
+					buyScreen = true;
+					exitAfterBuyScreen = false;
+				}
+				cooldown = 10;
 				return;
 			}
 		} else if (l.won()) {
@@ -380,6 +420,7 @@ public class PatentBlaster implements Game {
 				l.player.explode(l);
 				nextLvlTime = 0;
 				l.texts.add(new FloatingText("KILLED BY THE DEMO LIMIT", l.player.x + l.player.w / 2, l.player.y));
+				buyScreenAfterDefeat = true;
 				return;
 			}
 			nextLvlTime++;
@@ -641,7 +682,62 @@ public class PatentBlaster implements Game {
 			return;
 		}
 		
-		if (splash) {
+		if (buyScreen) {
+			if (nagArguments.isEmpty()) {
+				nagArguments.addAll(Arrays.asList(BuyScreenArgument.values()));
+				Collections.shuffle(nagArguments);
+			}
+			if (lowGraphics) {
+				d.rect(PAPER, 0, 0, sm.width, sm.height);
+			} else {
+				for (int y = 0; y < sm.width; y += 600) {
+					for (int x = 0; x < sm.height; x += 600) {
+						d.blit("paper.jpg", x, y);
+					}
+				}
+			}
+			
+			int spacing = 40;
+			for (int i = 0; i < 3; i++) {
+				BuyScreenArgument arg = nagArguments.get(i);
+				int x = sm.width / 2 * (i % 2) + spacing;
+				int y = sm.height / 2 * (i / 2) + spacing;
+				d.text("[BLACK]" + arg.text, FOUNT, x, y);
+				//d.blit("args/" + arg.name(), x, y + FOUNT.lineHeight + spacing);
+			}
+			
+			StringBuilder menu = new StringBuilder();
+			HashMap<String, Hook> hoox = new HashMap<String, Hook>();
+			menu.append("[bg=ff5555]");
+			menuItem("buy", "  BUY THE FULL VERSION  ", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+				@Override
+				public void run(Input in, Pt p, Type type) {
+					in.setMode(new ScreenMode(1024, 768, false));
+					try {
+						Desktop.getDesktop().browse(new URI("http://www.patent-blaster.com/buy/"));
+					} catch (Exception e) {
+						JOptionPane.showMessageDialog(null, "Oops. Looks like we can't get a web browser open. But if you go to http://www.patent-blaster.com/buy/ , you'll be able to get the full version!");
+					}
+					if (exitAfterBuyScreen) {
+						in.quit();
+					} else {
+						buyScreen = false;
+					}
+				}
+			});
+			/*menu.append("\n\n");
+			menuItem("nope", "MAYBE LATER", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+				@Override
+				public void run(Input in, Pt p, Type type) {
+					if (exitFromNagScreen) {
+						in.quit();
+					} else {
+						nagScreen = false;
+					}
+				}
+			});*/
+			d.text(menu.toString(), FOUNT, sm.width / 2 + spacing, sm.height / 2 + spacing, hoox);
+		} else if (splash) {
 			d.blit("splash.jpg", 0, 0);
 			d.text("[BLACK]" + Preload.preloadStatus(), FOUNT, 220, 620);
 		} else if (mainMenu) {
