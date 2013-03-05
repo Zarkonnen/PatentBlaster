@@ -315,10 +315,10 @@ public class Creature extends Entity implements HasDesc {
 				d.rect(new Clr(255, 255, 255, shield), scrollX + x - w / 10, scrollY + y - h / 10, w + w / 5, h + h / 5, angle);
 			}
 		}
-		if (l.player.canSeeStats || this == l.player) {
+		int tmh = totalMaxHP();
+		if ((l.player.canSeeStats || this == l.player) && (hp < tmh * 0.9 || heat > tmh / 16 || -heat > tmh / 16)) {
 			d.rect(weapon.reloadLeft == 0 ? Clr.WHITE : Clr.LIGHT_GREY, x + scrollX, y + scrollY + h - 10, w, 8);
 			Clr c = Clr.GREEN;
-			int tmh = totalMaxHP();
 			int adjHP = Math.min(hp, tmh);
 			if (adjHP < tmh / 2) {
 				c = Clr.YELLOW;
@@ -510,6 +510,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public boolean isUseful(Weapon w) {
+		if (weapons.contains(w)) { return false; }
 		for (Weapon w2 : weapons) {
 			if (w2.element == w.element && (w2.dps() > w.dps()) && w.homing == w2.homing) {
 				return false;
@@ -1071,14 +1072,7 @@ public class Creature extends Entity implements HasDesc {
 		if (jar) {
 			dmg *= 10;
 		}
-		if (resistance == src.element) {
-			dmg /= 2;
-		}
-		for (Item it : items) {
-			if (it.resistanceVs == src.element) {
-				dmg *= (1 - it.resistance);
-			}
-		}
+		dmg *= 1 - resistance(src.element);
 		for (Item it : items) {
 			if (it.shield && it.shieldReload == 0) {
 				it.shieldReload = it.shieldReloadTime;
@@ -1363,7 +1357,7 @@ public class Creature extends Entity implements HasDesc {
 				dmg *= (1 - it.resistance);
 			}
 		}
-		return 1 - dmg;
+		return Math.min(0.9, 1 - dmg);
 	}
 	
 	public String name() {

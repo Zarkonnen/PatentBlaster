@@ -81,8 +81,9 @@ public class Level implements MusicCallback, Serializable {
 			}
 		}
 		
+		int cFreq = power > 30 ? 1 : power > 15 ? 2 : 3;
 		for (int i = 10; i < LVL_W - 10; i++) {
-			if (r.nextInt(3) == 0) {
+			if (r.nextInt(cFreq) == 0) {
 				int type = r.nextInt(4);
 				Creature c = Creature.make(seed + type * 12345, power, PatentBlaster.NUM_IMAGES, false, false, true);
 				int reach = (int) Math.floor(c.w / GRID_SIZE);
@@ -98,21 +99,27 @@ public class Level implements MusicCallback, Serializable {
 		player.x = GRID_SIZE * 2;
 		player.y = (LVL_H - gridH[2] - 1) * GRID_SIZE - player.h - (player.moveMode == MoveMode.FLY || player.moveMode == MoveMode.HOVER ? player.h / 4 : 0) - 1;
 		
-		int numBosses = power == 5 ? 4 : 1;
+		int numBosses = (power % 20) == 5 ? 4 : 1;
 		for (int b = 0; b < numBosses; b++) {
 			boss = Creature.make(seed + 92318, power * 3 / 2 + 5, PatentBlaster.NUM_IMAGES, true, false, true);
-			if (power == 5) {
+			if ((power % 20) == 5) {
 				boss = player.makeTinyVersion(this);
 				boss.encounterMessage = "MEET TINY YOU";
+				boss.dropWeapon = false;
+				boss.dropItem = false;
 			}
-			if (power == 10) {
+			if ((power % 20) == 10) {
 				boss = player.makeTwin(this);
 				boss.invert();
 				boss.encounterMessage = "MEET YOUR EVIL TWIN";
+				boss.dropWeapon = false;
+				boss.dropItem = true;
 			}
-			if (power == 15) {
+			if ((power % 20) == 15) {
 				boss = player.makeGiantVersion(this);
 				boss.encounterMessage = "MEET GIANT YOU";
+				boss.dropWeapon = false;
+				boss.dropItem = true;
 			}
 			boss.heal();
 			boss.x = (LVL_W - 8 - b) * GRID_SIZE;
@@ -206,9 +213,11 @@ public class Level implements MusicCallback, Serializable {
 						player.canSeeStats = player.canSeeStats || g.item.givesInfo;
 					}
 					if (g.weapon != null) {
-						player.newThing = g.weapon;
-						player.newThingTimer = 0;
-						player.weapons.add(g.weapon);
+						if (!player.weapons.contains(g.weapon)) {
+							player.newThing = g.weapon;
+							player.newThingTimer = 0;
+							player.weapons.add(g.weapon);
+						}
 					}
 					g.killMe = true;
 					soundRequests.add(new SoundRequest("pickup", player.x + player.w / 2, player.y + player.h / 2, 1.0));
@@ -379,7 +388,7 @@ public class Level implements MusicCallback, Serializable {
 		int bottom = Math.min(LVL_H - 1, Math.max(0, (int) Math.floor((e.y + e.h) / GRID_SIZE)));
 		if (/*e.dx < 0 && */(grid[top][left] >= SOLID_START || grid[bottom][left] >= SOLID_START)) {
 			e.x = (left + 1) * GRID_SIZE + 0.001;
-			e.dx = 0;
+			//e.dx = 0;
 			left = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor(e.x / GRID_SIZE)));
 			right = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor((e.x + e.w) / GRID_SIZE)));
 			e.ticksSinceBottom = 0;
@@ -388,7 +397,7 @@ public class Level implements MusicCallback, Serializable {
 			if (e.popOnWorldHit) { e.killMe = true; }
 		} else if (/*e.dx > 0 && */(grid[top][right] >= SOLID_START || grid[bottom][right] >= SOLID_START)) {
 			e.x = right * GRID_SIZE - e.w - 0.001;
-			e.dx = 0;
+			//e.dx = 0;
 			left = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor(e.x / GRID_SIZE)));
 			right = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor((e.x + e.w) / GRID_SIZE)));
 			e.ticksSinceBottom = 0;

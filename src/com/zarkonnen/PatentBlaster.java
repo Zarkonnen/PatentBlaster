@@ -598,13 +598,15 @@ public class PatentBlaster implements Game {
 			}
 		}
 		if (cooldown == 0) {
-			if (in.keyDown(key("Q")) && l.player.weapons.indexOf(l.player.weapon) > 0) {
-				l.player.weapon = l.player.weapons.get(l.player.weapons.indexOf(l.player.weapon) - 1);
+			if (in.keyDown(key("Q"))) {
+				int newIndex = (l.player.weapons.indexOf(l.player.weapon) - 1 + l.player.weapons.size()) % l.player.weapons.size();
+				l.player.weapon = l.player.weapons.get(newIndex);
 				cooldown = 15;
 				l.player.changedGun = true;
 			}
-			if (in.keyDown(key("E")) && l.player.weapons.indexOf(l.player.weapon) < l.player.weapons.size() - 1) {
-				l.player.weapon = l.player.weapons.get(l.player.weapons.indexOf(l.player.weapon) + 1);
+			if (in.keyDown(key("E"))) {
+				int newIndex = (l.player.weapons.indexOf(l.player.weapon) + 1) % l.player.weapons.size();
+				l.player.weapon = l.player.weapons.get(newIndex);
 				cooldown = 15;
 				l.player.changedGun = true;
 			}

@@ -19,6 +19,8 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 				it.resistanceVs = Element.STEEL;
 				it.resistance = 1 - 1 / (power / 20.0 + 1);
 			}
+			@Override
+			public boolean useful(Creature c) { return c.resistance(Element.STEEL) < 0.8999; }
 		},
 		ACID_RESIST(0, Element.ACID.tint, 50) {
 			@Override
@@ -26,6 +28,8 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 				it.resistanceVs = Element.ACID;
 				it.resistance = 1 - 1 / (power / 20.0 + 1);
 			}
+			@Override
+			public boolean useful(Creature c) { return c.resistance(Element.ACID) < 0.8999; }
 		},
 		FIRE_RESIST(0, Element.FIRE.tint, 50) {
 			@Override
@@ -33,6 +37,8 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 				it.resistanceVs = Element.FIRE;
 				it.resistance = 1 - 1 / (power / 30.0 + 1);
 			}
+			@Override
+			public boolean useful(Creature c) { return c.resistance(Element.FIRE) < 0.8999; }
 		},
 		ICE_RESIST(0, Element.ICE.tint, 50) {
 			@Override
@@ -40,6 +46,8 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 				it.resistanceVs = Element.ICE;
 				it.resistance = 1 - 1 / (power / 30.0 + 1);
 			}
+			@Override
+			public boolean useful(Creature c) { return c.resistance(Element.ICE) < 0.8999; }
 		},
 		HP_BONUS(0, new Clr(150, 50, 0), 100) {
 			@Override
@@ -75,7 +83,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 			@Override
 			public boolean useful(Creature c) { return !c.canSeeStats; }
 		},
-		RESURRECT(4, new Clr(180, 180, 255), 100) {
+		RESURRECT(4, new Clr(180, 180, 255), 30) {
 			@Override
 			public void make(Item it, int power) {
 				it.resurrect = true;
@@ -107,7 +115,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 		EATING(5, Clr.RED, 50) {
 			@Override
 			public void make(Item it, int power) {
-				it.eating = Math.min(1.0 / 50, power * 0.002);
+				it.eating = Math.min(1.0 / 50, power * 0.0015);
 				if (power > 5) {
 					it.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(5)));
 				}
@@ -118,7 +126,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 		VAMPIRE(7, new Clr(100, 0, 100), 30) {
 			@Override
 			public void make(Item it, int power) {
-				it.vampireMult = Math.min(1.0, power * 0.05);
+				it.vampireMult = Math.min(1.0, power * 0.02);
 				if (power > 7) {
 					it.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(7)));
 				}
