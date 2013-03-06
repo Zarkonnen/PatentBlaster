@@ -17,8 +17,8 @@ import java.util.LinkedList;
 
 public class Creature extends Entity implements HasDesc {
 	public static final double MAX_SPEED = 5;
-	public static final double HOP_BONUS = 2.5;
-	public static final int AIR_STEERING = 10;
+	public static final double HOP_BONUS = 1.25;
+	public static final int AIR_STEERING = 25;
 	public static final int ABOVE_PREF = Level.GRID_SIZE * 5 / 2;
 	public static final Clr JAR_CLR = new Clr(110, 90, 85);
 	public static final Clr FROZEN_CLR = new Clr(100, 110, 200);;

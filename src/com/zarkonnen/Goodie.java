@@ -8,6 +8,12 @@ public class Goodie extends Entity {
 	
 	public Item item;
 	public Weapon weapon;
+	public int age = 0;
+	
+	@Override
+	public void tick(Level l) {
+		age++;
+	}
 	
 	private Goodie(Creature from) {
 		x = from.x + from.w / 2 - GOODIE_SIZE / 2;

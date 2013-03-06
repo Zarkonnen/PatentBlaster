@@ -35,6 +35,7 @@ public class Level implements MusicCallback, Serializable {
 	public transient boolean musicPlaying = false;
 	public int power;
 	public int shotsFired = 0;
+	public int ticksWhiteRectShown = 0;
 	public boolean moved = false;
 	public int background = -1;
 	public int backgroundW = 512;

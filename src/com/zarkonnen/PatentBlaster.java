@@ -42,10 +42,10 @@ import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
 
 public class PatentBlaster implements Game {
-	public static final boolean DEMO = false;
+	public static final boolean DEMO = true;
 	public static final int DEMO_LEVELS = 3;
 	
-	public static final int NUM_IMAGES = DEMO ? 3 : 12;
+	public static final int NUM_IMAGES = DEMO ? 4 : 12;
 	public static final int NUM_VOICES = DEMO ? 3 : 14;
 	public static final int FPS = 60;
 	public static final String ALPHABET = " qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890-=+_!?<>,.;:\"'@£$%^&*()[]{}|\\~/±";
@@ -107,7 +107,6 @@ public class PatentBlaster implements Game {
 	double scrollY = 0;
 	static Level l;
 	Pt curs = new Pt(0, 0);
-	Pt cursOverride = null;
 	int nextLvlTime = 0;
 	String info = "";
 	boolean screened = false;
@@ -139,6 +138,8 @@ public class PatentBlaster implements Game {
 	boolean buyScreenAfterDefeat = false;
 	ArrayList<BuyScreenArgument> buyArguments = new ArrayList<BuyScreenArgument>();
 	int gamesPlayed = 0;
+	int nothingInViewTicks = 0;
+	boolean thingsToRight = false;
 	
 	// Prefs stuff
 	public static DifficultyLevel difficultyLevel = DifficultyLevel.EASY;
@@ -228,10 +229,6 @@ public class PatentBlaster implements Game {
 		//}
 	}
 	
-	Pt fireCursor() {
-		return cursOverride == null ? curs : cursOverride;
-	}
-	
 	@Override
 	public void input(Input in) {
 		Preload.preload(in);
@@ -297,9 +294,6 @@ public class PatentBlaster implements Game {
 			} else {
 				musicStarted = true;
 			}
-		}
-		if (!curs.equals(in.cursor())) {
-			cursOverride = null;
 		}
 		curs = in.cursor();
 		if (cooldown > 0) { cooldown--; }
@@ -448,6 +442,35 @@ public class PatentBlaster implements Game {
 		}
 		
 		if (l.player.frozen == 0 && l.player.hp > 0) {
+			if (l.player.weapon.reloadLeft == 0 && l.shotsFired > 0) {
+				l.ticksWhiteRectShown++;
+			}
+			
+			nothingInViewTicks++;
+			thingsToRight = false;
+			for (Creature c : l.monsters) {
+				/*if (c.x - l.player.x - l.player.w / 2 < 500 || c.x + c.w - l.player.x - l.player.w / 2 > -500) {
+					nothingInViewTicks = 0;
+				}*/
+				if (Math.abs(c.x + c.w / 2 - l.player.x - l.player.w / 2) < 500 - c.w / 2) {
+					nothingInViewTicks = 0;
+				}
+				if (c.x > l.player.x) {
+					thingsToRight = true;
+				}
+			}
+			for (Goodie it : l.goodies) {
+				/*if (it.x - l.player.x - l.player.w / 2 < 500 || it.x + it.w - l.player.x - l.player.w / 2 > -500) {
+					nothingInViewTicks = 0;
+				}*/
+				if (Math.abs(it.x + it.w / 2 - l.player.x - l.player.w / 2) < 500 - it.w / 2) {
+					nothingInViewTicks = 0;
+				}
+				if (it.x > l.player.x) {
+					thingsToRight = true;
+				}
+			}
+			
 			// Stealing means dropping.
 			if (l.player.playerMoveModeSelection == MoveMode.HOVER && !l.player.canHover()) {
 				l.player.playerMoveModeSelection = MoveMode.SLIDE;
@@ -569,7 +592,6 @@ public class PatentBlaster implements Game {
 					if (targ != null) {
 						double tx = targ.x + targ.w / 2;
 						double ty = targ.y + targ.h / 2;
-						cursOverride = new Pt(tx + scrollX, ty + scrollY);
 						l.player.shoot(tx, ty, l);
 						l.shotsFired++;
 					} else if (nearest != null) {
@@ -583,7 +605,6 @@ public class PatentBlaster implements Game {
 						}
 						double tx = nearest.x + nearest.w / 2;
 						double ty = nearest.y + nearest.h / 2;
-						cursOverride = new Pt(tx + scrollX, ty + scrollY);
 					}
 				} else if (l.player.weapon.clickEmptyTimer == 0 && l.player.weapon.reloadLeft < l.player.weapon.reload - 10 && l.player.weapon.reloadLeft > 30) {
 					in.play("empty", 1.0, 1.0, 0, 0);
@@ -1188,9 +1209,22 @@ public class PatentBlaster implements Game {
 				d.text(l.player.desc(), new Fount("LiberationMono18", 12, 12, 24), 20, 20);
 			}*/
 			
+			if (l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
+				for (Goodie g : l.goodies) {
+					if (g.age > FPS * 2) {
+						Pt sz = d.textSize("Pick me up!", FOUNT);
+						d.text(textBGTint + "Pick me up!", FOUNT, scrollX + g.x + g.w / 2 - sz.x / 2, scrollY + g.y - sz.y);
+					}
+				}
+			}
+			
 			showEquipment(d, sm, FOUNT, textBGTint, true);
 			Pt ts = d.textSize("Level " + l.power, FOUNT);
 			d.text("Level " + l.power, FOUNT, sm.width - ts.x - 10, 10);
+			
+			if (l.player.hp > 0 && nothingInViewTicks > FPS * 3 && (!l.monsters.isEmpty() || !l.goodies.isEmpty())) {
+				d.blit("rightarrow", sm.width / 2 - 200, sm.height / 4, 0, 0, !thingsToRight);
+			}
 		}
 		
 		if (showFPS) {
@@ -1219,29 +1253,29 @@ public class PatentBlaster implements Game {
 				recC = RELOADING_CURSOR;
 			}
 			tooFar = dist > l.player.weapon.range();
-			if (cursOverride == null && !l.player.weapon.swarm && (dx != 0 || dy != 0) && !tooFar) {
+			if (!l.player.weapon.swarm && (dx != 0 || dy != 0) && !tooFar) {
 				double angle = Math.atan2(dy, dx);
 				d.rect(recC, l.player.gunX() + scrollX + Math.cos(angle + l.player.weapon.jitter) * dist - 1, l.player.gunY() + scrollY + Math.sin(angle + l.player.weapon.jitter) * dist - 1, 2, 2);
 				d.rect(recC, l.player.gunX() + scrollX + Math.cos(angle - l.player.weapon.jitter) * dist - 1, l.player.gunY() + scrollY + Math.sin(angle - l.player.weapon.jitter) * dist - 1, 2, 2);
 			}
 		}
 		if (tooFar) {
-			d.rect(recC, fireCursor().x - 1, fireCursor().y - 10, 2, 5);
-			d.rect(recC, fireCursor().x - 1, fireCursor().y + 5, 2, 5);
-			d.rect(recC, fireCursor().x - 10, fireCursor().y - 1, 5, 2);
-			d.rect(recC, fireCursor().x + 5, fireCursor().y - 1, 5, 2);
+			d.rect(recC, curs.x - 1, curs.y - 10, 2, 5);
+			d.rect(recC, curs.x - 1, curs.y + 5, 2, 5);
+			d.rect(recC, curs.x - 10, curs.y - 1, 5, 2);
+			d.rect(recC, curs.x + 5, curs.y - 1, 5, 2);
 		} else {
-			d.rect(recC, fireCursor().x - 1, fireCursor().y - 10, 2, 20);
-			d.rect(recC, fireCursor().x - 10, fireCursor().y - 1, 20, 2);
+			d.rect(recC, curs.x - 1, curs.y - 10, 2, 20);
+			d.rect(recC, curs.x - 10, curs.y - 1, 20, 2);
 		}
-		if (!splash && !setup && !mainMenu && l != null && l.power == 1 && l.moved && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal() && cursOverride == null) {
+		if (!splash && !setup && !mainMenu && l != null && l.power == 1 && l.moved && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
 			if (l.shotsFired == 0) {
 				Pt sz = d.textSize("Click to shoot\nOr press " + key("SPACE") + " to auto-target", FOUNT);
-				d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "Click to shoot\nOr press " + key("SPACE") + " to auto-target", FOUNT, Math.min(sm.width - sz.x, fireCursor().x + 3), fireCursor().y + 3);
+				d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "Click to shoot\nOr press " + key("SPACE") + " to auto-target", FOUNT, Math.min(sm.width - sz.x, curs.x + 3), curs.y + 3);
 			}
-			if (l.shotsFired == 1 && l.player.hp > 0 && cursOverride == null) {
-				Pt sz = d.textSize("White recticle = weapon ready", FOUNT);
-				d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "White recticle = weapon ready", FOUNT, Math.min(sm.width - sz.x, fireCursor().x + 3), fireCursor().y + 3);
+			if (l.shotsFired > 0 && l.ticksWhiteRectShown < FPS * 3 && l.player.hp > 0) {
+				Pt sz = d.textSize("White reticle = weapon ready", FOUNT);
+				d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "White reticle = weapon ready", FOUNT, Math.min(sm.width - sz.x, curs.x + 3), curs.y + 3);
 			}
 		}
 		h = d.getHooks();
