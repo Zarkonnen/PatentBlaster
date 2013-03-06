@@ -316,6 +316,20 @@ public class Shot extends Entity {
 					beingEatenBy.eatSoundTimer = PatentBlaster.FPS;
 				}
 			}
+			
+			if (weapon != null && weapon.grenade && dmgMultiplier == 1) {
+				l.soundRequests.add(new SoundRequest("explode", x + w / 2, y + h / 2, 0.5));
+				for (int i = 0; i < 40; i++) {
+					double dir = l.r.nextDouble() * 2 * Math.PI;
+					Shot s = new Shot(l, this);
+					s.dx = Math.cos(dir) * weapon.shotSpeed * 1 * (0.3 + l.r.nextDouble());
+					s.dy = Math.sin(dir) * weapon.shotSpeed * 1 * (0.3 + l.r.nextDouble());
+					s.lifeLeft *= 0.2 + l.r.nextDouble() * 0.2;
+					s.gravityMult += 0.5;
+					s.dmgMultiplier = 1.0 / 40;
+					l.shotsToAdd.add(s);
+				}
+			}
 		}
 		if (sprayProbability > 0 && l.r.nextDouble() < sprayProbability / PatentBlaster.shotDivider()) {
 			l.shotsToAdd.add(new Shot(l, this));

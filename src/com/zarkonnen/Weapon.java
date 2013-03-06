@@ -40,6 +40,7 @@ public class Weapon implements HasDesc, Serializable {
 	public boolean shotgun;
 	public boolean scattershot;
 	public boolean sticky;
+	public boolean grenade;
 	public int numBullets = 1;
 	public String name;
 	public long seed;
@@ -80,13 +81,15 @@ public class Weapon implements HasDesc, Serializable {
 		w.shotgun = !w.homing && !w.swarm && r.nextInt(10) == 0;
 		w.sticky = !PatentBlaster.DEMO && w.element == Element.ACID && r.nextInt(5) == 0;
 		w.scattershot = !PatentBlaster.DEMO && !w.homing && !w.swarm && !w.shotgun && r.nextInt(w.sticky ? 3 : 10) == 0;
-		w.knockback = !w.swarm && !w.shotgun && !w.scattershot && r.nextInt(30) == 0;
+		w.grenade = !PatentBlaster.DEMO && !w.homing && !w.swarm && !w.shotgun && !w.scattershot;
+		w.knockback = !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && r.nextInt(30) == 0;
 		if (w.homing) { w.reload = w.reload * 3 / 2; dmg *= 0.8; w.shotLife = w.shotLife * 3 / 2; }
 		if (w.swarm) { dmg /= 8; w.shotSize = w.shotSize / 4 + 1; w.numBullets = 8; }
 		if (w.knockback) { dmg *= 0.8; }
 		if (w.shotgun) { w.reload = w.reload * 3 / 2; dmg /= 4; w.shotLife *= 0.4; w.shotSize = w.shotSize / 2 + 1; w.numBullets = 8; w.jitter += 0.2; }
 		if (w.scattershot) { dmg /= 8; w.shotSize = w.shotSize / 2 + 1; w.numBullets = 5; w.jitter += 0.08; }
 		if (w.sticky) { dmg /= 2; w.shotSize = w.shotSize * 1.5 + 1; }
+		if (w.grenade) { w.shotSize = w.shotSize * 1.5; w.reload *= 1.5; w.shotLife *= 0.6; }
 		w.tint = w.element.tint;
 		w.name = Names.pick(r);
 		w.imgIndex = r.nextInt(PatentBlaster.NUM_IMAGES);
@@ -163,6 +166,9 @@ public class Weapon implements HasDesc, Serializable {
 		if (scattershot) {
 			sb.append(is).append("Scattershot.\n");
 		}
+		if (grenade) {
+			sb.append(is).append("Grenade.\n");
+		}
 		if (homing) {
 			if (swarm) {
 				sb.append(is).append("Homing Swarm.\n");
@@ -180,16 +186,26 @@ public class Weapon implements HasDesc, Serializable {
 	@Override
 	public int hashCode() {
 		int hash = 3;
-		hash = 59 * hash + this.img.hashCode();
-		hash = 59 * hash + (this.tint != null ? this.tint.hashCode() : 0);
-		hash = 59 * hash + (this.element != null ? this.element.hashCode() : 0);
-		hash = 59 * hash + this.dmg;
-		hash = 59 * hash + this.reload;
-		hash = 59 * hash + (int) (Double.doubleToLongBits(this.shotSpeed) ^ (Double.doubleToLongBits(this.shotSpeed) >>> 32));
-		hash = 59 * hash + (int) (Double.doubleToLongBits(this.jitter) ^ (Double.doubleToLongBits(this.jitter) >>> 32));
-		hash = 59 * hash + (int) (Double.doubleToLongBits(this.shotSize) ^ (Double.doubleToLongBits(this.shotSize) >>> 32));
-		hash = 59 * hash + (this.knockback ? 1 : 0);
-		hash = 59 * hash + this.shotLife;
+		hash = 19 * hash + this.imgIndex;
+		hash = 19 * hash + (this.img != null ? this.img.hashCode() : 0);
+		hash = 19 * hash + (this.tint != null ? this.tint.hashCode() : 0);
+		hash = 19 * hash + (this.element != null ? this.element.hashCode() : 0);
+		hash = 19 * hash + this.dmg;
+		hash = 19 * hash + this.reload;
+		hash = 19 * hash + (int) (Double.doubleToLongBits(this.shotSpeed) ^ (Double.doubleToLongBits(this.shotSpeed) >>> 32));
+		hash = 19 * hash + (int) (Double.doubleToLongBits(this.jitter) ^ (Double.doubleToLongBits(this.jitter) >>> 32));
+		hash = 19 * hash + (int) (Double.doubleToLongBits(this.shotSize) ^ (Double.doubleToLongBits(this.shotSize) >>> 32));
+		hash = 19 * hash + (this.knockback ? 1 : 0);
+		hash = 19 * hash + this.shotLife;
+		hash = 19 * hash + (this.homing ? 1 : 0);
+		hash = 19 * hash + (this.swarm ? 1 : 0);
+		hash = 19 * hash + (this.shotgun ? 1 : 0);
+		hash = 19 * hash + (this.scattershot ? 1 : 0);
+		hash = 19 * hash + (this.sticky ? 1 : 0);
+		hash = 19 * hash + (this.grenade ? 1 : 0);
+		hash = 19 * hash + this.numBullets;
+		hash = 19 * hash + (this.name != null ? this.name.hashCode() : 0);
+		hash = 19 * hash + (int) (this.seed ^ (this.seed >>> 32));
 		return hash;
 	}
 
@@ -202,7 +218,10 @@ public class Weapon implements HasDesc, Serializable {
 			return false;
 		}
 		final Weapon other = (Weapon) obj;
-		if (this.img != other.img) {
+		if (this.imgIndex != other.imgIndex) {
+			return false;
+		}
+		if (this.img != other.img && (this.img == null || !this.img.equals(other.img))) {
 			return false;
 		}
 		if (this.tint != other.tint && (this.tint == null || !this.tint.equals(other.tint))) {
@@ -229,6 +248,36 @@ public class Weapon implements HasDesc, Serializable {
 		if (this.knockback != other.knockback) {
 			return false;
 		}
+		if (this.shotLife != other.shotLife) {
+			return false;
+		}
+		if (this.homing != other.homing) {
+			return false;
+		}
+		if (this.swarm != other.swarm) {
+			return false;
+		}
+		if (this.shotgun != other.shotgun) {
+			return false;
+		}
+		if (this.scattershot != other.scattershot) {
+			return false;
+		}
+		if (this.sticky != other.sticky) {
+			return false;
+		}
+		if (this.grenade != other.grenade) {
+			return false;
+		}
+		if (this.numBullets != other.numBullets) {
+			return false;
+		}
+		if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+			return false;
+		}
+		if (this.seed != other.seed) {
+			return false;
+		}
 		return true;
 	}
 
@@ -250,6 +299,7 @@ public class Weapon implements HasDesc, Serializable {
 		t.homing = homing;
 		t.swarm = swarm;
 		t.numBullets = numBullets;
+		t.grenade = grenade;
 		return t;
 	}
 	
@@ -271,17 +321,18 @@ public class Weapon implements HasDesc, Serializable {
 		t.homing = homing;
 		t.swarm = swarm;
 		t.numBullets = numBullets;
+		t.grenade = grenade;
 		return t;
 	}
 	
 
 	public Weapon makeTwin() {
-		return new Weapon(imgIndex, img, tint, element, dmg, reload, reloadLeft, shotSpeed, jitter, shotSize, knockback, shotLife, homing, swarm, shotgun, scattershot, sticky, name, seed);
+		return new Weapon(imgIndex, img, tint, element, dmg, reload, reloadLeft, shotSpeed, jitter, shotSize, knockback, shotLife, homing, swarm, shotgun, scattershot, sticky, grenade, name, seed);
 	}
 	
 	public Weapon() {}
 
-	public Weapon(int imgIndex, Img img, Clr tint, Element element, int dmg, int reload, int reloadLeft, double shotSpeed, double jitter, double shotSize, boolean knockback, int shotLife, boolean homing, boolean swarm, boolean shotgun, boolean scattershot, boolean sticky, String name, long seed) {
+	public Weapon(int imgIndex, Img img, Clr tint, Element element, int dmg, int reload, int reloadLeft, double shotSpeed, double jitter, double shotSize, boolean knockback, int shotLife, boolean homing, boolean swarm, boolean shotgun, boolean scattershot, boolean sticky, boolean grenade, String name, long seed) {
 		this.imgIndex = imgIndex;
 		this.img = img;
 		this.tint = tint;
@@ -299,6 +350,7 @@ public class Weapon implements HasDesc, Serializable {
 		this.shotgun = shotgun;
 		this.scattershot = scattershot;
 		this.sticky = sticky;
+		this.grenade = grenade;
 		this.name = name;
 		this.seed = seed;
 	}
