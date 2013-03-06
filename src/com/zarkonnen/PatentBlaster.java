@@ -1222,7 +1222,7 @@ public class PatentBlaster implements Game {
 			Pt ts = d.textSize("Level " + l.power, FOUNT);
 			d.text("Level " + l.power, FOUNT, sm.width - ts.x - 10, 10);
 			
-			if (l.player.hp > 0 && nothingInViewTicks > FPS * 3 && (!l.monsters.isEmpty() || !l.goodies.isEmpty())) {
+			if (l.player.hp > 0 && nothingInViewTicks > FPS * 2 + (difficultyLevel.ordinal() * difficultyLevel.ordinal()) && (!l.monsters.isEmpty() || !l.goodies.isEmpty())) {
 				d.blit("rightarrow", sm.width / 2 - 200, sm.height / 4, 0, 0, !thingsToRight);
 			}
 		}
