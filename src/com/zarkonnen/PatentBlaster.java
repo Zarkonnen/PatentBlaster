@@ -428,7 +428,7 @@ public class PatentBlaster implements Game {
 				Weapon w = null;
 				cooldown = 20;
 				do {
-					w = Weapon.make(System.currentTimeMillis() + attempt++ * 1234, l.power + difficultyLevel.shopBonus);
+					w = Weapon.make(System.currentTimeMillis() + attempt++ * 1234, l.power + difficultyLevel.shopBonus, true);
 				} while (attempt < 50 && !l.player.isUseful(w));
 				l.shopItems.add(w);
 				EnumSet<Item.Type> takenTypes = EnumSet.noneOf(Item.Type.class);

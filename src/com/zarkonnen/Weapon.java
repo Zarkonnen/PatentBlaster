@@ -61,7 +61,7 @@ public class Weapon implements HasDesc, Serializable {
 		return dmg * 1.0 / reload * PatentBlaster.FPS * numBullets;
 	}
 	
-	public static Weapon make(long seed, int power) {
+	public static Weapon make(long seed, int power, boolean allowMelee) {
 		Random r = new Random(seed);
 		Weapon w = new Weapon();
 		w.seed = seed;
@@ -84,8 +84,8 @@ public class Weapon implements HasDesc, Serializable {
 		w.sticky = !PatentBlaster.DEMO && w.element == Element.ACID && r.nextInt(5) == 0;
 		w.scattershot = !PatentBlaster.DEMO && !w.homing && !w.swarm && !w.shotgun && r.nextInt(w.sticky ? 3 : 10) == 0;
 		w.grenade = !PatentBlaster.DEMO && !w.homing && !w.swarm && !w.shotgun && !w.scattershot && r.nextInt(8) == 0;
-		w.sword = !PatentBlaster.DEMO && !w.homing && !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && r.nextInt(10) == 0;
-		w.flamethrower = !w.homing && !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && !w.sword && w.element == Element.FIRE && r.nextInt(6) == 0;
+		w.sword = !PatentBlaster.DEMO && allowMelee && !w.homing && !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && r.nextInt(10) == 0;
+		w.flamethrower = allowMelee && !w.homing && !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && !w.sword && w.element == Element.FIRE && r.nextInt(6) == 0;
 		w.knockback = !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && !w.sword && r.nextInt(30) == 0;
 		if (w.homing) { w.reload = w.reload * 3 / 2; dmg *= 0.8; w.shotLife = w.shotLife * 3 / 2; }
 		if (w.swarm) { dmg /= 8; w.shotSize = w.shotSize / 4 + 1; w.numBullets = 8; }

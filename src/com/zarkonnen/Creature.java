@@ -1197,7 +1197,7 @@ public class Creature extends Entity implements HasDesc {
 		Random r = new Random(seed);
 		Creature c = new Creature();
 		c.seed = seed;
-		Weapon w = Weapon.make(seed, power);
+		Weapon w = Weapon.make(seed, power, !player);
 		c.weapon = w;
 		c.weapons.add(w);
 		Element el = Element.values()[r.nextInt(Element.values().length)];
