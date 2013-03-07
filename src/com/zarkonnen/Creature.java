@@ -134,6 +134,7 @@ public class Creature extends Entity implements HasDesc {
 	public int slipperiness = 0;
 	
 	public Shot lastShot;
+	public int flamethrowerTicks = 61;
 	
 	public LinkedList<Shot> stuckShots = new LinkedList<Shot>();
 	
@@ -219,7 +220,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public double totalHPRegen() {
-		return baseHPRegen() * (ticksSinceHit < 2 ? 0 : ticksSinceHit > PatentBlaster.FPS * 5 ? 100 : 1);
+		return baseHPRegen() * (ticksSinceHit < 5 ? 0 : ticksSinceHit > PatentBlaster.FPS * 5 ? 100 : 1);
 	}
 	
 	public MoveMode realMoveMode() {
@@ -647,6 +648,7 @@ public class Creature extends Entity implements HasDesc {
 			slipperiness--;
 		}
 		newThingTimer++;
+		flamethrowerTicks++;
 		if (hp <= 0) {
 			if (!killMe) {
 				explode(l);
@@ -1041,8 +1043,12 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public Shot shoot(double tx, double ty, Level l) {
-		if (weapon.reloadLeft == 0 && (!weapon.sword || lastShot == null || lastShot.age > 3)) {
+		if (weapon.reloadLeft == 0 && (!weapon.sword || lastShot == null || lastShot.age > 3) && !weapon.flamethrower) {
 			l.soundRequests.add(new SoundRequest(weapon.element.shotSound, x + w / 2, y + h / 2, 1.0));
+		}
+		if (weapon.reloadLeft == 0 && weapon.flamethrower && flamethrowerTicks >= 60) {
+			l.soundRequests.add(new SoundRequest("flamethrower", x + w / 2, y + h / 2, 1.0));
+			flamethrowerTicks = 0;
 		}
 		weapon.reloadLeft = weapon.reload;
 		Shot s = null;
@@ -1052,7 +1058,7 @@ public class Creature extends Entity implements HasDesc {
 				s.dx = (l.r.nextDouble() * 2 - 1) * weapon.shotSpeed;
 				s.dy = (l.r.nextDouble() * 2 - 1) * weapon.shotSpeed;
 			}
-			if (weapon.shotgun) {
+			if (weapon.shotgun || weapon.flamethrower) {
 				double sMult = l.r.nextDouble() * 0.5 + 0.75;
 				s.dx *= sMult;
 				s.dy *= sMult;
@@ -1082,7 +1088,7 @@ public class Creature extends Entity implements HasDesc {
 		if (jar) {
 			dmg *= 10;
 		}
-		dmg *= 1 - resistance(src.element);
+		dmg *= 1.0 - resistance(src.element);
 		for (Item it : items) {
 			if (it.shield && it.shieldReload == 0) {
 				it.shieldReload = it.shieldReloadTime;
@@ -1093,7 +1099,7 @@ public class Creature extends Entity implements HasDesc {
 		
 		int intDmg = 0;
 		if (dmg == 0) {
-			if (src.dmg > 0 && l.r.nextDouble() <= src.dmg) {
+			if (src.dmg > 0 && l.r.nextDouble() <= dmg) {
 				intDmg = 1;
 			}
 		} else {
@@ -1221,7 +1227,7 @@ public class Creature extends Entity implements HasDesc {
 			hp *= 0.8;
 			c.speed *= 1.2;
 		} else {
-			if (!player && !boss && !w.homing && !w.shotgun && r.nextInt(4 / power + 4) == 0) {
+			if (!player && !boss && !w.homing && !w.shotgun && !w.flamethrower && r.nextInt(4 / power + 4) == 0) {
 				c.explodes = true;
 				hp *= 0.9;
 			}

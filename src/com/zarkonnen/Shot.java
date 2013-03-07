@@ -110,7 +110,7 @@ public class Shot extends Entity {
 				sprayProbability = 0;
 				break;
 		}
-		if (w.shotgun) {
+		if (w.shotgun || w.flamethrower) {
 			sprayProbability /= 8;
 		}
 		if (w.grenade) {
