@@ -40,6 +40,7 @@ public class Level implements MusicCallback, Serializable {
 	public int background = -1;
 	public int backgroundW = 512;
 	public int backgroundH;
+	public boolean releasedSinceShot = false;
 	public ArrayList<Object> shopItems = new ArrayList<Object>();
 	public LinkedList<Integer> bbqVictims = new LinkedList<Integer>();
 	
@@ -229,14 +230,16 @@ public class Level implements MusicCallback, Serializable {
 			}
 			if (g.killMe) { it.remove(); }
 		}
-		//for (Iterator<Shot> it = shots.iterator(); it.hasNext();) {
 		for (int i = 0; i < shots.size(); i++) {
-			Shot s = shots.get(i);//it.next();
+			Shot s = shots.get(i);
 			if (s == null) { continue; }
 			try {
 				s.tick(this);
 				boolean kill = s.killMe;
 				physics(s);
+				if (s.killMe && !kill && s.weapon != null && s.weapon.grenade && s.dmgMultiplier == 1) {
+					s.explode(this);
+				}
 				if (s.killMe && !kill && s.hoverer != null) {
 					s.hoverer.dy = -0.7;
 					s.hoverer.y -= 2.5;

@@ -89,7 +89,7 @@ public class Weapon implements HasDesc, Serializable {
 		if (w.shotgun) { w.reload = w.reload * 3 / 2; dmg /= 4; w.shotLife *= 0.4; w.shotSize = w.shotSize / 2 + 1; w.numBullets = 8; w.jitter += 0.2; }
 		if (w.scattershot) { dmg /= 8; w.shotSize = w.shotSize / 2 + 1; w.numBullets = 5; w.jitter += 0.08; }
 		if (w.sticky) { dmg /= 2; w.shotSize = w.shotSize * 1.5 + 1; }
-		if (w.grenade) { w.shotSize = w.shotSize * 1.5; w.reload *= 1.5; w.shotLife *= 0.6; }
+		if (w.grenade) { w.shotSize = w.shotSize * 1.5; w.reload *= 1.5; w.shotLife *= 0.6; w.shotSpeed *= 0.9; }
 		w.tint = w.element.tint;
 		w.name = Names.pick(r);
 		w.imgIndex = r.nextInt(PatentBlaster.NUM_IMAGES);

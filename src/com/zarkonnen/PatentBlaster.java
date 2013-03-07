@@ -564,10 +564,19 @@ public class PatentBlaster implements Game {
 					}
 				}
 			}
+			if (in.click() == null) { l.releasedSinceShot = true; }
 			if (in.click() != null) {
 				if (l.player.weapon.reloadLeft == 0) {
 					l.player.shoot(in.cursor().x - scrollX, in.cursor().y - scrollY, l);
 					l.shotsFired++;
+					l.releasedSinceShot = false;
+				} else if (l.player.lastShot != null && !l.player.lastShot.killMe && l.player.lastShot.weapon.grenade && l.releasedSinceShot) {
+					l.player.lastShot.explode(l);
+					l.player.lastShot.killMe = true;
+					int index = l.shots.indexOf(l.player.lastShot);
+					if (index != -1) {
+						l.shots.set(index, null);
+					}
 				} else if (l.player.weapon.clickEmptyTimer == 0 && l.player.weapon.reloadLeft < l.player.weapon.reload - 10 && l.player.weapon.reloadLeft > 30) {
 					in.play("empty", 1.0, 1.0, 0, 0);
 					l.player.weapon.clickEmptyTimer = Math.min(FPS, l.player.weapon.reload);

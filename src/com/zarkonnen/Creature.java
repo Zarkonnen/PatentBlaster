@@ -133,6 +133,8 @@ public class Creature extends Entity implements HasDesc {
 	
 	public int slipperiness = 0;
 	
+	public Shot lastShot;
+	
 	public LinkedList<Shot> stuckShots = new LinkedList<Shot>();
 	
 	public String encounterMessage = null;
@@ -1058,6 +1060,7 @@ public class Creature extends Entity implements HasDesc {
 			}
 			l.shotsToAdd.add(s);
 		}
+		lastShot = s;
 		return s;
 	}
 	
