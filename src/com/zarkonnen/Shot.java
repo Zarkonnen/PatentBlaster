@@ -110,8 +110,14 @@ public class Shot extends Entity {
 				sprayProbability = 0;
 				break;
 		}
-		if (w.shotgun || w.grenade) {
+		if (w.shotgun) {
 			sprayProbability /= 8;
+		}
+		if (w.grenade) {
+			sprayProbability /= 4;
+		}
+		if (w.sword) {
+			sprayProbability /= 20;
 		}
 		if (w.scattershot) {
 			sprayProbability /= 3;
@@ -184,6 +190,14 @@ public class Shot extends Entity {
 		this.tint = new Clr(this.tint.r, this.tint.g, this.tint.b, 50);
 	}
 	
+	public void swordpos() {
+		double dtx = shooter.targetX - shooter.gunX();
+		double dty = shooter.targetY - shooter.gunY();
+		double angle = Math.atan2(dty, dtx);
+		x = shooter.gunX() + Math.cos(angle) * (age + 1) * weapon.shotSpeed;
+		y = shooter.gunY() + Math.sin(angle) * (age + 1) * weapon.shotSpeed;
+	}
+	
 	@Override
 	public void tick(Level l) {
 		age++;
@@ -198,6 +212,12 @@ public class Shot extends Entity {
 			frozenAmt--;
 			if (frozenAmt == 0 && thawedTint != null) {
 				tint = thawedTint;
+			}
+		}
+		if (weapon != null && shooter != null && weapon.sword && shooter.hp > 0 && dmgMultiplier == 1) {
+			swordpos();
+			if (shooter.lastShot != null && shooter.lastShot.age > 2) {
+				killMe = true;
 			}
 		}
 		if ((reform || finalForm || revenant) && lifeLeft <= 60 && bleeder != null) {

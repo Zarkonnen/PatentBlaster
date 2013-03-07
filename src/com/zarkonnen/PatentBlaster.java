@@ -641,6 +641,10 @@ public class PatentBlaster implements Game {
 				l.player.changedGun = true;
 			}
 		}
+		if (curs != null) {
+			l.player.targetX = in.cursor().x - scrollX;
+			l.player.targetY = in.cursor().y - scrollY;
+		}
 		l.tick(in);
 		scrollX = in.mode().width / 2 - l.player.x - l.player.w / 2;
 		scrollY = in.mode().height * 2 / 3 - l.player.y - l.player.h / 2;

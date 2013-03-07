@@ -139,6 +139,8 @@ public class Creature extends Entity implements HasDesc {
 	
 	public String encounterMessage = null;
 	
+	public double targetX, targetY;
+	
 	public Pt targetIntersect(Level l, double fromX, double fromY, double shotSpeed, int shotLife) {
 		Creature sim = new Creature();
 		sim.x = x;
@@ -251,7 +253,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public double mouthY() {
-		return y + w * PatentBlaster.IMG_MOUTH_Y[imgIndex];
+		return y + h * PatentBlaster.IMG_MOUTH_Y[imgIndex];
 	}
 	
 	public double gunX() {
@@ -263,7 +265,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public double gunY() {
-		return y + w * PatentBlaster.IMG_SHOOT_Y[imgIndex];
+		return y + h * PatentBlaster.IMG_SHOOT_Y[imgIndex];
 	}
 	
 	public void jump() {
@@ -734,6 +736,8 @@ public class Creature extends Entity implements HasDesc {
 			}
 			
 			if (!playerControlled && l.player.hp > 0) {
+				targetX = l.player.x + l.player.w / 2;
+				targetY = l.player.y + l.player.h / 2;
 				if (voiceTimer > 0) { voiceTimer--; }
 				double xpd = x + w / 2 - l.player.x - l.player.w / 2;
 				
@@ -1037,7 +1041,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public Shot shoot(double tx, double ty, Level l) {
-		if (weapon.reloadLeft == 0) {
+		if (weapon.reloadLeft == 0 && (!weapon.sword || lastShot == null || lastShot.age > 3)) {
 			l.soundRequests.add(new SoundRequest(weapon.element.shotSound, x + w / 2, y + h / 2, 1.0));
 		}
 		weapon.reloadLeft = weapon.reload;
@@ -1058,6 +1062,9 @@ public class Creature extends Entity implements HasDesc {
 				s.dx *= sMult;
 				s.dy *= sMult;
 			}
+			if (weapon.sword) {
+				s.swordpos();
+			}
 			l.shotsToAdd.add(s);
 		}
 		lastShot = s;
@@ -1071,7 +1078,7 @@ public class Creature extends Entity implements HasDesc {
 	public int takeDamage(Level l, Shot shot) {
 		if (hp <= 0) { return 0; }
 		Weapon src = shot.weapon;
-		double dmg = (int) (src.dmg * shot.dmgMultiplier);
+		double dmg = src.dmg * shot.dmgMultiplier;
 		if (jar) {
 			dmg *= 10;
 		}
@@ -1086,53 +1093,55 @@ public class Creature extends Entity implements HasDesc {
 		
 		int intDmg = 0;
 		if (dmg == 0) {
-			if (src.dmg > 0 && l.r.nextDouble() <= src.dmg * shot.dmgMultiplier) {
+			if (src.dmg > 0 && l.r.nextDouble() <= src.dmg) {
 				intDmg = 1;
 			}
 		} else {
 			intDmg = (int) dmg;
 		}
 		
+		ticksSinceHit = 0;
 		if (dmg <= 0) {
 			return 0;
 		}
-		ticksSinceHit = 0;
 		lastShooter = shot.shooter;
 
-		ArrayList<Shot> bloodShots = new ArrayList<Shot>();
-		if (hp - dmg > 0) {
-			Clr blood = bloodClr();
-			if (resistance != null) { blood = resistance.tint; }
-			int nBlood = 20 * intDmg / totalMaxHP() / PatentBlaster.shotDivider() + 1;
-			for (int i = 0; i < nBlood; i++) {
-				bloodShots.add(new Shot(blood, w / 10, false, 120 + l.r.nextInt(80), shot.x + shot.w / 2 - w / 20, shot.y + shot.h / 2 - h / 20, l.r.nextDouble() * 4 - 2, l.r.nextDouble() * 4 - 2, 1.0, this, false, false, false, 0, 0, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
-			}
-			l.shotsToAdd.addAll(bloodShots);
-			if (src.knockback && !massive) {
-				dx += shot.dx * 0.5;
-				dy += shot.dy * 0.5;
-				knockedBack = 20;
-			}
-			double spltVolume = Math.min(1.3, 1.0 * dmg / totalMaxHP());
-			if (spltVolume > 0.1) {
-				l.soundRequests.add(new SoundRequest(jar ? "jarhit" : "splt", shot.x, shot.y, spltVolume));
-			}
-		} else {
-			if (!reviens && !doesResurrect() && finalForm == null) {
-				bloodShots = explode(l);
+		if (dmg > 0) {
+			ArrayList<Shot> bloodShots = new ArrayList<Shot>();
+			if (hp - dmg > 0) {
+				Clr blood = bloodClr();
+				if (resistance != null) { blood = resistance.tint; }
+				int nBlood = 20 * intDmg / totalMaxHP() / PatentBlaster.shotDivider() + 1;
+				for (int i = 0; i < nBlood; i++) {
+					bloodShots.add(new Shot(blood, w / 10, false, 120 + l.r.nextInt(80), shot.x + shot.w / 2 - w / 20, shot.y + shot.h / 2 - h / 20, l.r.nextDouble() * 4 - 2, l.r.nextDouble() * 4 - 2, 1.0, this, false, false, false, 0, 0, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
+				}
+				l.shotsToAdd.addAll(bloodShots);
+				if (src.knockback && !massive) {
+					dx += shot.dx * 0.5;
+					dy += shot.dy * 0.5;
+					knockedBack = 20;
+				}
+				double spltVolume = Math.min(1.3, 1.0 * dmg / totalMaxHP());
+				if (spltVolume > 0.1) {
+					l.soundRequests.add(new SoundRequest(jar ? "jarhit" : "splt", shot.x, shot.y, spltVolume));
+				}
 			} else {
-				explode(l); // Shots not edible.
+				if (!reviens && !doesResurrect() && finalForm == null) {
+					bloodShots = explode(l);
+				} else {
+					explode(l); // Shots not edible.
+				}
+				killMe = true;
 			}
-			killMe = true;
-		}
-		double tv = shot.shooter.totalVamp();
-		if (!bloodShots.isEmpty() && dmg * tv >= 1 & shot.shooter.hp > 0 && shot.shooter.hp < shot.shooter.totalMaxHP()) {
-			for (Shot s : bloodShots) {
-				s.eat(shot.shooter, 0, 0, 0, false);
+			double tv = shot.shooter.totalVamp();
+			if (!bloodShots.isEmpty() && dmg * tv >= 1 & shot.shooter.hp > 0 && shot.shooter.hp < shot.shooter.totalMaxHP()) {
+				for (Shot s : bloodShots) {
+					s.eat(shot.shooter, 0, 0, 0, false);
+				}
+				bloodShots.get(0).eatHPGain = (int) (dmg * tv);
 			}
-			bloodShots.get(0).eatHPGain = (int) (dmg * tv);
 		}
-		
+
 		hp -= intDmg;
 		if (flees && hp < totalMaxHP() / 2) {
 			fleeing = true;
@@ -1199,12 +1208,15 @@ public class Creature extends Entity implements HasDesc {
 		int sz = (boss ? 80 : 40) + r.nextInt(3) * (boss ? 20: 10);
 		
 		hp *= (1.0 * sz / (boss ? 100 : 50));
-		c.speed = Math.min(w.shotSpeed - 2, player ? (2.5 + r.nextDouble() * 2) : (1 + r.nextDouble() * 4));
+		c.speed = Math.min(w.sword ? 100 : w.shotSpeed - 2, player ? (2.5 + r.nextDouble() * 2) : (1 + r.nextDouble() * 4));
 		hp /= (c.speed / 2.5);
 		if (boss) {
 			c.voice = r.nextInt(PatentBlaster.NUM_VOICES);
 		}
 		c.moveMode = player || r.nextInt(3) == 0 ? MoveMode.SLIDE : MoveMode.values()[r.nextInt(MoveMode.values().length)];
+		if (c.weapon.sword) {
+			c.moveMode = MoveMode.SLIDE;
+		}
 		if (c.moveMode == MoveMode.FLY) {
 			hp *= 0.8;
 			c.speed *= 1.2;
