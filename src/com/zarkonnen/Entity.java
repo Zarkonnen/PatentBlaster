@@ -18,6 +18,7 @@ public abstract class Entity implements Serializable {
 	public int rightPress = 0;
 	public int bottomPress = 0;
 	public boolean collides = true;
+	public boolean ignoresWalls = false;
 	
 	public double bottomPressSpeedMult = 10.0;
 	public int bottomInflateAmount = 1;

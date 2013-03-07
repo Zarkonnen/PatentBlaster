@@ -118,6 +118,7 @@ public class Shot extends Entity {
 		}
 		if (w.sword) {
 			sprayProbability /= 20;
+			ignoresWalls = true;
 		}
 		if (w.scattershot) {
 			sprayProbability /= 3;
@@ -194,8 +195,8 @@ public class Shot extends Entity {
 		double dtx = shooter.targetX - shooter.gunX();
 		double dty = shooter.targetY - shooter.gunY();
 		double angle = Math.atan2(dty, dtx);
-		x = shooter.gunX() + Math.cos(angle) * (age + 1) * weapon.shotSpeed;
-		y = shooter.gunY() + Math.sin(angle) * (age + 1) * weapon.shotSpeed;
+		x = shooter.gunX() + Math.cos(angle) * (age) * weapon.shotSpeed;
+		y = shooter.gunY() + Math.sin(angle) * (age) * weapon.shotSpeed;
 	}
 	
 	@Override
@@ -214,12 +215,17 @@ public class Shot extends Entity {
 				tint = thawedTint;
 			}
 		}
-		if (weapon != null && shooter != null && weapon.sword && shooter.hp > 0 && dmgMultiplier == 1) {
-			swordpos();
-			if (shooter.lastShot != null && shooter.lastShot.age > 2) {
+		if (weapon != null && shooter != null && weapon.sword && dmgMultiplier == 1) {
+			if (shooter.hp > 0) {
+				swordpos();
+				if (shooter.lastShot != null && shooter.lastShot.age > 2) {
+					killMe = true;
+				}
+			} else {
 				killMe = true;
 			}
 		}
+		
 		if ((reform || finalForm || revenant) && lifeLeft <= 60 && bleeder != null) {
 			if (lifeLeft == 60) {
 				returnFromX = x;

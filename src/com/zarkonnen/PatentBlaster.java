@@ -565,7 +565,7 @@ public class PatentBlaster implements Game {
 				}
 			}
 			if (in.click() == null) { l.releasedSinceShot = true; }
-			if (in.click() != null) {
+			if (in.click() != null || l.player.weapon.sword) {
 				if (l.player.weapon.reloadLeft == 0) {
 					l.player.shoot(in.cursor().x - scrollX, in.cursor().y - scrollY, l);
 					l.shotsFired++;

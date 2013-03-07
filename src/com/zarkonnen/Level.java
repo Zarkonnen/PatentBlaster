@@ -230,6 +230,7 @@ public class Level implements MusicCallback, Serializable {
 			}
 			if (g.killMe) { it.remove(); }
 		}
+		addShots();
 		for (int i = 0; i < shots.size(); i++) {
 			Shot s = shots.get(i);
 			if (s == null) { continue; }
@@ -339,22 +340,7 @@ public class Level implements MusicCallback, Serializable {
 				shots.set(i, null);
 			}
 		}
-		//shots.addAll(shotsToAdd);
-		int i = 0;
-		for (Shot s : shotsToAdd) {
-			if (s.flammable) {
-				flammables.add(s);
-			}
-			while (i < shots.size() && shots.get(i) != null) {
-				i++;
-			}
-			if (i == shots.size()) {
-				shots.add(s);
-			} else {
-				shots.set(i, s);
-			}
-		}
-		shotsToAdd.clear();
+		addShots();
 		for (Iterator<FloatingText> it = texts.iterator(); it.hasNext();) {
 			FloatingText ft = it.next();
 			try {
@@ -379,13 +365,31 @@ public class Level implements MusicCallback, Serializable {
 		tick++;
 	}
 	
+	void addShots() {
+		int i = 0;
+		for (Shot s : shotsToAdd) {
+			if (s.flammable) {
+				flammables.add(s);
+			}
+			while (i < shots.size() && shots.get(i) != null) {
+				i++;
+			}
+			if (i == shots.size()) {
+				shots.add(s);
+			} else {
+				shots.set(i, s);
+			}
+		}
+		shotsToAdd.clear();
+	}
+	
 	public void physics(Entity e) {
 		e.dy += e.gravityMult * G;
 		if (e instanceof Creature && ((Creature) e).slipperiness > 0) {
 			e.dx *= 2;
 		}
 		e.x += e.dx;
-		if (!e.collides) { e.y += e.dy; return; }
+		if (!e.collides || e.ignoresWalls) { e.y += e.dy; return; }
 		int left = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor(e.x / GRID_SIZE)));
 		int right = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor((e.x + e.w) / GRID_SIZE)));
 		int top = Math.min(LVL_H - 1, Math.max(0, (int) Math.floor(e.y / GRID_SIZE)));
