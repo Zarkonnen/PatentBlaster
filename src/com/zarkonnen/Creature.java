@@ -1098,7 +1098,7 @@ public class Creature extends Entity implements HasDesc {
 		}
 		
 		int intDmg = 0;
-		if (dmg == 0) {
+		if (dmg < 1) {
 			if (src.dmg > 0 && l.r.nextDouble() <= dmg) {
 				intDmg = 1;
 			}
