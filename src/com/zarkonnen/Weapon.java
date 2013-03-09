@@ -47,10 +47,12 @@ public class Weapon implements HasDesc, Serializable {
 	public String name;
 	public long seed;
 	public int clickEmptyTimer;
+	public boolean reduceInaccuracy;
 	
 	public void tick() {
 		if (reloadLeft > 0) { reloadLeft--; } else { clickEmptyTimer = 0; }
 		if (clickEmptyTimer > 0) { clickEmptyTimer--; }
+		reduceInaccuracy = false;
 	}
 	
 	public double range() {
@@ -81,9 +83,9 @@ public class Weapon implements HasDesc, Serializable {
 		w.swarm = w.homing && r.nextInt(2) == 0;
 		w.shotSize = MIN_SHOT_SIZE + (AVG_SHOT_SIZE - MIN_SHOT_SIZE) * dmg / BASE_DMG;
 		w.shotgun = !w.homing && !w.swarm && r.nextInt(10) == 0;
-		w.sticky = !PatentBlaster.DEMO && w.element == Element.ACID && r.nextInt(5) == 0;
+		w.sticky = !PatentBlaster.DEMO && w.element == Element.ACID && r.nextInt(8) == 0;
 		w.scattershot = !PatentBlaster.DEMO && !w.homing && !w.swarm && !w.shotgun && r.nextInt(w.sticky ? 3 : 10) == 0;
-		w.grenade = !PatentBlaster.DEMO && !w.homing && !w.swarm && !w.shotgun && !w.scattershot && r.nextInt(8) == 0;
+		w.grenade = !w.homing && !w.swarm && !w.shotgun && !w.scattershot && r.nextInt(8) == 0;
 		w.sword = !PatentBlaster.DEMO && allowMelee && !w.homing && !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && r.nextInt(10) == 0;
 		w.flamethrower = allowMelee && !w.homing && !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && !w.sword && w.element == Element.FIRE && r.nextInt(6) == 0;
 		w.knockback = !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && !w.sword && r.nextInt(30) == 0;
@@ -92,9 +94,9 @@ public class Weapon implements HasDesc, Serializable {
 		if (w.knockback) { dmg *= 0.8; }
 		if (w.shotgun) { w.reload = w.reload * 3 / 2; dmg /= 4; w.shotLife *= 0.4; w.shotSize = w.shotSize / 2 + 1; w.numBullets = 8; w.jitter += 0.2; }
 		if (w.scattershot) { dmg /= 8; w.shotSize = w.shotSize / 2 + 1; w.numBullets = 5; w.jitter += 0.08; }
-		if (w.sticky) { dmg /= 2; w.shotSize = w.shotSize * 1.5 + 1; }
+		if (w.sticky) { dmg *= 0.8; w.shotSize = w.shotSize * 1.5 + 1; }
 		if (w.grenade) { w.shotSize = w.shotSize * 1.5; w.reload *= 1.5; w.dmg *= 1.5; w.shotLife *= 0.6; w.shotSpeed *= 0.9; }
-		if (w.sword) { dmg /= w.reload; dmg *= 3; w.reload = 1; w.shotLife *= 0.5; w.jitter = 0; w.shotSize += 3; w.shotSpeed = 3; }
+		if (w.sword) { dmg /= w.reload; dmg *= 3; w.reload = 1; w.shotLife *= 0.5; w.jitter = 0; w.shotSize += 3; w.shotSpeed = 3; w.shotLife = Math.min(70, w.shotLife); }
 		if (w.flamethrower) { dmg /= w.reload; dmg *= 3; w.reload = 1; w.shotLife *= 0.4; w.jitter += 0.2; w.shotSize *= 0.75; }
 		w.tint = w.element.tint;
 		w.name = Names.pick(r);
@@ -108,11 +110,11 @@ public class Weapon implements HasDesc, Serializable {
 	String accuracy() {
 		if (swarm || sword) { return ""; }
 		if (jitter == 0) { return "Perfect accuracy.\n"; }
-		if (jitter < 2 * Math.PI / 180) { return "Highly accurate (±" + round(jitter * 180 / Math.PI, 1) + " degrees)\n"; }
-		if (jitter < 4 * Math.PI / 180) { return "Accurate (±" + round(jitter * 180 / Math.PI, 0) + " degrees)\n"; }
+		if (jitter < 2 * Math.PI / 180) { return "Highly accurate (±" + round(jitter * 180 / Math.PI) + " degrees)\n"; }
+		if (jitter < 4 * Math.PI / 180) { return "Accurate (±" + round(jitter * 180 / Math.PI) + " degrees)\n"; }
 		if (jitter < 9 * Math.PI / 180) { return ""; }
-		if (jitter < 15 * Math.PI / 180) { return "Inaccurate (±" + round(jitter * 180 / Math.PI, 0) + " degrees)\n"; }
-		return "Highly inaccurate (±" + round(jitter * 180 / Math.PI, 0) + " degrees)\n";
+		if (jitter < 15 * Math.PI / 180) { return "Inaccurate (±" + round(jitter * 180 / Math.PI) + " degrees)\n"; }
+		return "Highly inaccurate (±" + round(jitter * 180 / Math.PI) + " degrees)\n";
 	}
 	
 	String pad(int n) {
@@ -154,12 +156,11 @@ public class Weapon implements HasDesc, Serializable {
 		} else {
 			sb.append(is).append("[").append(element.tint.mix(0.4, textTint)).append("]").append(element.name()).append("[] Weapon\n");
 		}
-		sb.append(is).append(round(dmg * numBullets, 0));
-		sb.append(" damage every ").append(round(reload * 1.0 / PatentBlaster.FPS, 2)).append("sec (").append(round(dps(), 0)).append(" DPS)\n");
-		sb.append(is).append(round(shotSpeed * PatentBlaster.FPS, 0));
-		sb.append(" px/sec shot speed, ").append(round(range(), 0)).append(" px range\n");
+		sb.append(is).append(round(dmg * numBullets));
+		sb.append(" damage every ").append(round(reload * 1.0 / PatentBlaster.FPS)).append("sec (").append(round(dps())).append(" DPS)\n");
+		sb.append(is).append(round(shotSpeed * PatentBlaster.FPS));
+		sb.append(" px/sec shot speed, ").append(round(range())).append(" px range\n");
 		sb.append(accuracy().length() == 0 ? "" : is).append(accuracy());
-		//sb.append("  Shot Size: ").append(round(shotSize, 0)).append("\n");
 		if (knockback) {
 			sb.append(is).append("Knockback.\n");
 		}

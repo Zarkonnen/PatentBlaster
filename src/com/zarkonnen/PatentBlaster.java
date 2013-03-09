@@ -31,6 +31,9 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,12 +60,12 @@ public class PatentBlaster implements Game {
 	public static final double[] IMG_SHOOT_X = { 0.44, 0.45, 0.18, 0.56, 0.49, 0.50, 0.20, 0.37, 0.15, 0.50, 0.33, 0.50 };
 	public static final double[] IMG_SHOOT_Y = { 0.51, 0.65, 0.47, 0.08, 0.12, 0.14, 0.50, 0.37, 0.48, 0.28, 0.50, 0.39 };
 	public static final double[] IMG_MOUTH_X = { 0.44, 0.50, 0.10, 0.54, 0.47, 0.48, 0.20, 0.67, 0.47, 0.50, 0.19, 0.50 };
-	public static final double[] IMG_MOUTH_Y = { 0.51, 0.43, 0.83, 0.57, 0.24, 0.53, 0.50, 0.67, 0.18, 0.77, 0.58, 0.39 };
+	public static final double[] IMG_MOUTH_Y = { 0.51, 0.43, 0.83, 0.57, 0.24, 0.53, 0.50, 0.67, 0.18, 0.77, 0.40, 0.39 };
 	
 	public static final double[] IMG_W =       { 1.00, 0.82, 1.00, 0.83, 0.69, 1.00, 0.75, 1.00, 0.85, 0.71, 1.00, 0.75 };
 	public static final double[] IMG_H =       { 0.79, 1.00, 0.89, 1.00, 1.00, 0.49, 1.00, 0.79, 1.00, 1.00, 0.70, 1.00 };
 	
-	public static final Clr PAPER = new Clr(230, 230, 225);
+	public static final Clr PAPER = new Clr(115, 115, 105);
 	public static final Clr PAINTING_FRAME = new Clr(70, 50, 20);
 	public static final Clr PAINTING_BG = new Clr(255, 255, 230);
 	public static final Clr RELOADING_CURSOR = new Clr(200, 200, 200);
@@ -107,6 +110,8 @@ public class PatentBlaster implements Game {
 	double scrollY = 0;
 	static Level l;
 	Pt curs = new Pt(0, 0);
+	Pt lastCurs = new Pt(0, 0);
+	int hideCurs = 0;
 	int nextLvlTime = 0;
 	String info = "";
 	boolean screened = false;
@@ -140,6 +145,7 @@ public class PatentBlaster implements Game {
 	int gamesPlayed = 0;
 	int nothingInViewTicks = 0;
 	boolean thingsToRight = false;
+	boolean hasHadBarrelWarning = false;
 	
 	// Prefs stuff
 	public static DifficultyLevel difficultyLevel = DifficultyLevel.EASY;
@@ -295,6 +301,12 @@ public class PatentBlaster implements Game {
 				musicStarted = true;
 			}
 		}
+		
+		if (!curs.equals(lastCurs)) {
+			hideCurs = 0;
+		}
+		lastCurs = curs;
+		
 		curs = in.cursor();
 		if (cooldown > 0) { cooldown--; }
 		hoverWeapon = null;
@@ -508,28 +520,26 @@ public class PatentBlaster implements Game {
 					l.player.dy = 0;
 					if ((in.keyDown(key("UP")) || in.keyDown(key("W")))) {
 						l.player.dy = -l.player.totalSpeed();
-						l.moved = true;
+						l.movedUp = true;
 					}
 					if ((in.keyDown(key(("DOWN"))) || in.keyDown(key("S")))) {
 						l.player.dy = l.player.totalSpeed();
-						l.moved = true;
 					}
 				} else if (l.player.realMoveMode() == MoveMode.HOVER) {
 					l.player.hoverPowerOff = false;
 					if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (in.keyDown(key("UP")) || in.keyDown(key("W")))) {
 						l.player.dy = -l.player.totalSpeed();
-						l.moved = true;
+						l.movedUp = true;
 					}
 					if ((in.keyDown(key(("DOWN"))) || in.keyDown(key("S")))) {
 						l.player.hoverPowerOff = true;
-						l.moved = true;
 					}
 				} else {
 					if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (in.keyDown(key("UP")) || in.keyDown(key("W")))) {
 						double spd = l.player.ticksSinceSide < Creature.AIR_STEERING ? Math.min(3.0, l.player.totalSpeed() * 1.5) : l.player.totalSpeed() + Creature.HOP_BONUS;
 						l.player.jump();
 						l.player.dy = -spd;
-						l.moved = true;
+						l.movedUp = true;
 					}
 				}
 				if (l.player.ticksSinceBottom == 1 && l.player.slipperiness == 0) {
@@ -538,12 +548,12 @@ public class PatentBlaster implements Game {
 				if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (l.player.slipperiness == 0 || Math.abs(l.player.dx) < 0.5) && (in.keyDown(key("LEFT")) || in.keyDown(key("A")))) {
 					l.player.dx = -(l.player.ticksSinceSide < Creature.AIR_STEERING ? Math.min(2.5, l.player.totalSpeed()) : l.player.totalSpeed());
 					l.player.flipped = false;
-					l.moved = true;
+					l.movedLeft = true;
 				}
 				if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (l.player.slipperiness == 0 || Math.abs(l.player.dx) < 0.5) && (in.keyDown(key("RIGHT")) || in.keyDown(key("D")))) {
 					l.player.dx = l.player.ticksSinceSide < Creature.AIR_STEERING ? Math.min(2.5, l.player.totalSpeed()) : l.player.totalSpeed();
 					l.player.flipped = true;
-					l.moved = true;
+					l.movedRight = true;
 				}
 				
 				if (l.player.realMoveMode() == MoveMode.FLY) {
@@ -583,37 +593,51 @@ public class PatentBlaster implements Game {
 				}
 			} else if (in.keyDown(key("SPACE"))) {
 				if (l.player.weapon.reloadLeft == 0) {
-					Creature targ = null;
-					Creature nearest = null;
-					double bestDsq = 100000 * 100000;
-					for (Creature c : l.monsters) {
-						double dx = (l.player.gunX() - c.x - c.w / 2);
-						double dy = (l.player.gunY() - c.y - c.h / 2);
-						double dsq = dx * dx + dy * dy;
-						if (dsq < bestDsq) {
-							nearest = c;
-							bestDsq = dsq;
-							if (dsq < l.player.weapon.range() * l.player.weapon.range()) {
-								targ = c;
-							}
+					if (difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
+						l.player.weapon.reduceInaccuracy = true;
+					}
+					boolean barrelWarning = false;
+					for (Barrel b : l.barrels) {
+						if (l.player.gunX() >= b.x && l.player.gunX() <= b.x + b.w && l.player.gunY() >= b.y && l.player.gunY() <= b.y + b.h) {
+							barrelWarning = true;
 						}
 					}
-					if (targ != null) {
-						double tx = targ.x + targ.w / 2;
-						double ty = targ.y + targ.h / 2;
-						l.player.shoot(tx, ty, l);
-						l.shotsFired++;
-					} else if (nearest != null) {
-						if (!targetingBooped) {
-							in.play("boop", 1.0, 0.5, 0, 0);
-							if (!l.player.noTargetInRangeWarning) {
-								l.texts.add(new FloatingText("NO TARGET IN RANGE", l.player.x + l.player.w / 2, l.player.y));
-								l.player.noTargetInRangeWarning = true;
+					if (barrelWarning && !hasHadBarrelWarning) {
+						l.texts.add(new FloatingText("DON'T SHOOT THE BARREL!", l.player.x + l.player.w / 2, l.player.y));
+					}
+					hasHadBarrelWarning = barrelWarning;
+					if (!barrelWarning) {
+						hideCurs++;
+						Creature targ = null;
+						Creature nearest = null;
+						double bestDsq = 100000 * 100000;
+						for (Creature c : l.monsters) {
+							double dx = (l.player.gunX() - c.x - c.w / 2);
+							double dy = (l.player.gunY() - c.y - c.h / 2);
+							double dsq = dx * dx + dy * dy;
+							if (dsq < bestDsq) {
+								nearest = c;
+								bestDsq = dsq;
+								if (dsq < l.player.weapon.range() * l.player.weapon.range()) {
+									targ = c;
+								}
 							}
-							targetingBooped = true;
 						}
-						double tx = nearest.x + nearest.w / 2;
-						double ty = nearest.y + nearest.h / 2;
+						if (targ != null) {
+							double tx = targ.x + targ.w / 2;
+							double ty = targ.y + targ.h / 2;
+							l.player.shoot(tx, ty, l);
+							l.shotsFired++;
+						} else if (nearest != null) {
+							if (!targetingBooped) {
+								in.play("boop", 1.0, 0.5, 0, 0);
+								if (!l.player.noTargetInRangeWarning) {
+									l.texts.add(new FloatingText("NO TARGET IN RANGE", l.player.x + l.player.w / 2, l.player.y));
+									l.player.noTargetInRangeWarning = true;
+								}
+								targetingBooped = true;
+							}
+						}
 					}
 				} else if (l.player.weapon.clickEmptyTimer == 0 && l.player.weapon.reloadLeft < l.player.weapon.reload - 10 && l.player.weapon.reloadLeft > 30) {
 					in.play("empty", 1.0, 1.0, 0, 0);
@@ -866,7 +890,7 @@ public class PatentBlaster implements Game {
 					public void run(Input in, Pt p, Hook.Type type) {
 						mainMenu = false;
 						setup = true;
-						cooldown = 10;
+						cooldown = 20;
 					}
 				});
 				menu.append("[bg=]");
@@ -1212,6 +1236,10 @@ public class PatentBlaster implements Game {
 			for (Shot s : l.shots) { if (s == null) { continue; }
 				s.draw(d, l, scrollX, scrollY);
 			}
+			for (Creature c : l.monsters) {
+				c.drawBars(d, l, scrollX, scrollY);
+			}
+			l.player.drawBars(d, l, scrollX, scrollY);
 			for (FloatingText ft : l.texts) {
 				ft.draw(d, l, scrollX, scrollY);
 			}
@@ -1229,6 +1257,15 @@ public class PatentBlaster implements Game {
 						d.text(textBGTint + "Pick me up!", FOUNT, scrollX + g.x + g.w / 2 - sz.x / 2, scrollY + g.y - sz.y);
 					}
 				}
+				
+				if (l.power < 2) {
+					for (Creature c : l.monsters) {
+						if (c.ticksInView > FPS * 5) {
+							Pt sz = d.textSize("Shoot me!", FOUNT);
+							d.text(textBGTint + "Shoot me!", FOUNT, scrollX + c.x + c.w / 2 - sz.x / 2, scrollY + c.y - sz.y);
+						}
+					}
+				}
 			}
 			
 			showEquipment(d, sm, FOUNT, textBGTint, true);
@@ -1244,12 +1281,18 @@ public class PatentBlaster implements Game {
 			d.text(f.fps() + " FPS", FOUNT, sm.width - 100, 40);
 		}
 		
-		if (!splash && !setup && !mainMenu && l != null && !l.moved && l.power == 1 && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
-			d.text(textBGTint + key("D") + " or " + key("RIGHT") + " to move right", FOUNT, sm.width / 2 + 50, sm.height * 2 / 3 - FOUNT.lineHeight / 2);
-			Pt sz = d.textSize(key("A") + " or " + key("LEFT") + " to move left", FOUNT);
+		if (!splash && !setup && !mainMenu && l != null && l.power == 1 && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
+			if (!l.movedRight) {
+				d.text(textBGTint + key("D") + " or " + key("RIGHT") + " to move right", FOUNT, sm.width / 2 + 50, sm.height * 2 / 3 - FOUNT.lineHeight / 2);
+			}
+			if (!l.movedLeft) {
+				Pt sz = d.textSize(key("A") + " or " + key("LEFT") + " to move left", FOUNT);
 			d.text(textBGTint + key("A") + " or " + key("LEFT") + " to move left", FOUNT, sm.width / 2 - 50 - sz.x, sm.height * 2 / 3 - FOUNT.lineHeight / 2);
-			sz = d.textSize(key("W") + " or " + key("UP") + " to jump", FOUNT);
-			d.text(textBGTint + key("W") + " or " + key("UP") + " to jump", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.lineHeight / 2 - 50);
+			}
+			if (!l.movedUp) {
+				Pt sz = d.textSize(key("W") + " or " + key("UP") + " to jump", FOUNT);
+				d.text(textBGTint + key("W") + " or " + key("UP") + " to jump", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.lineHeight / 2 - 50);
+			}
 		} else if (!setup && !mainMenu && l != null && !l.player.hovered && l.player.ticksSinceGainingHover < FPS * 8 && l.player.canHover() && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.BRUTAL.ordinal()) {
 			Pt sz = d.textSize(key("H") + " to toggle hover mode", FOUNT);
 			d.text(textBGTint + key("H") + " to toggle hover mode", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.lineHeight / 2 - 50);
@@ -1257,38 +1300,40 @@ public class PatentBlaster implements Game {
 			Pt sz = d.textSize(key("F") + " to toggle flight mode", FOUNT);
 			d.text(textBGTint + key("F") + " to toggle flight mode", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.lineHeight / 2 - 50);
 		}
-		Clr recC = Clr.RED;
-		boolean tooFar = false;
-		if (!splash && !setup && !mainMenu && l != null && l.shopItems.isEmpty() && l.player.hp > 0) {
-			double dx = curs.x - scrollX - l.player.gunX(), dy = curs.y - scrollY - l.player.gunY();
-			double dist = Math.sqrt(dx * dx + dy * dy);
-			if (l.player.weapon.reloadLeft == 0) {
-				recC = RELOADING_CURSOR;
+		if (hideCurs < 3 || mainMenu || setup || splash || !l.shopItems.isEmpty()) {
+			Clr recC = Clr.RED;
+			boolean tooFar = false;
+			if (!splash && !setup && !mainMenu && l != null && l.shopItems.isEmpty() && l.player.hp > 0) {
+				double dx = curs.x - scrollX - l.player.gunX(), dy = curs.y - scrollY - l.player.gunY();
+				double dist = Math.sqrt(dx * dx + dy * dy);
+				if (l.player.weapon.reloadLeft == 0) {
+					recC = RELOADING_CURSOR;
+				}
+				tooFar = dist > l.player.weapon.range();
+				if (!l.player.weapon.swarm && (dx != 0 || dy != 0) && !tooFar) {
+					double angle = Math.atan2(dy, dx);
+					d.rect(recC, l.player.gunX() + scrollX + Math.cos(angle + l.player.weapon.jitter) * dist - 1, l.player.gunY() + scrollY + Math.sin(angle + l.player.weapon.jitter) * dist - 1, 2, 2);
+					d.rect(recC, l.player.gunX() + scrollX + Math.cos(angle - l.player.weapon.jitter) * dist - 1, l.player.gunY() + scrollY + Math.sin(angle - l.player.weapon.jitter) * dist - 1, 2, 2);
+				}
 			}
-			tooFar = dist > l.player.weapon.range();
-			if (!l.player.weapon.swarm && (dx != 0 || dy != 0) && !tooFar) {
-				double angle = Math.atan2(dy, dx);
-				d.rect(recC, l.player.gunX() + scrollX + Math.cos(angle + l.player.weapon.jitter) * dist - 1, l.player.gunY() + scrollY + Math.sin(angle + l.player.weapon.jitter) * dist - 1, 2, 2);
-				d.rect(recC, l.player.gunX() + scrollX + Math.cos(angle - l.player.weapon.jitter) * dist - 1, l.player.gunY() + scrollY + Math.sin(angle - l.player.weapon.jitter) * dist - 1, 2, 2);
+			if (tooFar) {
+				d.rect(recC, curs.x - 1, curs.y - 10, 2, 5);
+				d.rect(recC, curs.x - 1, curs.y + 5, 2, 5);
+				d.rect(recC, curs.x - 10, curs.y - 1, 5, 2);
+				d.rect(recC, curs.x + 5, curs.y - 1, 5, 2);
+			} else {
+				d.rect(recC, curs.x - 1, curs.y - 10, 2, 20);
+				d.rect(recC, curs.x - 10, curs.y - 1, 20, 2);
 			}
-		}
-		if (tooFar) {
-			d.rect(recC, curs.x - 1, curs.y - 10, 2, 5);
-			d.rect(recC, curs.x - 1, curs.y + 5, 2, 5);
-			d.rect(recC, curs.x - 10, curs.y - 1, 5, 2);
-			d.rect(recC, curs.x + 5, curs.y - 1, 5, 2);
-		} else {
-			d.rect(recC, curs.x - 1, curs.y - 10, 2, 20);
-			d.rect(recC, curs.x - 10, curs.y - 1, 20, 2);
-		}
-		if (!splash && !setup && !mainMenu && l != null && l.power == 1 && l.moved && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
-			if (l.shotsFired == 0) {
-				Pt sz = d.textSize("Click to shoot\nOr press " + key("SPACE") + " to auto-target", FOUNT);
-				d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "Click to shoot\nOr press " + key("SPACE") + " to auto-target", FOUNT, Math.min(sm.width - sz.x, curs.x + 3), curs.y + 3);
-			}
-			if (l.shotsFired > 0 && l.ticksWhiteRectShown < FPS * 3 && l.player.hp > 0) {
-				Pt sz = d.textSize("White reticle = weapon ready", FOUNT);
-				d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "White reticle = weapon ready", FOUNT, Math.min(sm.width - sz.x, curs.x + 3), curs.y + 3);
+			if (!splash && !setup && !mainMenu && l != null && l.power == 1 && l.movedLeft && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
+				if (l.shotsFired == 0) {
+					Pt sz = d.textSize("Mouse to aim, click to shoot\nOr press " + key("SPACE") + " to auto-aim", FOUNT);
+					d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "Mouse to aim, click to shoot\nOr press " + key("SPACE") + " to auto-aim", FOUNT, Math.min(sm.width - sz.x, curs.x + 3), curs.y + 3);
+				}
+				if (l.shotsFired > 0 && l.ticksWhiteRectShown < FPS * 2 && l.player.hp > 0) {
+					Pt sz = d.textSize("White reticle = weapon ready", FOUNT);
+					d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "White reticle = weapon ready", FOUNT, Math.min(sm.width - sz.x, curs.x + 3), curs.y + 3);
+				}
 			}
 		}
 		h = d.getHooks();
@@ -1311,9 +1356,12 @@ public class PatentBlaster implements Game {
 			if (w == l.player.newThing && hilite) {
 				t = (l.tick / 20) % 2 == 0 ? Clr.WHITE : t;
 			}
-			d.blit(w.img, t, 15 + i * 40, 15, 30, 30, new Hook(Hook.Type.HOVER) {
+			d.blit(w.img, t, 15 + i * 40, 15, 30, 30, new Hook(Hook.Type.HOVER, Hook.Type.MOUSE_1) {
 				@Override
 				public void run(Input in, Pt p, Hook.Type type) {
+					if (type == Hook.Type.MOUSE_1) {
+						l.player.weapon = w;
+					}
 					hoverWeapon = w;
 					info = w.desc(Clr.WHITE) + (l.player.weapons.size() > 1 && !l.shopItems.isEmpty() ? "Hit delete to delete weapon from inventory." : "");
 				}
@@ -1354,6 +1402,10 @@ public class PatentBlaster implements Game {
 			return "" + ((int) Math.round(amt));
 		}
 		return "" + (((int) Math.round(amt * Math.pow(10, decimals))) * 1.0 / (Math.pow(10, decimals)));
+	}
+	
+	public static String round(double amt) {
+		return (new BigDecimal(amt, MathContext.UNLIMITED).round(new MathContext(2, RoundingMode.CEILING))).toPlainString();
 	}
 	
 	public static void autoSave() {

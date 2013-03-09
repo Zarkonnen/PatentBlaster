@@ -92,7 +92,7 @@ public class Shot extends Entity {
 		gravityMult = 0;
 		double dtx = tx - x, dty = ty - y;
 		double angle = Math.atan2(dty, dtx);
-		angle += (l.r.nextDouble() * 2 - 1) * w.jitter;
+		angle += (l.r.nextDouble() * 2 - 1) * (w.reduceInaccuracy ? w.jitter / 3 : w.jitter);
 		dx = w.shotSpeed * Math.cos(angle);
 		dy = w.shotSpeed * Math.sin(angle);
 		lifeLeft = w.shotLife;
@@ -218,7 +218,7 @@ public class Shot extends Entity {
 		if (weapon != null && shooter != null && weapon.sword && dmgMultiplier == 1) {
 			if (shooter.hp > 0) {
 				swordpos();
-				if (shooter.lastShot != null && shooter.lastShot.age > 2) {
+				if (shooter.lastShot != null && shooter.lastShot.age > 1) {
 					killMe = true;
 				}
 			} else {

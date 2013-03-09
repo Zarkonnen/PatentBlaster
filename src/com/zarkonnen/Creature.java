@@ -141,6 +141,7 @@ public class Creature extends Entity implements HasDesc {
 	public String encounterMessage = null;
 	
 	public double targetX, targetY;
+	int ticksInView = 0;
 	
 	public Pt targetIntersect(Level l, double fromX, double fromY, double shotSpeed, int shotLife) {
 		Creature sim = new Creature();
@@ -182,11 +183,11 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public boolean fireproof() {
-		return resistance(Element.FIRE) >= 0.5;
+		return resistance(Element.FIRE) >= 0.5 || jar;
 	}
 	
 	public boolean iceproof() {
-		return resistance(Element.ICE) >= 0.5;
+		return resistance(Element.ICE) >= 0.5 || jar;
 	}
 	
 	public boolean doesResurrect() {
@@ -320,6 +321,10 @@ public class Creature extends Entity implements HasDesc {
 				d.rect(new Clr(255, 255, 255, shield), scrollX + x - w / 10, scrollY + y - h / 10, w + w / 5, h + h / 5, angle);
 			}
 		}
+	}
+	
+	public void drawBars(Draw d, Level l, double scrollX, double scrollY) {
+		if (hp <= 0) { return; }
 		int tmh = totalMaxHP();
 		if ((l.player.canSeeStats || this == l.player) && (hp < tmh * 0.9 || heat > tmh / 16 || -heat > tmh / 16)) {
 			d.rect(weapon.reloadLeft == 0 ? Clr.WHITE : Clr.LIGHT_GREY, x + scrollX, y + scrollY + h - 10, w, 8);
@@ -343,18 +348,7 @@ public class Creature extends Entity implements HasDesc {
 				d.rect(weapon.reloadLeft == 0 ? Clr.WHITE : Clr.LIGHT_GREY, x + scrollX, y + scrollY + h - 15, w, 6);
 				d.rect(Element.ICE.tint, x + scrollX + 1, y + scrollY + h - 14, (w - 4) * (- heat) * 4 / tmh, 4);
 			}
-			/*double stickiness = getStickiness();
-			if (stickiness > tmh / 16 && stickiness < tmh / 4) {
-				d.rect(weapon.reloadLeft == 0 ? Clr.WHITE : Clr.LIGHT_GREY, x + scrollX, y + scrollY + h - 20, w, 6);
-				d.rect(Barrel.GLUE_TINT, x + scrollX + 2, y + scrollY + h - 19, (w - 4) * (stickiness) * 4 / tmh, 4);
-			}*/
 		}
-		/*
-		d.rect(Clr.WHITE, x + scrollX, y + scrollY, w, 1);
-		d.rect(Clr.WHITE, x + scrollX, y + scrollY + h - 1, w, 1);
-		d.rect(Clr.WHITE, x + scrollX, y + scrollY, 1, h);
-		d.rect(Clr.WHITE, x + scrollX + w - 1, y + scrollY, 1, h);
-		*/
 	}
 	
 	public Clr bloodClr() {
@@ -518,6 +512,9 @@ public class Creature extends Entity implements HasDesc {
 		if (weapons.contains(w)) { return false; }
 		for (Weapon w2 : weapons) {
 			if (w2.element == w.element && (w2.dps() > w.dps()) && w.homing == w2.homing) {
+				return false;
+			}
+			if (w2.dps() > w.dps() * 3) {
 				return false;
 			}
 		}
@@ -742,7 +739,9 @@ public class Creature extends Entity implements HasDesc {
 				targetY = l.player.y + l.player.h / 2;
 				if (voiceTimer > 0) { voiceTimer--; }
 				double xpd = x + w / 2 - l.player.x - l.player.w / 2;
-				
+				if (xpd < 500) {
+					ticksInView++;
+				}
 				if (encounterMessage != null && xpd < 400) {
 					l.texts.add(new FloatingText(encounterMessage.toUpperCase(), x + w / 2, y));
 					encounterMessage = null;
@@ -980,7 +979,7 @@ public class Creature extends Entity implements HasDesc {
 				if (reproCooldown == 0) {
 					reproCooldown = PatentBlaster.FPS * (babies.size() * 4 + 3);
 					sound("squelch", l);
-					for (int i = 0; i < 20; i++) {
+					for (int i = 0; i < 60; i++) {
 						Shot s = new Shot(Clr.WHITE, w / 20 + 1, false, 50 + l.r.nextInt(200), x + w / 2, y + h / 2, l.r.nextDouble() * 8 - 4, l.r.nextDouble() * 8 - 4, 1.0, null, false, false, false, 0, 0, 0);
 						l.shotsToAdd.add(s);
 					}
@@ -1132,6 +1131,10 @@ public class Creature extends Entity implements HasDesc {
 					l.soundRequests.add(new SoundRequest(jar ? "jarhit" : "splt", shot.x, shot.y, spltVolume));
 				}
 			} else {
+				if (src.swarm && src.element == Element.FIRE && !l.bees) {
+					l.bees = true;
+					l.texts.add(new FloatingText("NOT THE BEES, THEY'RE IN MY EYES!", x + w / 2, y));
+				}
 				if (!reviens && !doesResurrect() && finalForm == null) {
 					bloodShots = explode(l);
 				} else {
@@ -1165,6 +1168,9 @@ public class Creature extends Entity implements HasDesc {
 		} else if (heat < -totalMaxHP() / 4 && hp > 0 && !iceproof()) {
 			if (frozen == 0) {
 				sound("ice_block", l);
+				if (playerControlled) {
+					l.texts.add(new FloatingText("FROZEN!", x + w / 2, y));
+				}
 			}
 			frozen = 200;
 			dx = 0;
@@ -1227,9 +1233,9 @@ public class Creature extends Entity implements HasDesc {
 			hp *= 0.8;
 			c.speed *= 1.2;
 		} else {
-			if (!player && !boss && !w.homing && !w.shotgun && !w.flamethrower && r.nextInt(4 / power + 4) == 0) {
+			if (!player && !boss && !w.homing && !w.shotgun && !w.flamethrower && !w.sword && r.nextInt(4 / power + 4) == 0) {
 				c.explodes = true;
-				hp *= 0.9;
+				hp *= 0.8;
 			}
 		}
 		if (r.nextInt(10 / power + 2) == 0) {
@@ -1357,7 +1363,7 @@ public class Creature extends Entity implements HasDesc {
 		
 		c.flyHeightBonus = r.nextInt(Level.GRID_SIZE);
 		c.animCycle = r2.nextInt(c.animCycleLength);
-		c.dropItem = r2.nextInt(4) == 0;
+		c.dropItem = r2.nextInt(6) == 0;
 		c.dropWeapon = power > 2 && r2.nextInt(16) == 0;
 		
 		if (player) {
@@ -1454,22 +1460,22 @@ public class Creature extends Entity implements HasDesc {
 		sb.append(" Creature\n");
 		sb.append("HP: ").append(hp).append("/").append(totalMaxHP());
 		if (baseHPRegen() != 0) {
-			sb.append(" + ").append(round(baseHPRegen() * PatentBlaster.FPS, 1)).append("/sec\n");
+			sb.append(" + ").append(round(baseHPRegen() * PatentBlaster.FPS)).append("/sec\n");
 		} else {
 			sb.append("\n");
 		}
 		if (totalEating() > 0) {
-			sb.append("Eating flesh gives you ").append(round(totalEating() * 100 * 50, 0)).append("% of the victim's HP\n");
+			sb.append("Eating flesh gives you ").append(round(totalEating() * 100 * 50)).append("% of the victim's HP\n");
 		}
 		if (totalVamp() > 0) {
-			sb.append(round(totalVamp() * 100, 0)).append("% of damage gained as HP\n");
+			sb.append(round(totalVamp() * 100)).append("% of damage gained as HP\n");
 		}
-		sb.append("Speed: ").append(round(totalSpeed() * PatentBlaster.FPS, 0)).append(" px/sec\n");
+		sb.append("Speed: ").append(round(totalSpeed() * PatentBlaster.FPS)).append(" px/sec\n");
 		//sb.append("Move mode: ").append(realMoveMode().name()).append("\n");
 		for (Element e : Element.values()) {
 			double r = resistance(e);
 			if (r > 0) {
-				sb.append("[").append(e.tint.mix(0.4, textTint)).append("]").append(e.name()).append("[] Resistance: ").append(round(r * 100, 0)).append("%\n");
+				sb.append("[").append(e.tint.mix(0.4, textTint)).append("]").append(e.name()).append("[] Damage Resistance: ").append(round(r * 100)).append("%\n");
 			}
 		}
 		if (fireproof()) { sb.append("Can't catch fire.\n"); }

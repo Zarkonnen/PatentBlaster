@@ -100,6 +100,14 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 					it.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(4)));
 				}
 			}
+			@Override
+			public boolean useful(Creature c) {
+				int shields = 0;
+				for (Item it2 : c.items) {
+					if (it2.shield) { shields++; }
+				}
+				return shields < 3;
+			}
 		},
 		HOVER(4, new Clr(100, 127, 100), 100) {
 			@Override
@@ -274,9 +282,9 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 		if (showName) { sb.append("").append(name.toUpperCase()).append("\n"); }
 		sb.append("[").append(tint.mix(0.4, textTint).toString()).append("]");
 		if (resistanceVs != null) {
-			sb.append(is).append(round(resistance * 100, 0)).append("% resistance to ").append(resistanceVs.name()).append("\n");
+			sb.append(is).append(round(resistance * 100, 0)).append("% resistance to ").append(resistanceVs.name()).append(" Damage\n");
 			if (forC != null) {
-				sb.append(is).append("Current ").append(resistanceVs.name()).append(" resistance: ").append(round(forC.resistance(resistanceVs) * 100, 0)).append("%\n");
+				sb.append(is).append("Current ").append(resistanceVs.name()).append(" damage resistance: ").append(round(forC.resistance(resistanceVs) * 100, 0)).append("%\n");
 			}
 		}
 		if (speedMult != 1) {

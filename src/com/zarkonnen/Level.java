@@ -36,7 +36,10 @@ public class Level implements MusicCallback, Serializable {
 	public int power;
 	public int shotsFired = 0;
 	public int ticksWhiteRectShown = 0;
-	public boolean moved = false;
+	public boolean movedLeft = false;
+	public boolean movedRight = false;
+	public boolean movedUp = false;
+	public boolean bees;
 	public int background = -1;
 	public int backgroundW = 512;
 	public int backgroundH;
@@ -84,7 +87,9 @@ public class Level implements MusicCallback, Serializable {
 		}
 		
 		int cFreq = power > 30 ? 1 : power > 15 ? 2 : 3;
-		for (int i = 10; i < LVL_W - 10; i++) {
+		int monsterStart = (power < 2 && PatentBlaster.difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal())
+				? 18 : 9;
+		for (int i = monsterStart; i < LVL_W - 10; i++) {
 			if (r.nextInt(cFreq) == 0) {
 				int type = r.nextInt(4);
 				Creature c = Creature.make(seed + type * 12345, power, PatentBlaster.NUM_IMAGES, false, false, true);
@@ -501,7 +506,7 @@ public class Level implements MusicCallback, Serializable {
 					}
 				}
 			}
-			if (!s.remains && (c.massive || !s.weapon.penetrates() || s.weapon.homing)) {
+			if (!s.remains && !s.weapon.sword && (c.massive || !s.weapon.penetrates() || s.weapon.homing)) {
 				s.killMe = true;
 				return true;
 			} else {
