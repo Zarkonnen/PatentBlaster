@@ -411,7 +411,7 @@ public class PatentBlaster implements Game {
 				autoSave();
 				setup = true;
 				nextLvlTime = 0;
-				if (buyScreenAfterDefeat && gamesPlayed++ % 4 == 0) {
+				if (buyScreenAfterDefeat && gamesPlayed++ % 8 == 0) {
 					buyArguments.clear();
 					buyScreen = true;
 					exitAfterBuyScreen = false;
