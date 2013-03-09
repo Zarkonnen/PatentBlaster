@@ -52,6 +52,8 @@ public class PatentBlaster implements Game {
 	public static final int NUM_VOICES = DEMO ? 3 : 14;
 	public static final int FPS = 60;
 	public static final String ALPHABET = " qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890-=+_!?<>,.;:\"'@£$%^&*()[]{}|\\~/±";
+	public static final Fount GOUNT = new Fount("LiberationMono64", 50, 84, 50, 84, ALPHABET);
+
 	public static final Fount FOUNT = new Fount("LiberationMono18", 14, 24, 12, 24, ALPHABET);
 	public static final Fount SMOUNT = new Fount("Courier12", 10, 15, 7, 15, ALPHABET);
 	public static final String[] IMG_NAMES = {"bat", "bear", "elephant", "thing", "mummy", "tongue", "eye", "brain", "robot", "head", "duck", "empty_bear"};
@@ -70,6 +72,7 @@ public class PatentBlaster implements Game {
 	public static final Clr PAINTING_BG = new Clr(255, 255, 230);
 	public static final Clr RELOADING_CURSOR = new Clr(200, 200, 200);
 	public static final Clr DYING = new Clr(255, 100, 100, 32);
+	public static final Clr DEAD = new Clr(255, 100, 100, 127);
 	
 	public static final HashMap<String, Img> CREATURE_IMGS;
 	
@@ -249,21 +252,23 @@ public class PatentBlaster implements Game {
 			} else if (mainMenu && cooldown == 0) {
 				if (showCredits) {
 					showCredits = false;
-					cooldown = 15;
+					cooldown += 15;
 				} else {
 					if (DEMO && plays > 1) {
 						buyScreen = true;
 						buyArguments.clear();
 						exitAfterBuyScreen = true;
-						cooldown = 10;
+						cooldown += 10;
 					} else {
 						in.quit();
 					}
 				}
 			} else {
-				autoSave();
-				mainMenu = true;
-				cooldown = 15;
+				if (cooldown == 0) {
+					autoSave();
+					mainMenu = true;
+					cooldown += 15;
+				}
 			}
 			return;
 		}
@@ -289,7 +294,7 @@ public class PatentBlaster implements Game {
 			in.setMode(chosenMode);
 			screened = true;
 			in.setCursorVisible(false);
-			cooldown = 10;
+			cooldown += 10;
 			if (musicVolume > 0) {
 				in.playMusic(Level.MUSICS[0], musicVolume * 1.0 / 9, new MusicCallback() {
 					@Override
@@ -313,7 +318,7 @@ public class PatentBlaster implements Game {
 		
 		if (cooldown == 0 && in.keyDown(key("I"))) {
 			showFPS = !showFPS;
-			cooldown = 10;
+			cooldown += 10;
 		}
 		
 		menuHover = "FISHCAKES";
@@ -333,7 +338,7 @@ public class PatentBlaster implements Game {
 		if (splash) {
 			if (Preload.allPreloaded() || cooldown == 0 && (in.clickButton() != 0 || in.lastKeyPressed() != null)) {
 				splash = false;
-				cooldown = 10;
+				cooldown += 10;
 			}
 			return;
 		}
@@ -366,7 +371,7 @@ public class PatentBlaster implements Game {
 		
 		if (setup) {
 			if (Names.namesLoaded() && setupCreatures.isEmpty()) {
-				cooldown = 10;
+				cooldown += 10;
 				for (int i = 0; i < 4; i++) {
 					Creature c = Creature.make(System.currentTimeMillis() + i * 32980, difficultyLevel.playerLevel, NUM_IMAGES, false, true, false);
 					setupCreatures.add(c);
@@ -381,7 +386,7 @@ public class PatentBlaster implements Game {
 			hit(in);
 			if (cooldown == 0 && hoverWeapon != null && l.player.weapons.size() > 1 && (in.keyDown("DELETE") || in.keyDown("BACKSPACE") || in.keyDown("BACK"))) {
 				l.player.weapons.remove(hoverWeapon);
-				cooldown = 10;
+				cooldown += 10;
 				if (hoverWeapon == l.player.weapon) {
 					l.player.weapon = l.player.weapons.get(0);
 				}
@@ -391,7 +396,7 @@ public class PatentBlaster implements Game {
 		
 		if (cooldown == 0 && in.keyDown(key("P"))) {
 			paused = !paused;
-			cooldown = 20;
+			cooldown += 20;
 		}
 		
 		if (paused) {
@@ -416,7 +421,7 @@ public class PatentBlaster implements Game {
 					buyScreen = true;
 					exitAfterBuyScreen = false;
 				}
-				cooldown = 10;
+				cooldown += difficultyLevel == DifficultyLevel.EASY ? 100 : 30;
 				return;
 			}
 		} else if (l.won()) {
@@ -438,7 +443,7 @@ public class PatentBlaster implements Game {
 				nextLvlTime = 0;
 				int attempt = 0;
 				Weapon w = null;
-				cooldown = 20;
+				cooldown += difficultyLevel == DifficultyLevel.EASY ? 100 : 30;
 				do {
 					w = Weapon.make(System.currentTimeMillis() + attempt++ * 1234, l.power + difficultyLevel.shopBonus, true);
 				} while (attempt < 50 && !l.player.isUseful(w));
@@ -492,24 +497,24 @@ public class PatentBlaster implements Game {
 			}
 			// Hover on
 			if (cooldown == 0 && l.player.playerMoveModeSelection != MoveMode.HOVER && l.player.canHover() && in.keyDown(key("H"))) {
-				cooldown = 10;
+				cooldown += 10;
 				l.player.playerMoveModeSelection = MoveMode.HOVER;
 				l.player.hovered = true;
 			}
 			// Hover off
 			if (cooldown == 0 && l.player.playerMoveModeSelection == MoveMode.HOVER && in.keyDown(key("H"))) {
-				cooldown = 10;
+				cooldown += 10;
 				l.player.playerMoveModeSelection = MoveMode.SLIDE;
 			}
 			// Flight on
 			if (cooldown == 0 && l.player.playerMoveModeSelection != MoveMode.FLY && l.player.canFly() && in.keyDown(key("F"))) {
-				cooldown = 10;
+				cooldown += 10;
 				l.player.playerMoveModeSelection = MoveMode.FLY;
 				l.player.flown = true;
 			}
 			// Flight off
 			if (cooldown == 0 && l.player.playerMoveModeSelection == MoveMode.FLY && in.keyDown(key("F"))) {
-				cooldown = 10;
+				cooldown += 10;
 				l.player.playerMoveModeSelection = MoveMode.SLIDE;
 			}
 			if (l.player.knockedBack == 0) {
@@ -655,13 +660,13 @@ public class PatentBlaster implements Game {
 			if (in.keyDown(key("Q"))) {
 				int newIndex = (l.player.weapons.indexOf(l.player.weapon) - 1 + l.player.weapons.size()) % l.player.weapons.size();
 				l.player.weapon = l.player.weapons.get(newIndex);
-				cooldown = 15;
+				cooldown += 15;
 				l.player.changedGun = true;
 			}
 			if (in.keyDown(key("E"))) {
 				int newIndex = (l.player.weapons.indexOf(l.player.weapon) + 1) % l.player.weapons.size();
 				l.player.weapon = l.player.weapons.get(newIndex);
-				cooldown = 15;
+				cooldown += 15;
 				l.player.changedGun = true;
 			}
 		}
@@ -825,7 +830,7 @@ public class PatentBlaster implements Game {
 				d.hook(0, 0, sm.width, sm.height, new Hook(Type.MOUSE_1) {
 					@Override
 					public void run(Input in, Pt p, Type type) {
-						if (cooldown == 0) { showCredits = false; cooldown = 10; }
+						if (cooldown == 0) { showCredits = false; cooldown += 10; }
 					}
 				});
 			} else {
@@ -844,7 +849,7 @@ public class PatentBlaster implements Game {
 							public void run(Input in, Pt p, Type type) {
 								if (cooldown == 0) {
 									newPatentTimer = 0;
-									cooldown = 15;
+									cooldown += 15;
 								}
 							}
 						});
@@ -879,7 +884,7 @@ public class PatentBlaster implements Game {
 						public void run(Input in, Pt p, Hook.Type type) {
 							setup = false;
 							mainMenu = false;
-							cooldown = 10;
+							cooldown += 10;
 						}
 					});
 					menu.append("  ");
@@ -890,7 +895,7 @@ public class PatentBlaster implements Game {
 					public void run(Input in, Pt p, Hook.Type type) {
 						mainMenu = false;
 						setup = true;
-						cooldown = 20;
+						cooldown += difficultyLevel == DifficultyLevel.EASY ? 100 : 30;
 					}
 				});
 				menu.append("[bg=]");
@@ -899,7 +904,7 @@ public class PatentBlaster implements Game {
 					@Override
 					public void run(Input in, Pt p, Hook.Type type) {
 						showCredits = true;
-						cooldown = 10;
+						cooldown += 10;
 					}
 				});
 				menu.append("  ");
@@ -925,7 +930,7 @@ public class PatentBlaster implements Game {
 								savePrefs();
 							} else {
 								if (cooldown == 0) {
-									cooldown = 10;
+									cooldown += 10;
 									in.play("boop", 1.0, 1.0, 0, 0);
 								}
 							}
@@ -1010,7 +1015,7 @@ public class PatentBlaster implements Game {
 					@Override
 					public void run(Input in, Pt p, Type type) {
 						if (cooldown == 0) {
-							cooldown = 10;
+							cooldown += 10;
 							ScreenMode sm = in.mode();
 							if (sm.fullscreen) {
 								in.setMode(new ScreenMode(1024, 768, false));
@@ -1043,7 +1048,7 @@ public class PatentBlaster implements Game {
 				}
 			}
 		} else if (setup) {
-			int spacing = 12;
+			int spacing = 24;
 
 			if (lowGraphics) {
 				d.rect(PAPER, 0, 0, sm.width, sm.height);
@@ -1079,10 +1084,11 @@ public class PatentBlaster implements Game {
 						Rect tileR = new Rect(xOffset + tileX * tileW, yOffset + tileY * tileH, tileW, tileH);
 						boolean hover = tileR.contains(curs);
 						d.text("[BLACK]" + c.name().toUpperCase(), FOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH);
-						Clr t = !hover ? c.tint.mix(0.9, PAPER) : c.tint;
+						Clr t = c.tint;//!hover ? c.tint.mix(0.9, PAPER) : c.tint;
 						d.blit("drawings/" + IMG_NAMES[c.imgIndex] + "_drawing", t, xOffset + tileX * tileW, yOffset + tileY * tileH + 35);
 						d.text("[BLACK][default=BLACK]" + c.desc(Clr.BLACK, IMG_NUMS[c.imgIndex]), SMOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH + 150, (int) (tileW - 10));
-						d.hook(tileR.x, tileR.y, tileR.width, tileR.height, new Hook(Hook.Type.MOUSE_1) {
+						/*d.hook(tileR.x, tileR.y, tileR.width, tileR.height, */
+						button(d, "Select", xOffset + tileX * tileW + 100 + spacing, yOffset + tileY * tileH + 35 + 50 - 14, 0, new Hook(Hook.Type.MOUSE_1) {
 
 							@Override
 							public void run(Input in, Pt p, Hook.Type type) {
@@ -1109,7 +1115,7 @@ public class PatentBlaster implements Game {
 						} else {
 							setup = false;
 							mainMenu = true;
-							cooldown = 10;
+							cooldown += 10;
 						}
 					}
 				});
@@ -1117,9 +1123,16 @@ public class PatentBlaster implements Game {
 				// CYA
 				Rect cyaR = d.textSize("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, 0, 0);
 				d.text("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, sm.width - cyaR.width, sm.height - cyaR.height);
+				
+				if (cooldown > 20 && difficultyLevel.ordinal() < DifficultyLevel.NORMAL.ordinal() && gamesPlayed < 2) {
+					d.rect(new Clr(0, 0, 0, 63), 0, 0, sm.width, sm.height);
+					Pt chooseR = d.textSize("CHOOSE YOUR CREATURE", GOUNT);
+					d.rect(Clr.BLACK, 0, sm.height / 2 - chooseR.y / 2 - 10, sm.width, chooseR.y + 20);
+					d.text("CHOOSE YOUR CREATURE", GOUNT, sm.width / 2 - chooseR.x / 2, sm.height / 2 - chooseR.y / 2 + 10);
+				}
 			}
 		} else if (!l.shopItems.isEmpty()) {
-			int spacing = 12;
+			int spacing = 24;
 			if (lowGraphics) {
 				d.rect(PAPER, 0, 0, sm.width, sm.height);
 			} else {
@@ -1133,12 +1146,12 @@ public class PatentBlaster implements Game {
 			int topMargin = 60;
 			int bottomMargin = 60;
 
-			Rect titleR = d.textSize("SHOP: PICK ONE NEW ITEM", FOUNT, spacing, spacing + bottomMargin);
-			d.text("[BLACK]SHOP: PICK ONE NEW ITEM", FOUNT, spacing, spacing + bottomMargin);
-			d.rect(Clr.BLACK, 0, spacing + 18 + topMargin, sm.width * 3 / 4, 2);
-			Rect pgR = d.textSize("Page " + l.power + 1, FOUNT, spacing, spacing + bottomMargin);
-			d.text("[BLACK]Page " + l.power, FOUNT, sm.width - spacing - pgR.width, spacing + bottomMargin);
-			int yOffset = spacing * 2 + (int) titleR.height + topMargin;
+			Rect titleR = d.textSize("SHOP: PICK ONE NEW ITEM", FOUNT, spacing, topMargin);
+			d.text("[BLACK]SHOP: PICK ONE NEW ITEM", FOUNT, spacing, topMargin);
+			d.rect(Clr.BLACK, 0, 18 + topMargin, sm.width * 3 / 4, 2);
+			Rect pgR = d.textSize("Page " + l.power + 1, FOUNT, spacing, topMargin);
+			d.text("[BLACK]Page " + l.power, FOUNT, sm.width - spacing - pgR.width, topMargin);
+			int yOffset = spacing + (int) titleR.height + topMargin;
 			int availableH = sm.height - yOffset - topMargin - bottomMargin;
 			int xOffset = spacing * 2;
 			int availableW = sm.width - spacing;
@@ -1165,10 +1178,11 @@ public class PatentBlaster implements Game {
 					Rect tileR = new Rect(xOffset + tileX * tileW, yOffset + tileY * tileH, tileW, tileH);
 					boolean hover = tileR.contains(curs);
 					d.text("[BLACK]" + name.toUpperCase(), FOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH);
-					Clr t = !hover ? tint.mix(0.9, PAPER) : tint;
+					Clr t = tint;//!hover ? tint.mix(0.9, PAPER) : tint;
 					d.blit(img, t, xOffset + tileX * tileW, yOffset + tileY * tileH + 35);
-					d.text("[BLACK][default=BLACK]" + desc, FOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH + 220, (int) (tileW - 10));
-					d.hook(tileR.x, tileR.y, tileR.width, tileR.height, new Hook(Hook.Type.MOUSE_1) {
+					d.text("[BLACK][default=BLACK]" + desc, FOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH + 205, (int) (tileW - 10));
+					//d.hook(tileR.x, tileR.y, tileR.width, tileR.height,
+					button(d, "Select", xOffset + tileX * tileW + 135 + spacing, yOffset + tileY * tileH + 35 + 75 - 14, 0, new Hook(Hook.Type.MOUSE_1) {
 
 						@Override
 						public void run(Input in, Pt p, Hook.Type type) {
@@ -1194,6 +1208,13 @@ public class PatentBlaster implements Game {
 			// CYA
 			Rect cyaR = d.textSize("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, 0, 0);
 			d.text("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, sm.width - cyaR.width, 3);
+			
+			if (cooldown > 20 && difficultyLevel.ordinal() < DifficultyLevel.NORMAL.ordinal() && l.power < 3 && gamesPlayed < 2) {
+				d.rect(new Clr(0, 0, 0, 63), 0, 0, sm.width, sm.height);
+				Pt chooseR = d.textSize("PICK A NEW ITEM", GOUNT);
+				d.rect(Clr.BLACK, 0, sm.height / 2 - chooseR.y / 2 - 10, sm.width, chooseR.y + 20);
+				d.text("PICK A NEW ITEM", GOUNT, sm.width / 2 - chooseR.x / 2, sm.height / 2 - chooseR.y / 2 + 10);
+			}
 		} else {
 			// Background texture
 			if (!lowGraphics && l.background != -1) {
@@ -1243,7 +1264,9 @@ public class PatentBlaster implements Game {
 			for (FloatingText ft : l.texts) {
 				ft.draw(d, l, scrollX, scrollY);
 			}
-			if (!lowGraphics && l.player.hp < l.player.totalMaxHP() / 10) {
+			if (!lowGraphics && l.player.hp <= 0) {
+				d.rect(DEAD, 0, 0, sm.width, sm.height);
+			} else if (!lowGraphics && l.player.hp < l.player.totalMaxHP() / 8) {
 				d.rect(DYING, 0, 0, sm.width, sm.height);
 			}
 			/*if (l.tick < 1000) {
@@ -1282,10 +1305,10 @@ public class PatentBlaster implements Game {
 		}
 		
 		if (!splash && !setup && !mainMenu && l != null && l.power == 1 && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
-			if (!l.movedRight) {
+			if (!l.movedRight && !l.movedLeft) {
 				d.text(textBGTint + key("D") + " or " + key("RIGHT") + " to move right", FOUNT, sm.width / 2 + 50, sm.height * 2 / 3 - FOUNT.lineHeight / 2);
 			}
-			if (!l.movedLeft) {
+			if (!l.movedLeft && !l.movedRight) {
 				Pt sz = d.textSize(key("A") + " or " + key("LEFT") + " to move left", FOUNT);
 			d.text(textBGTint + key("A") + " or " + key("LEFT") + " to move left", FOUNT, sm.width / 2 - 50 - sz.x, sm.height * 2 / 3 - FOUNT.lineHeight / 2);
 			}
@@ -1325,7 +1348,7 @@ public class PatentBlaster implements Game {
 				d.rect(recC, curs.x - 1, curs.y - 10, 2, 20);
 				d.rect(recC, curs.x - 10, curs.y - 1, 20, 2);
 			}
-			if (!splash && !setup && !mainMenu && l != null && l.power == 1 && l.movedLeft && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
+			if (!splash && !setup && !mainMenu && l != null && l.power == 1 && l.movedRight && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
 				if (l.shotsFired == 0) {
 					Pt sz = d.textSize("Mouse to aim, click to shoot\nOr press " + key("SPACE") + " to auto-aim", FOUNT);
 					d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "Mouse to aim, click to shoot\nOr press " + key("SPACE") + " to auto-aim", FOUNT, Math.min(sm.width - sz.x, curs.x + 3), curs.y + 3);
@@ -1395,6 +1418,26 @@ public class PatentBlaster implements Game {
 			i++;
 		}
 		d.text(textBGTint + info, fount, 10, 60);
+	}
+	
+	static final Clr BUTTON_BORDER = new Clr(100, 100, 100, 63);
+	static final Clr BUTTON_BG = new Clr(200, 200, 200, 63);
+	static final Clr BUTTON_HIGHLIGHT = new Clr(255, 255, 255, 63);
+	static final String BUTTON_TEXT = "[333333]";
+	
+	void button(Draw d, String text, int x, int y, int width, Hook h) {
+		Pt size = buttonSize(d, text, width);
+		d.rect(BUTTON_BORDER, x, y, size.x, size.y);
+		d.rect(curs.x >= x && curs.x <= x + size.x && curs.y >= y && curs.y <= y + size.y
+				? BUTTON_HIGHLIGHT : BUTTON_BG
+				, x + 1, y + 1, size.x - 2, size.y - 2);
+		d.text(BUTTON_TEXT + text, FOUNT, x + size.x / 2 - d.textSize(text, FOUNT).x / 2, y + 4);
+		d.hook(x, y, size.x, size.y, h);
+	}
+	
+	Pt buttonSize(Draw d, String text, int width) {
+		Pt textSize = d.textSize(text, FOUNT);
+		return new Pt(width == 0 ? textSize.x + 20 : Math.max(textSize.x + 20, width), textSize.y);
 	}
 	
 	public static String round(double amt, int decimals) {
