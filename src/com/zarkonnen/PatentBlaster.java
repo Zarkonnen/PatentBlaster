@@ -280,6 +280,9 @@ public class PatentBlaster implements Game {
 			return;
 		}
 		
+		if (!System.getProperty("os.name").toLowerCase().matches(".*[iu]n[ui]x.*")) {
+			chosenMode = new ScreenMode(1024, 768, true);
+		}
 		if (chosenMode == null) {
 			if (availableModes.isEmpty()) {
 				availableModes.add(new ScreenMode(1024, 768, false));
