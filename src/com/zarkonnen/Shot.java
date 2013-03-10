@@ -195,8 +195,8 @@ public class Shot extends Entity {
 		double dtx = shooter.targetX - shooter.gunX();
 		double dty = shooter.targetY - shooter.gunY();
 		double angle = Math.atan2(dty, dtx);
-		x = shooter.gunX() + Math.cos(angle) * (age) * weapon.shotSpeed;
-		y = shooter.gunY() + Math.sin(angle) * (age) * weapon.shotSpeed;
+		x = shooter.gunX() + Math.cos(angle) * (age) * weapon.shotSpeed - w / 2;
+		y = shooter.gunY() + Math.sin(angle) * (age) * weapon.shotSpeed - h / 2;
 	}
 	
 	@Override
