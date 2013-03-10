@@ -127,6 +127,7 @@ public class PatentBlaster implements Game {
 	Weapon hoverWeapon;
 	boolean paused = false;
 	boolean mainMenu = true;
+	boolean settings = false;
 	ArrayList<ScreenMode> availableModes = new ArrayList<ScreenMode>();
 	ScreenMode chosenMode = null;
 	ScreenMode hoverMode = null;
@@ -246,7 +247,10 @@ public class PatentBlaster implements Game {
 		Preload.preload(in);
 		tick++;
 		if (in.keyDown("ESCAPE") || in.keyDown("ESC") || in.keyDown("⎋")) {
-			if (buyScreen && cooldown == 0) {
+			if (settings && cooldown == 0) {
+				settings = false;
+				cooldown += 10;
+			} else if (buyScreen && cooldown == 0) {
 				if (exitAfterBuyScreen) {
 					in.quit();
 				} else {
@@ -814,6 +818,160 @@ public class PatentBlaster implements Game {
 		} else if (splash) {
 			d.blit("splash.jpg", 0, 0);
 			d.text("[BLACK]" + Preload.preloadStatus(), FOUNT, 220, 620);
+		} else if (settings) {
+			if (lowGraphics) {
+				d.rect(PAPER, 0, 0, sm.width, sm.height);
+			} else {
+				for (int y = 0; y < sm.width; y += 600) {
+					for (int x = 0; x < sm.height; x += 600) {
+						d.blit("paper.jpg", x, y);
+					}
+				}
+			}
+			
+			int spacing = 12;
+			
+			Rect titleR = d.textSize("SETTINGS", FOUNT, spacing, spacing);
+			d.text("[BLACK]SETTINGS", FOUNT, spacing, spacing);
+			d.rect(Clr.BLACK, 0, spacing + 18, sm.width * 3 / 4, 2);
+			
+			int y = (int) (titleR.y + titleR.height + spacing * 2);
+
+			d.rect(Clr.BLACK, sm.width / 2, spacing + 18, 2, sm.height);
+			if (newPatentTimer > FPS * 19) {
+				int speed = FPS / (newPatentTimer - FPS * 19) + 1;
+				Random r = new Random(patN += (tick % speed == 0 ? 1 : 0));
+				d.text("[BLACK]PAT " + (Math.abs(r.nextInt()) % 10000), FOUNT, sm.width / 2 + spacing * 2, y);
+			} else {
+				if (patentName != null) {
+					d.text("[BLACK]" + patentName, FOUNT, sm.width / 2 + spacing * 2, y);
+					d.blit("drawings/" + IMG_NAMES[patentImg] + "_drawing_large", PAPER, sm.width / 2 + spacing * 2, y + 40);
+					d.text("[BLACK]" + patentText, FOUNT, sm.width / 2 + spacing * 2, y + 465, sm.width / 2 - spacing * 4);
+					d.hook(sm.width / 2, 0, sm.width / 2, sm.height, new Hook(Type.MOUSE_1) {
+						@Override
+						public void run(Input in, Pt p, Type type) {
+							if (cooldown == 0) {
+								newPatentTimer = 0;
+								cooldown += 15;
+							}
+						}
+					});
+				}
+			}
+			
+			if (inputMappingToDo != null) {
+				d.hook(0, 0, sm.width, sm.height, new Hook(Hook.Type.MOUSE_1) {
+					@Override
+					public void run(Input in, Pt p, Type type) {
+						inputMappingToDo = null;
+					}
+				});
+			}
+			StringBuilder menu = new StringBuilder();
+			menu.append("[default=BLACK][BLACK]");
+			HashMap<String, Hook> hoox = new HashMap<String, Hook>();
+			for (final Pair<String, Pair<String, String>> kb : KEY_NAMES) {
+				menu.append(kb.a).append("  ");
+				menu.append(kb.equals(inputMappingToDo) && !secondaryInputMapping ? "[bg=550000]" : "");
+				menuItem("key_", " " + key(kb.b.a) + " ", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+					@Override
+					public void run(Input in, Pt p, Type type) {
+						inputMappingToDo = kb;
+						secondaryInputMapping = false;
+					}
+				});
+				menu.append("[bg=]");
+				if (kb.b.b != null) {
+					int gap = 3 - key(kb.b.a).length();
+					for (int i = 0; i < gap; i++) {
+						menu.append(" ");
+					}
+					menu.append(kb.equals(inputMappingToDo) && secondaryInputMapping ? "[bg=550000]" : "");
+					menuItem("key2_", " " + key(kb.b.b) + " ", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+						@Override
+						public void run(Input in, Pt p, Type type) {
+							inputMappingToDo = kb;
+							secondaryInputMapping = true;
+						}
+					});
+					menu.append("[bg=]");
+				}
+				menu.append("\n");
+			}
+
+			d.text(menu.toString(), FOUNT, spacing, y, hoox);
+			Rect menuR = d.textSize(menu.toString(), FOUNT, spacing, y);
+			y += menuR.height + spacing;
+			menu = new StringBuilder();
+			menu.append("[default=BLACK][BLACK]");
+			hoox = new HashMap<String, Hook>();
+			menu.append("Sound  ");
+			for (int i = 0; i < 10; i++) {
+				final int ii = i;
+				menuItem("sound", " " + i, soundVolume == i, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+					@Override
+					public void run(Input in, Pt p, Type type) {
+						if (ii > 0 && ii != soundVolume) {
+							in.play("squelch", 1.0, ii * 1.0 / 9, 0, 0);
+						}
+						soundVolume = ii;
+						savePrefs();
+					}
+				});
+			}
+
+			d.text(menu.toString(), FOUNT, spacing, y, hoox);
+			menuR = d.textSize(menu.toString(), FOUNT, spacing, y);
+			y += menuR.height + spacing;
+			menu = new StringBuilder();
+			menu.append("[default=BLACK][BLACK]");
+			hoox = new HashMap<String, Hook>();
+			menu.append("Music  ");
+			for (int i = 0; i < 10; i++) {
+				final int ii = i;
+				menuItem("music", " " + i, musicVolume == i, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+					@Override
+					public void run(Input in, Pt p, Type type) {
+						in.stopMusic();
+						if (ii != 0/* && ii != musicVolume*/) {
+							in.playMusic(Level.MUSICS[0], ii * 1.0 / 9, null, null);
+						}
+						musicVolume = ii;
+						savePrefs();
+					}
+				});
+			}
+			menu.append("\n\n");
+			menuItem("screen", "Switch to " + (f.mode().fullscreen ? "windowed" : "fullscreen"), true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+				@Override
+				public void run(Input in, Pt p, Type type) {
+					if (cooldown == 0) {
+						cooldown += 10;
+						ScreenMode sm = in.mode();
+						if (sm.fullscreen) {
+							in.setMode(new ScreenMode(1024, 768, false));
+						} else {
+							in.setMode(new ScreenMode(1024, 768, true));
+						}
+					}
+				}
+			});
+
+			d.text(menu.toString(), FOUNT, spacing, y, hoox);
+			
+			Rect backR = d.textSize("(Back to Menu)", FOUNT, spacing, spacing);
+			d.text((menuHover.equals("BACKTOMAIN") ? "[RED]" : "[GREY]") + "(Back to Menu)", FOUNT, sm.width - spacing - backR.width, spacing);
+			d.hook(sm.width - spacing - backR.width, spacing, backR.width, backR.height, new Hook(Hook.Type.MOUSE_1, Hook.Type.HOVER) {
+				@Override
+				public void run(Input in, Pt p, Hook.Type type) {
+					if (type == Hook.Type.HOVER) {
+						menuHover = "BACKTOMAIN";
+					} else {
+						settings = false;
+						cooldown += 10;
+					}
+				}
+			});
 		} else if (mainMenu) {
 			if (lowGraphics) {
 				d.rect(PAPER, 0, 0, sm.width, sm.height);
@@ -908,6 +1066,14 @@ public class PatentBlaster implements Game {
 				});
 				menu.append("[bg=]");
 				menu.append("  ");
+				menuItem("settings", "SETTINGS", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+					@Override
+					public void run(Input in, Pt p, Hook.Type type) {
+						settings = true;
+						cooldown += 10;
+					}
+				});
+				menu.append("  ");
 				menuItem("credits", "CREDITS", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 					@Override
 					public void run(Input in, Pt p, Hook.Type type) {
@@ -946,96 +1112,9 @@ public class PatentBlaster implements Game {
 					});
 					menu.append(" ");
 				}
-				menu.append("\n\n");
-				for (final Pair<String, Pair<String, String>> kb : KEY_NAMES) {
-					menu.append(kb.a).append("  ");
-					menu.append(kb.equals(inputMappingToDo) && !secondaryInputMapping ? "[bg=550000]" : "");
-					menuItem("key_", " " + key(kb.b.a) + " ", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
-						@Override
-						public void run(Input in, Pt p, Type type) {
-							inputMappingToDo = kb;
-							secondaryInputMapping = false;
-						}
-					});
-					menu.append("[bg=]");
-					if (kb.b.b != null) {
-						int gap = 3 - key(kb.b.a).length();
-						for (int i = 0; i < gap; i++) {
-							menu.append(" ");
-						}
-						menu.append(kb.equals(inputMappingToDo) && secondaryInputMapping ? "[bg=550000]" : "");
-						menuItem("key2_", " " + key(kb.b.b) + " ", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
-							@Override
-							public void run(Input in, Pt p, Type type) {
-								inputMappingToDo = kb;
-								secondaryInputMapping = true;
-							}
-						});
-						menu.append("[bg=]");
-					}
-					menu.append("\n");
-				}
-
-				d.text(menu.toString(), FOUNT, spacing, y, hoox);
-				Rect menuR = d.textSize(menu.toString(), FOUNT, spacing, y);
-				y += menuR.height + spacing;
-				menu = new StringBuilder();
-				menu.append("[default=BLACK][BLACK]");
-				hoox = new HashMap<String, Hook>();
-				menu.append("Sound  ");
-				for (int i = 0; i < 10; i++) {
-					final int ii = i;
-					menuItem("sound", " " + i, soundVolume == i, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
-						@Override
-						public void run(Input in, Pt p, Type type) {
-							if (ii > 0 && ii != soundVolume) {
-								in.play("squelch", 1.0, ii * 1.0 / 9, 0, 0);
-							}
-							soundVolume = ii;
-							savePrefs();
-						}
-					});
-				}
-
-				d.text(menu.toString(), FOUNT, spacing, y, hoox);
-				menuR = d.textSize(menu.toString(), FOUNT, spacing, y);
-				y += menuR.height + spacing;
-				menu = new StringBuilder();
-				menu.append("[default=BLACK][BLACK]");
-				hoox = new HashMap<String, Hook>();
-				menu.append("Music  ");
-				for (int i = 0; i < 10; i++) {
-					final int ii = i;
-					menuItem("music", " " + i, musicVolume == i, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
-						@Override
-						public void run(Input in, Pt p, Type type) {
-							in.stopMusic();
-							if (ii != 0/* && ii != musicVolume*/) {
-								in.playMusic(Level.MUSICS[0], ii * 1.0 / 9, null, null);
-							}
-							musicVolume = ii;
-							savePrefs();
-						}
-					});
-				}
-				menu.append("\n\n");
-				menuItem("screen", "Switch to " + (f.mode().fullscreen ? "windowed" : "fullscreen"), true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
-					@Override
-					public void run(Input in, Pt p, Type type) {
-						if (cooldown == 0) {
-							cooldown += 10;
-							ScreenMode sm = in.mode();
-							if (sm.fullscreen) {
-								in.setMode(new ScreenMode(1024, 768, false));
-							} else {
-								in.setMode(new ScreenMode(1024, 768, true));
-							}
-						}
-					}
-				});
 				
 				d.text(menu.toString(), FOUNT, spacing, y, hoox);
-				menuR = d.textSize(menu.toString(), FOUNT, spacing, y);
+				Rect menuR = d.textSize(menu.toString(), FOUNT, spacing, y);
 				y += menuR.height + spacing;
 				if (DEMO) {
 					menu = new StringBuilder();
