@@ -48,7 +48,7 @@ public class PatentBlaster implements Game {
 	public static final boolean DEMO = false;
 	public static final int DEMO_LEVELS = 3;
 	
-	public static final int NUM_IMAGES = DEMO ? 4 : 12;
+	public static final int NUM_IMAGES = DEMO ? 5 : 17;
 	public static final int NUM_VOICES = DEMO ? 3 : 14;
 	public static final int FPS = 60;
 	public static final String ALPHABET = " qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890-=+_!?<>,.;:\"'@£$%^&*()[]{}|\\~/±";
@@ -56,16 +56,22 @@ public class PatentBlaster implements Game {
 
 	public static final Fount FOUNT = new Fount("LiberationMono18", 14, 24, 12, 24, ALPHABET);
 	public static final Fount SMOUNT = new Fount("Courier12", 10, 15, 7, 15, ALPHABET);
-	public static final String[] IMG_NAMES = {"bat", "bear", "elephant", "thing", "mummy", "tongue", "eye", "brain", "robot", "head", "duck", "empty_bear"};
-	public static final String[] PRETTY_IMG_NAMES = {"Bat", "Bear", "Elephant", "Brain-Thing", "Mummy", "Tongue", "Eye", "Brain", "Robot", "Head", "Duck", "Empty Bear"};
-	public static final int[] IMG_NUMS = { 1, 3, 3, 3, 1, 2, 0, 1, 4, 2, 0, 5 };
-	public static final double[] IMG_SHOOT_X = { 0.44, 0.45, 0.18, 0.56, 0.49, 0.50, 0.20, 0.37, 0.15, 0.50, 0.33, 0.50 };
-	public static final double[] IMG_SHOOT_Y = { 0.51, 0.65, 0.47, 0.08, 0.12, 0.14, 0.50, 0.37, 0.48, 0.28, 0.50, 0.39 };
-	public static final double[] IMG_MOUTH_X = { 0.44, 0.50, 0.10, 0.54, 0.47, 0.48, 0.20, 0.67, 0.47, 0.50, 0.19, 0.50 };
-	public static final double[] IMG_MOUTH_Y = { 0.51, 0.43, 0.83, 0.57, 0.24, 0.53, 0.50, 0.67, 0.18, 0.77, 0.40, 0.39 };
+	public static final String[] IMG_NAMES = {"boxer", "bat", "bear", "elephant", "thing", "mummy", "tongue", "eye", "brain", "robot", "head", "duck", "empty_bear", "screenhead", "crawler", "shrugger", "stick_demon", "smiler"};
+	public static final String[] PRETTY_IMG_NAMES = {"Boxer", "Bat", "Bear", "Elephant", "Brain-Thing", "Mummy", "Tongue", "Eye", "Brain", "Robot", "Head", "Duck", "Empty Bear", "Screenhead", "Crawler", "Shrugger", "Stick Demon", "Smiler"};
+	public static final int[] IMG_NUMS = { 4, 1, 3, 3, 3, 1, 2, 0, 1, 4, 2, 0, 5, 3, 0, 0, 0, 0 };
+	public static final double[] IMG_SHOOT_X = { 0.32, 0.44, 0.45, 0.18, 0.56, 0.49, 0.50, 0.20, 0.37, 0.15, 0.50, 0.33, 0.50,
+	0.50, 0.21, 0.50, 0.50, 0.17};
+	public static final double[] IMG_SHOOT_Y = { 0.41, 0.51, 0.65, 0.47, 0.08, 0.12, 0.14, 0.50, 0.37, 0.48, 0.28, 0.50, 0.39,
+	0.11, 0.54, 0.33, 0.50, 0.28};
+	public static final double[] IMG_MOUTH_X = { 0.41, 0.44, 0.50, 0.10, 0.54, 0.47, 0.48, 0.20, 0.67, 0.47, 0.50, 0.19, 0.50,
+	0.50, 0.21, 0.46, 0.50, 0.65};
+	public static final double[] IMG_MOUTH_Y = { 0.21, 0.51, 0.43, 0.83, 0.57, 0.24, 0.53, 0.50, 0.67, 0.18, 0.77, 0.40, 0.39,
+	0.17, 0.54, 0.55, 0.50, 0.30};
 	
-	public static final double[] IMG_W =       { 1.00, 0.82, 1.00, 0.83, 0.69, 1.00, 0.75, 1.00, 0.85, 0.71, 1.00, 0.75 };
-	public static final double[] IMG_H =       { 0.79, 1.00, 0.89, 1.00, 1.00, 0.49, 1.00, 0.79, 1.00, 1.00, 0.70, 1.00 };
+	public static final double[] IMG_W =       { 0.45, 1.00, 0.82, 1.00, 0.83, 0.69, 1.00, 0.75, 1.00, 0.85, 0.71, 1.00, 0.75,
+	0.35, 1.00, 1.00, 0.73, 0.95};
+	public static final double[] IMG_H =       { 1.00, 0.79, 1.00, 0.89, 1.00, 1.00, 0.49, 1.00, 0.79, 1.00, 1.00, 0.70, 1.00,
+	1.00, 0.64, 0.86, 1.00, 1.00};
 	
 	public static final Clr PAPER = new Clr(230, 230, 225);
 	public static final Clr PAINTING_FRAME = new Clr(70, 50, 20);
