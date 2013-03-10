@@ -1090,6 +1090,7 @@ public class PatentBlaster implements Game {
 					menuItem("continue", "CONTINUE", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 						@Override
 						public void run(Input in, Pt p, Hook.Type type) {
+							if (cooldown > 0) { return; }
 							setup = false;
 							mainMenu = false;
 							cooldown += 10;
@@ -1101,6 +1102,7 @@ public class PatentBlaster implements Game {
 				menuItem("play", hasContinue ? "PLAY NEW" : "PLAY", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 					@Override
 					public void run(Input in, Pt p, Hook.Type type) {
+						if (cooldown > 0) { return; }
 						mainMenu = false;
 						setup = true;
 						cooldown += difficultyLevel == DifficultyLevel.EASY ? 100 : 30;
@@ -1111,6 +1113,7 @@ public class PatentBlaster implements Game {
 				menuItem("settings", "SETTINGS", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 					@Override
 					public void run(Input in, Pt p, Hook.Type type) {
+						if (cooldown > 0) { return; }
 						settings = true;
 						cooldown += 10;
 					}
@@ -1119,6 +1122,7 @@ public class PatentBlaster implements Game {
 				menuItem("credits", "CREDITS", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 					@Override
 					public void run(Input in, Pt p, Hook.Type type) {
+						if (cooldown > 0) { return; }
 						showCredits = true;
 						cooldown += 10;
 					}
@@ -1127,6 +1131,7 @@ public class PatentBlaster implements Game {
 				menuItem("quit", "QUIT", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 					@Override
 					public void run(Input in, Pt p, Hook.Type type) {
+						if (cooldown > 0) { return; }
 						in.quit();
 					}
 				});

@@ -309,6 +309,7 @@ public class Weapon implements HasDesc, Serializable {
 		t.dmg = Math.max(1, dmg / 3);
 		t.element = element;
 		t.img = img;
+		t.largeImg = largeImg;
 		t.jitter = jitter * 0.7;
 		t.name = "Tiny " + name;
 		t.reload = reload;
@@ -333,6 +334,7 @@ public class Weapon implements HasDesc, Serializable {
 		t.dmg = dmg * 3;
 		t.element = element;
 		t.img = img;
+		t.largeImg = largeImg;
 		t.jitter = jitter * 0.7;
 		t.name = "Giant " + name;
 		t.reload = reload;
@@ -354,14 +356,15 @@ public class Weapon implements HasDesc, Serializable {
 	
 
 	public Weapon makeTwin() {
-		return new Weapon(imgIndex, img, tint, element, dmg, reload, reloadLeft, shotSpeed, jitter, shotSize, knockback, shotLife, homing, swarm, shotgun, scattershot, sticky, grenade, sword, flamethrower, name, seed);
+		return new Weapon(imgIndex, img, largeImg, tint, element, dmg, reload, reloadLeft, shotSpeed, jitter, shotSize, knockback, shotLife, homing, swarm, shotgun, scattershot, sticky, grenade, sword, flamethrower, name, seed);
 	}
 	
 	public Weapon() {}
 
-	public Weapon(int imgIndex, Img img, Clr tint, Element element, double dmg, int reload, int reloadLeft, double shotSpeed, double jitter, double shotSize, boolean knockback, int shotLife, boolean homing, boolean swarm, boolean shotgun, boolean scattershot, boolean sticky, boolean grenade, boolean sword, boolean flamethrower, String name, long seed) {
+	public Weapon(int imgIndex, Img img, Img largeImg, Clr tint, Element element, double dmg, int reload, int reloadLeft, double shotSpeed, double jitter, double shotSize, boolean knockback, int shotLife, boolean homing, boolean swarm, boolean shotgun, boolean scattershot, boolean sticky, boolean grenade, boolean sword, boolean flamethrower, String name, long seed) {
 		this.imgIndex = imgIndex;
 		this.img = img;
+		this.largeImg = largeImg;
 		this.tint = tint;
 		this.element = element;
 		this.dmg = dmg;

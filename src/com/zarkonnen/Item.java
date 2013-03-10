@@ -193,17 +193,18 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 	public long seed;
 	
 	public Item makeTwin() {
-		return new Item(name, type, power, imgIndex, img, tint, resistance, resistanceVs, hpRegen, fly, hover, shield, vampireMult, givesInfo, resurrect, seed);
+		return new Item(name, type, power, imgIndex, img, largeImg, tint, resistance, resistanceVs, hpRegen, fly, hover, shield, vampireMult, givesInfo, resurrect, seed);
 	}
 
 	public Item() {}
 	
-	public Item(String name, Type type, int power, int imgIndex, Img img, Clr tint, double resistance, Element resistanceVs, double hpRegen, boolean fly, boolean hover, boolean shield, double vampireMult, boolean givesInfo, boolean resurrect, long seed) {
+	public Item(String name, Type type, int power, int imgIndex, Img img, Img largeImg, Clr tint, double resistance, Element resistanceVs, double hpRegen, boolean fly, boolean hover, boolean shield, double vampireMult, boolean givesInfo, boolean resurrect, long seed) {
 		this.name = name;
 		this.type = type;
 		this.power = power;
 		this.imgIndex = imgIndex;
 		this.img = img;
+		this.largeImg = largeImg;
 		this.tint = tint;
 		this.resistance = resistance;
 		this.resistanceVs = resistanceVs;
@@ -370,6 +371,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 		it.hpRegen = hpRegen / 4;
 		it.imgIndex = imgIndex;
 		it.img = img;
+		it.largeImg = largeImg;
 		it.name = name;
 		it.type = type;
 		it.resistance = resistance;
@@ -395,6 +397,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 		it.hpRegen = hpRegen * 4;
 		it.imgIndex = imgIndex;
 		it.img = img;
+		it.largeImg = largeImg;
 		it.name = name;
 		it.type = type;
 		it.resistance = resistance;
