@@ -46,6 +46,7 @@ public class Level implements MusicCallback, Serializable {
 	public boolean releasedSinceShot = false;
 	public ArrayList<Object> shopItems = new ArrayList<Object>();
 	public LinkedList<Integer> bbqVictims = new LinkedList<Integer>();
+	public LinkedList<Goodie> goodiesBeingTaken = new LinkedList<Goodie>();
 	
 	public static final String[] MUSICS = { "DST-1990", "DST-4Tran", "DST-ClubNight", "DST-CreepAlong", "DST-Cv-X", "DST-AngryMod" };
 	public static final int[] BACKGROUND_HS = {406, 452, 512, 512, 256, 308};
@@ -106,16 +107,16 @@ public class Level implements MusicCallback, Serializable {
 		player.x = GRID_SIZE * 2;
 		player.y = (LVL_H - gridH[2] - 1) * GRID_SIZE - player.h - (player.moveMode == MoveMode.FLY || player.moveMode == MoveMode.HOVER ? player.h / 4 : 0) - 1;
 		
-		int numBosses = (power % 20) == 5 ? 4 : 1;
+		int numBosses = (power % 20) == 10 ? 4 : 1;
 		for (int b = 0; b < numBosses; b++) {
 			boss = Creature.make(seed + 92318, power * 3 / 2 + 5, PatentBlaster.NUM_IMAGES, true, false, true);
-			if ((power % 20) == 5) {
+			if ((power % 20) == 10) {
 				boss = player.makeTinyVersion(this);
 				boss.encounterMessage = "MEET TINY YOU";
 				boss.dropWeapon = false;
 				boss.dropItem = false;
 			}
-			if ((power % 20) == 10) {
+			if ((power % 20) == 5) {
 				boss = player.makeTwin(this);
 				boss.invert();
 				boss.encounterMessage = "MEET YOUR EVIL TWIN";
@@ -218,12 +219,14 @@ public class Level implements MusicCallback, Serializable {
 						player.newThingTimer = 0;
 						player.items.add(g.item);
 						player.canSeeStats = player.canSeeStats || g.item.givesInfo;
+						goodiesBeingTaken.add(g);
 					}
 					if (g.weapon != null) {
 						if (!player.weapons.contains(g.weapon)) {
 							player.newThing = g.weapon;
 							player.newThingTimer = 0;
 							player.weapons.add(g.weapon);
+							goodiesBeingTaken.add(g);
 						}
 					}
 					g.killMe = true;
@@ -324,10 +327,12 @@ public class Level implements MusicCallback, Serializable {
 						}
 					}
 				}
-				if (!s.killMe) {
+				if (!s.killMe && s.weapon != null) {
 					for (Barrel b : barrels) {
 						if (intersects(s, b)) {
-							s.killMe = true;
+							if (!s.remains && !s.weapon.sword) {
+								s.killMe = true;
+							}
 							b.doDamage(this, s);
 							if (b.killMe) {
 								barrels.remove(b);
@@ -343,6 +348,11 @@ public class Level implements MusicCallback, Serializable {
 			if (s.killMe) {
 				//it.remove();
 				shots.set(i, null);
+			}
+		}
+		for (Iterator<Goodie> it = goodiesBeingTaken.iterator(); it.hasNext();) {
+			if (++it.next().timeSpentTaken > PatentBlaster.GOODIE_FETCH_TICKS) {
+				it.remove();
 			}
 		}
 		addShots();

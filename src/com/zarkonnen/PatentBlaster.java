@@ -74,6 +74,8 @@ public class PatentBlaster implements Game {
 	public static final Clr DYING = new Clr(255, 100, 100, 32);
 	public static final Clr DEAD = new Clr(255, 100, 100, 127);
 	
+	public static final int GOODIE_FETCH_TICKS = 20;
+	
 	public static final HashMap<String, Img> CREATURE_IMGS;
 	
 	public static final PrintStream ERR_STREAM;
@@ -116,6 +118,7 @@ public class PatentBlaster implements Game {
 	Pt lastCurs = new Pt(0, 0);
 	int hideCurs = 0;
 	int nextLvlTime = 0;
+	Object infoFor = null;
 	String info = "";
 	boolean screened = false;
 	static boolean setup = true;
@@ -443,7 +446,7 @@ public class PatentBlaster implements Game {
 				nextLvlTime = 0;
 				int attempt = 0;
 				Weapon w = null;
-				cooldown += difficultyLevel == DifficultyLevel.EASY ? 100 : 30;
+				cooldown += difficultyLevel == DifficultyLevel.EASY && l.power < 3 && gamesPlayed < 2 ? 100 : 30;
 				do {
 					w = Weapon.make(System.currentTimeMillis() + attempt++ * 1234, l.power + difficultyLevel.shopBonus, true);
 				} while (attempt < 50 && !l.player.isUseful(w));
@@ -675,11 +678,16 @@ public class PatentBlaster implements Game {
 			l.player.targetY = in.cursor().y - scrollY;
 		}
 		l.tick(in);
-		scrollX = in.mode().width / 2 - l.player.x - l.player.w / 2;
-		scrollY = in.mode().height * 2 / 3 - l.player.y - l.player.h / 2;
+		ScreenMode sm = in.mode();
+		scrollX = sm.width / 2 - l.player.x - l.player.w / 2;
+		scrollY = sm.height * 2 / 3 - l.player.y - l.player.h / 2;
+		for (Goodie g : l.goodiesBeingTaken) {
+			goodiePos(g, sm);
+		}
 		info = "";
 		hit(in);
 		if (info.equals("") && l.player.newThingTimer < 6 * FPS && l.player.newThing != null) {
+			infoFor = l.player.newThing;
 			if (l.player.newThing instanceof Item) {
 				info = ((Item) l.player.newThing).desc(Clr.WHITE, true, true, l.player);
 			} else {
@@ -1264,6 +1272,9 @@ public class PatentBlaster implements Game {
 			for (FloatingText ft : l.texts) {
 				ft.draw(d, l, scrollX, scrollY);
 			}
+			for (Goodie g : l.goodiesBeingTaken) {
+				g.draw(d, l, 0, 0);
+			}
 			if (!lowGraphics && l.player.hp <= 0) {
 				d.rect(DEAD, 0, 0, sm.width, sm.height);
 			} else if (!lowGraphics && l.player.hp < l.player.totalMaxHP() / 8) {
@@ -1367,6 +1378,7 @@ public class PatentBlaster implements Game {
 		d.blit(l.player.img, l.player.tint, 15 + i * 40, 15, 30, 30, new Hook(Hook.Type.HOVER) {
 			@Override
 			public void run(Input in, Pt p, Hook.Type type) {
+				infoFor = l.player;
 				info = l.player.desc(Clr.WHITE);
 			}
 		});
@@ -1386,6 +1398,7 @@ public class PatentBlaster implements Game {
 						l.player.weapon = w;
 					}
 					hoverWeapon = w;
+					infoFor = w;
 					info = w.desc(Clr.WHITE) + (l.player.weapons.size() > 1 && !l.shopItems.isEmpty() ? "Hit delete to delete weapon from inventory." : "");
 				}
 			});
@@ -1412,12 +1425,51 @@ public class PatentBlaster implements Game {
 			d.blit(it.img, t, 15 + i * spacing, sm.height - 45, 30, 30, new Hook(Hook.Type.HOVER) {
 				@Override
 				public void run(Input in, Pt p, Hook.Type type) {
+					infoFor = it;
 					info = it.desc(Clr.WHITE, true, true, l.player);
 				}
 			});
 			i++;
 		}
-		d.text(textBGTint + info, fount, 10, 60);
+		double y = (infoFor instanceof Item) ? sm.height - 60 - d.textSize(info, fount).y : 60;
+		d.text(textBGTint + info, fount, 10, y);
+	}
+	
+	void goodiePos(Goodie g, ScreenMode sm) {
+		if (g.timeSpentTaken == 1) {
+			g.srcX = g.x + scrollX;
+			g.srcY = g.y + scrollY;
+		}
+		if (g.weapon != null) {
+			int i = 2;
+			for (final Weapon w : l.player.weapons) {
+				if (w == g.weapon) {
+					g.targX = 15 + i * 40;
+					g.targY = 15;
+					break;
+				}
+				i++;
+			}
+		} else {
+			int i = 0;
+			int spacing = 40;
+			if ((l.player.items.size() + 1) * 40 > sm.width) {
+				spacing = Math.max(1, sm.width / (l.player.items.size()));
+			}
+			ArrayList<Item> sortedItems = new ArrayList<Item>(l.player.items);
+			Collections.sort(sortedItems);
+			for (final Item it : sortedItems) {
+				if (g.item == it) {
+					g.targX = 15 + i * spacing;
+					g.targY = sm.height - 45;
+					break;
+				}
+				i++;
+			}
+		}
+		
+		g.x = g.timeSpentTaken * g.targX / GOODIE_FETCH_TICKS + (GOODIE_FETCH_TICKS - g.timeSpentTaken) * g.srcX / GOODIE_FETCH_TICKS;
+		g.y = g.timeSpentTaken * g.targY / GOODIE_FETCH_TICKS + (GOODIE_FETCH_TICKS - g.timeSpentTaken) * g.srcY / GOODIE_FETCH_TICKS;
 	}
 	
 	static final Clr BUTTON_BORDER = new Clr(100, 100, 100, 63);

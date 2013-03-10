@@ -9,6 +9,8 @@ public class Goodie extends Entity {
 	public Item item;
 	public Weapon weapon;
 	public int age = 0;
+	public int timeSpentTaken = 0;
+	public double srcX, srcY, targX, targY;
 	
 	@Override
 	public void tick(Level l) {

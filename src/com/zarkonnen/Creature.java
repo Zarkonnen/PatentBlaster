@@ -1370,9 +1370,6 @@ public class Creature extends Entity implements HasDesc {
 			c.makePlayerAble();
 		}
 		
-		c.moveMode = MoveMode.HOVER;
-		c.dodges = true;
-		
 		c.heal();
 		return c;
 	}
