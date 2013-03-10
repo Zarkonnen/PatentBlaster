@@ -390,7 +390,7 @@ public class Shot extends Entity {
 			s.dy = Math.sin(dir) * weapon.shotSpeed * 1 * (0.3 + l.r.nextDouble());
 			s.lifeLeft *= 0.3 + l.r.nextDouble() * 0.3;
 			s.gravityMult += 0.4;
-			s.dmgMultiplier = 1.0 / 30;
+			s.dmgMultiplier = 1.0 / 15;
 			l.shotsToAdd.add(s);
 		}
 	}

@@ -11,7 +11,6 @@ import java.util.Random;
 import static com.zarkonnen.PatentBlaster.round;
 import static com.zarkonnen.Const.*;
 import com.zarkonnen.catengine.Img;
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedList;
 
@@ -813,14 +812,15 @@ public class Creature extends Entity implements HasDesc {
 							case SLIDE:
 								jump();
 								break;
-							case FLY:
 							case HOVER:
+								jump();
+							case FLY:
 								//dy = -totalSpeed();
 								if (evading == 0) {
 									evading = 60;
 									evadingLeft = l.r.nextBoolean();
 								}
-								hoverPowerOff = true;
+								//hoverPowerOff = true;
 								break;
 						}
 					} else {
@@ -1369,6 +1369,9 @@ public class Creature extends Entity implements HasDesc {
 		if (player) {
 			c.makePlayerAble();
 		}
+		
+		c.moveMode = MoveMode.HOVER;
+		c.dodges = true;
 		
 		c.heal();
 		return c;

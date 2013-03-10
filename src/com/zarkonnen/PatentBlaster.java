@@ -67,9 +67,9 @@ public class PatentBlaster implements Game {
 	public static final double[] IMG_W =       { 1.00, 0.82, 1.00, 0.83, 0.69, 1.00, 0.75, 1.00, 0.85, 0.71, 1.00, 0.75 };
 	public static final double[] IMG_H =       { 0.79, 1.00, 0.89, 1.00, 1.00, 0.49, 1.00, 0.79, 1.00, 1.00, 0.70, 1.00 };
 	
-	public static final Clr PAPER = new Clr(115, 115, 105);
+	public static final Clr PAPER = new Clr(230, 230, 225);
 	public static final Clr PAINTING_FRAME = new Clr(70, 50, 20);
-	public static final Clr PAINTING_BG = new Clr(255, 255, 230);
+	public static final Clr PAINTING_BG = new Clr(150, 150, 100);
 	public static final Clr RELOADING_CURSOR = new Clr(200, 200, 200);
 	public static final Clr DYING = new Clr(255, 100, 100, 32);
 	public static final Clr DEAD = new Clr(255, 100, 100, 127);
@@ -1316,10 +1316,10 @@ public class PatentBlaster implements Game {
 				Pt sz = d.textSize(key("W") + " or " + key("UP") + " to jump", FOUNT);
 				d.text(textBGTint + key("W") + " or " + key("UP") + " to jump", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.lineHeight / 2 - 50);
 			}
-		} else if (!setup && !mainMenu && l != null && !l.player.hovered && l.player.ticksSinceGainingHover < FPS * 8 && l.player.canHover() && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.BRUTAL.ordinal()) {
+		} else if (!setup && !mainMenu && l != null && l.shopItems.isEmpty() && !l.player.hovered && l.player.ticksSinceGainingHover < FPS * 8 && l.player.canHover() && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.BRUTAL.ordinal()) {
 			Pt sz = d.textSize(key("H") + " to toggle hover mode", FOUNT);
 			d.text(textBGTint + key("H") + " to toggle hover mode", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.lineHeight / 2 - 50);
-		} else if (!setup && !mainMenu && l != null && !l.player.flown && l.player.ticksSinceGainingFlight < FPS * 8 && l.player.canFly() && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.BRUTAL.ordinal()) {
+		} else if (!setup && !mainMenu && l != null && l.shopItems.isEmpty() && !l.player.flown && l.player.ticksSinceGainingFlight < FPS * 8 && l.player.canFly() && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.BRUTAL.ordinal()) {
 			Pt sz = d.textSize(key("F") + " to toggle flight mode", FOUNT);
 			d.text(textBGTint + key("F") + " to toggle flight mode", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.lineHeight / 2 - 50);
 		}
