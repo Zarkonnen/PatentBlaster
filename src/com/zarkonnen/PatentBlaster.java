@@ -1095,7 +1095,7 @@ public class PatentBlaster implements Game {
 							cooldown += 10;
 						}
 					});
-					menu.append("  ");
+					menu.append("\n\n");
 				}
 				if (!hasContinue) { menu.append("[bg=ff5555]"); }
 				menuItem("play", hasContinue ? "PLAY NEW" : "PLAY", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
@@ -1107,7 +1107,7 @@ public class PatentBlaster implements Game {
 					}
 				});
 				menu.append("[bg=]");
-				menu.append("  ");
+				menu.append("\n\n");
 				menuItem("settings", "SETTINGS", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 					@Override
 					public void run(Input in, Pt p, Hook.Type type) {
@@ -1115,7 +1115,7 @@ public class PatentBlaster implements Game {
 						cooldown += 10;
 					}
 				});
-				menu.append("  ");
+				menu.append("\n\n");
 				menuItem("credits", "CREDITS", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 					@Override
 					public void run(Input in, Pt p, Hook.Type type) {
@@ -1123,7 +1123,7 @@ public class PatentBlaster implements Game {
 						cooldown += 10;
 					}
 				});
-				menu.append("  ");
+				menu.append("\n\n");
 				menuItem("quit", "QUIT", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 					@Override
 					public void run(Input in, Pt p, Hook.Type type) {
@@ -1154,6 +1154,8 @@ public class PatentBlaster implements Game {
 					});
 					menu.append(" ");
 				}
+				
+				menu.append("\n\n");
 				
 				d.text(menu.toString(), FOUNT, spacing, y, hoox);
 				Rect menuR = d.textSize(menu.toString(), FOUNT, spacing, y);
@@ -1555,7 +1557,7 @@ public class PatentBlaster implements Game {
 			i++;
 		}
 		if (!info.equals("")) {
-			double y = (infoFor instanceof Item) ? sm.height - 50 - 160 - d.textSize(info, fount).y : 60;
+			double y = (infoFor instanceof Item) ? (sm.height - 50 - 160 - d.textSize(info, fount).y) : 50;
 			d.blit(infoImg, infoFor instanceof Weapon ? ((Weapon) infoFor).tint : ((Item) infoFor).tint, 10, y);
 			d.text(textBGTint + info, fount, 10, y + 160);
 		}
