@@ -48,6 +48,7 @@ public class PatentBlaster implements Game {
 	public static final boolean DEMO = false;
 	public static final int DEMO_LEVELS = 3;
 	
+	public static final int NUM_ITEM_IMAGES = DEMO ? 5 : 14;
 	public static final int NUM_IMAGES = DEMO ? 5 : 17;
 	public static final int NUM_VOICES = DEMO ? 3 : 14;
 	public static final int FPS = 60;
@@ -73,6 +74,8 @@ public class PatentBlaster implements Game {
 	public static final double[] IMG_H =       { 1.00, 0.79, 1.00, 0.89, 1.00, 1.00, 0.49, 1.00, 0.79, 1.00, 1.00, 0.70, 1.00,
 	1.00, 0.64, 0.86, 1.00, 1.00};
 	
+	public static final String[] ITEM_NAMES = { "pan", "orientation", "mycology", "balls", "db", "controller", "no", "soup", "cloud", "camera", "save", "sword", "tv", "manacle"};
+	
 	public static final Clr PAPER = new Clr(230, 230, 225);
 	public static final Clr PAINTING_FRAME = new Clr(70, 50, 20);
 	public static final Clr PAINTING_BG = new Clr(150, 150, 100);
@@ -83,6 +86,8 @@ public class PatentBlaster implements Game {
 	public static final int GOODIE_FETCH_TICKS = 20;
 	
 	public static final HashMap<String, Img> CREATURE_IMGS;
+	public static final HashMap<String, Img> ITEM_IMGS;
+	public static final HashMap<String, Img> LARGE_ITEM_IMGS;
 	
 	public static final PrintStream ERR_STREAM;
 	
@@ -105,6 +110,28 @@ public class PatentBlaster implements Game {
 			System.exit(1);
 		}
 		CREATURE_IMGS = cis;
+		
+		HashMap<String, Img> iis = null;
+		try {
+			InputStream is = PatentBlaster.class.getResourceAsStream("images/items.txt");
+			iis = Img.loadMap(is);
+			is.close();
+		} catch (Exception e) {
+			e.printStackTrace(ERR_STREAM);
+			System.exit(1);
+		}
+		ITEM_IMGS = iis;
+		
+		HashMap<String, Img> liis = null;
+		try {
+			InputStream is = PatentBlaster.class.getResourceAsStream("images/large_items.txt");
+			liis = Img.loadMap(is);
+			is.close();
+		} catch (Exception e) {
+			e.printStackTrace(ERR_STREAM);
+			System.exit(1);
+		}
+		LARGE_ITEM_IMGS = liis;
 	}
 			
 	public static void main(String[] args) {
@@ -126,6 +153,7 @@ public class PatentBlaster implements Game {
 	int nextLvlTime = 0;
 	Object infoFor = null;
 	String info = "";
+	Img infoImg;
 	boolean screened = false;
 	static boolean setup = true;
 	ArrayList<Creature> setupCreatures = new ArrayList<Creature>();
@@ -703,8 +731,10 @@ public class PatentBlaster implements Game {
 			infoFor = l.player.newThing;
 			if (l.player.newThing instanceof Item) {
 				info = ((Item) l.player.newThing).desc(Clr.WHITE, true, true, l.player);
+				infoImg = ((Item) l.player.newThing).largeImg;
 			} else {
 				info = l.player.newThing.desc(Clr.WHITE);
+				infoImg = ((Weapon) l.player.newThing).largeImg;
 			}
 		} else {
 			l.player.newThing = null;
@@ -872,6 +902,7 @@ public class PatentBlaster implements Game {
 				d.hook(0, 0, sm.width, sm.height, new Hook(Hook.Type.MOUSE_1) {
 					@Override
 					public void run(Input in, Pt p, Type type) {
+						if (cooldown > 0) { return; }
 						inputMappingToDo = null;
 					}
 				});
@@ -885,6 +916,7 @@ public class PatentBlaster implements Game {
 				menuItem("key_", " " + key(kb.b.a) + " ", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 					@Override
 					public void run(Input in, Pt p, Type type) {
+						if (cooldown > 0) { return; }
 						inputMappingToDo = kb;
 						secondaryInputMapping = false;
 					}
@@ -899,6 +931,7 @@ public class PatentBlaster implements Game {
 					menuItem("key2_", " " + key(kb.b.b) + " ", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 						@Override
 						public void run(Input in, Pt p, Type type) {
+							if (cooldown > 0) { return; }
 							inputMappingToDo = kb;
 							secondaryInputMapping = true;
 						}
@@ -1263,12 +1296,12 @@ public class PatentBlaster implements Game {
 					if (o instanceof Weapon) {
 						name = ((Weapon) o).name();
 						desc = ((Weapon) o).desc(Clr.BLACK, false, false);
-						img = ((Weapon) o).img;
+						img = ((Weapon) o).largeImg;
 						tint = ((Weapon) o).tint;
 					} else if (o instanceof Item) {
 						name = ((Item) o).name();
 						desc = ((Item) o).desc(Clr.BLACK, false, false, l.player);
-						img = ((Item) o).img;
+						img = ((Item) o).largeImg;
 						tint = ((Item) o).tint;
 					} 
 					Rect tileR = new Rect(xOffset + tileX * tileW, yOffset + tileY * tileH, tileW, tileH);
@@ -1488,6 +1521,7 @@ public class PatentBlaster implements Game {
 					hoverWeapon = w;
 					infoFor = w;
 					info = w.desc(Clr.WHITE) + (l.player.weapons.size() > 1 && !l.shopItems.isEmpty() ? "Hit delete to delete weapon from inventory." : "");
+					infoImg = w.largeImg;
 				}
 			});
 			if (i < 11 && l.player.weapons.size() > 1 && hilite) {
@@ -1515,12 +1549,16 @@ public class PatentBlaster implements Game {
 				public void run(Input in, Pt p, Hook.Type type) {
 					infoFor = it;
 					info = it.desc(Clr.WHITE, true, true, l.player);
+					infoImg = it.largeImg;
 				}
 			});
 			i++;
 		}
-		double y = (infoFor instanceof Item) ? sm.height - 60 - d.textSize(info, fount).y : 60;
-		d.text(textBGTint + info, fount, 10, y);
+		if (!info.equals("")) {
+			double y = (infoFor instanceof Item) ? sm.height - 50 - 160 - d.textSize(info, fount).y : 60;
+			d.blit(infoImg, infoFor instanceof Weapon ? ((Weapon) infoFor).tint : ((Item) infoFor).tint, 10, y);
+			d.text(textBGTint + info, fount, 10, y + 160);
+		}
 	}
 	
 	void goodiePos(Goodie g, ScreenMode sm) {

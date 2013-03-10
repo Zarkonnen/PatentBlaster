@@ -1310,7 +1310,7 @@ public class Creature extends Entity implements HasDesc {
 		}
 		
 		int red = 0, green = 0, blue = 0;
-		while (red + green + blue < 200) {
+		while (red + green + blue * 0.8 < 300) {
 			red = r.nextInt(255);
 			green = r.nextInt(255);
 			blue = r.nextInt(255);

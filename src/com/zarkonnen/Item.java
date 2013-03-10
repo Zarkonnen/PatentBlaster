@@ -173,6 +173,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 	public int power;
 	public int imgIndex;
 	public Img img;
+	public Img largeImg;
 	public Clr tint;
 	public double resistance;
 	public Element resistanceVs;
@@ -241,8 +242,9 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 		Random r = new Random(seed);
 		Item it = new Item();
 		it.seed = seed;
-		it.imgIndex = r.nextInt(PatentBlaster.NUM_IMAGES);
-		it.img = PatentBlaster.CREATURE_IMGS.get(PatentBlaster.IMG_NAMES[it.imgIndex]);
+		it.imgIndex = r.nextInt(PatentBlaster.NUM_ITEM_IMAGES);
+		it.img = PatentBlaster.ITEM_IMGS.get(PatentBlaster.ITEM_NAMES[it.imgIndex]);
+		it.largeImg = PatentBlaster.LARGE_ITEM_IMGS.get(PatentBlaster.ITEM_NAMES[it.imgIndex]);
 		it.name = Names.pick(r);
 		
 		ArrayList<Type> ts = new ArrayList<Type>();

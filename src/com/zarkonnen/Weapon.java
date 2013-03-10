@@ -25,6 +25,7 @@ public class Weapon implements HasDesc, Serializable {
 	
 	public int imgIndex;
 	public Img img;
+	public Img largeImg;
 	public Clr tint;
 	public Element element;
 	public double dmg;
@@ -100,8 +101,9 @@ public class Weapon implements HasDesc, Serializable {
 		if (w.flamethrower) { dmg /= w.reload; dmg *= 3; w.reload = 1; w.shotLife *= 0.4; w.jitter += 0.2; w.shotSize *= 0.75; }
 		w.tint = w.element.tint;
 		w.name = Names.pick(r);
-		w.imgIndex = r.nextInt(PatentBlaster.NUM_IMAGES);
-		w.img = PatentBlaster.CREATURE_IMGS.get(PatentBlaster.IMG_NAMES[w.imgIndex]);
+		w.imgIndex = r.nextInt(PatentBlaster.NUM_ITEM_IMAGES);
+		w.img = PatentBlaster.ITEM_IMGS.get(PatentBlaster.ITEM_NAMES[w.imgIndex]);
+		w.largeImg = PatentBlaster.LARGE_ITEM_IMGS.get(PatentBlaster.ITEM_NAMES[w.imgIndex]);
 		w.dmg = dmg * Math.pow(powerLvl(power), 1.2);
 		w.shotSpeed *= w.element.speedMult;
 		return w;
