@@ -1503,6 +1503,7 @@ public class PatentBlaster implements Game {
 			public void run(Input in, Pt p, Hook.Type type) {
 				infoFor = l.player;
 				info = l.player.desc(Clr.WHITE);
+				infoImg = l.player.img;
 			}
 		});
 		i = 2;
@@ -1558,7 +1559,7 @@ public class PatentBlaster implements Game {
 		}
 		if (!info.equals("")) {
 			double y = (infoFor instanceof Item) ? (sm.height - 50 - 160 - d.textSize(info, fount).y) : 50;
-			d.blit(infoImg, infoFor instanceof Weapon ? ((Weapon) infoFor).tint : ((Item) infoFor).tint, 10, y);
+			d.blit(infoImg, infoFor instanceof Creature ? ((Creature) infoFor).tint : infoFor instanceof Weapon ? ((Weapon) infoFor).tint : ((Item) infoFor).tint, 10, y);
 			d.text(textBGTint + info, fount, 10, y + 160);
 		}
 	}
