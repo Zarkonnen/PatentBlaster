@@ -24,6 +24,7 @@ public class Creature extends Entity implements HasDesc {
 	public static final Clr FROZEN_CUBE_CLR = new Clr(100, 110, 200, 120);
 	
 	public int imgIndex;
+	public Img bImg, flippedBImg;
 	public Img flippedImg;
 	public ArrayList<Weapon> weapons = new ArrayList<Weapon>();
 	public ArrayList<Item> items = new ArrayList<Item>();
@@ -306,7 +307,17 @@ public class Creature extends Entity implements HasDesc {
 		double imgH = h / PatentBlaster.IMG_H[imgIndex];
 		double imgX = x + scrollX - imgW / 2 + w / 2;
 		double imgY = y + scrollY - imgH + h;
-		d.blit(flipped ? flippedImg : img, t, imgX, imgY, imgW, imgH, angle);
+		
+		Img theImg = flipped ? flippedImg : img;
+		if (PatentBlaster.ANIM[imgIndex] && (l.tick % PatentBlaster.ANIM_LENGTH[imgIndex] < PatentBlaster.ANIM_B_LENGTH[imgIndex])) {
+			if (bImg == null) {
+				bImg = PatentBlaster.CREATURE_IMGS.get(PatentBlaster.IMG_NAMES[imgIndex] + "_b");
+				flippedBImg = bImg.flip();
+			}
+			theImg = flipped ? flippedBImg : bImg;
+		}
+		
+		d.blit(theImg, t, imgX, imgY, imgW, imgH, angle);
 		
 		for (Shot s : stuckShots) {
 			s.draw(d, l, scrollX + x, scrollY + y);

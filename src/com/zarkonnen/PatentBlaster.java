@@ -59,6 +59,9 @@ public class PatentBlaster implements Game {
 	public static final Fount SMOUNT = new Fount("Courier12", 10, 15, 7, 15, ALPHABET);
 	public static final String[] IMG_NAMES = {"boxer", "bat", "bear", "elephant", "thing", "mummy", "tongue", "eye", "brain", "robot", "head", "duck", "empty_bear", "screenhead", "crawler", "shrugger", "stick_demon", "smiler"};
 	public static final String[] PRETTY_IMG_NAMES = {"Boxer", "Bat", "Bear", "Elephant", "Brain-Thing", "Mummy", "Tongue", "Eye", "Brain", "Robot", "Head", "Duck", "Empty Bear", "Screenhead", "Crawler", "Shrugger", "Stick Demon", "Smiler"};
+	public static final boolean[] ANIM = { true, true, true, false, true, true, false, false, false, false, false, true, true, true, false, false, false, true };
+	public static final int[] ANIM_LENGTH = { 200, 500, 500, 0, 20, 120, 0, 0, 0, 0, 0, 500, 8, 20, 0, 0, 0, 300 };
+	public static final int[] ANIM_B_LENGTH = { 20, 10, 5, 0, 10, 60, 0, 0, 0, 0, 0, 40, 4, 10, 0, 0, 0, 50 };
 	public static final int[] IMG_NUMS = { 4, 1, 3, 3, 3, 1, 2, 0, 1, 4, 2, 0, 5, 3, 0, 0, 0, 0 };
 	public static final double[] IMG_SHOOT_X = { 0.32, 0.44, 0.45, 0.18, 0.56, 0.49, 0.50, 0.20, 0.37, 0.15, 0.50, 0.33, 0.50,
 	0.50, 0.21, 0.50, 0.50, 0.17};
