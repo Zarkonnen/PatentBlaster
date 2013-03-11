@@ -45,7 +45,7 @@ import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
 
 public class PatentBlaster implements Game {
-	public static final boolean DEMO = false;
+	public static final boolean DEMO = true;
 	public static final int DEMO_LEVELS = 3;
 	
 	public static final int NUM_ITEM_IMAGES = DEMO ? 5 : 14;
@@ -823,9 +823,9 @@ public class PatentBlaster implements Game {
 			for (int i = 0; i < 3; i++) {
 				BuyScreenArgument arg = buyArguments.get(i);
 				int x = sm.width / 2 * (i % 2) + spacing;
-				int y = sm.height / 2 * (i / 2) + spacing;
+				int y = (sm.height / 2 - 30) * (i / 2) + spacing;
 				d.text("[BLACK]" + arg.text, FOUNT, x, y);
-				//d.blit("args/" + arg.name(), x, y + FOUNT.lineHeight + spacing);
+				d.blit(arg.name(), x, y + FOUNT.lineHeight + 5);
 			}
 			
 			StringBuilder menu = new StringBuilder();
@@ -847,17 +847,6 @@ public class PatentBlaster implements Game {
 					}
 				}
 			});
-			/*menu.append("\n\n");
-			menuItem("nope", "MAYBE LATER", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
-				@Override
-				public void run(Input in, Pt p, Type type) {
-					if (exitFromNagScreen) {
-						in.quit();
-					} else {
-						nagScreen = false;
-					}
-				}
-			});*/
 			d.text(menu.toString(), FOUNT, sm.width / 2 + spacing, sm.height / 2 + spacing, hoox);
 		} else if (splash) {
 			d.blit("splash.jpg", 0, 0);
@@ -1142,13 +1131,14 @@ public class PatentBlaster implements Game {
 				});
 				menu.append("\n\n");
 				if (DEMO) {
-					d.rect(Clr.BLACK, spacing + "EASY NORMAL HARD ".length() * FOUNT.displayWidth, y + FOUNT.lineHeight * 2 + 8, "BRUTAL".length() * FOUNT.displayWidth, 2);
+					d.rect(Clr.BLACK, spacing + "EASY MEDIUM HARD ".length() * FOUNT.displayWidth, y + FOUNT.lineHeight * (hasContinue ? 10 : 8) + 8, "BRUTAL".length() * FOUNT.displayWidth, 2);
+					d.rect(Clr.BLACK, spacing + "EASY MEDIUM HARD BRUTAL ".length() * FOUNT.displayWidth, y + FOUNT.lineHeight * (hasContinue ? 10 : 8)  + 8, "IMPOSSIBLE".length() * FOUNT.displayWidth, 2);
 				}
 				for (final DifficultyLevel dl : DifficultyLevel.values()) {
 					menuItem("diff", dl.name(), dl == difficultyLevel, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 						@Override
 						public void run(Input in, Pt p, Hook.Type type) {
-							if (!DEMO || dl != DifficultyLevel.BRUTAL) {
+							if (!DEMO || dl.ordinal() < DifficultyLevel.BRUTAL.ordinal()) {
 								if (difficultyLevel != dl) {
 									setupCreatures.clear();
 								}

@@ -1280,7 +1280,7 @@ public class Creature extends Entity implements HasDesc {
 			c.splitsIntoFour = true;
 			hp *= 0.9;
 		}
-		if (!player && !PatentBlaster.DEMO && power > 4 && sz > 60 && r.nextInt(30 / power + (boss ? 6 : 10)) == 0) {
+		if (!player && !PatentBlaster.DEMO && power > 4 && sz > 60 && r.nextInt(25 / power + (boss ? 4 : 10)) == 0) {
 			c.reproduces = true;
 			hp *= 0.8;
 		}

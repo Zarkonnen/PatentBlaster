@@ -31,7 +31,7 @@ public class Barrel extends Entity {
 				return s;
 			}
 		},
-		EXPLOSIVES(3, "explode", true) {
+		EXPLOSIVES(3, "explode", false) {
 			@Override
 			public Shot makeShot(Level l, Barrel b, double x, double y) {
 				double dir = l.r.nextDouble() * 2 * Math.PI;
@@ -47,7 +47,7 @@ public class Barrel extends Entity {
 				return s;
 			}
 		},
-		LIQUID_NITROGEN(3, "explode", false) {
+		LIQUID_NITROGEN(3, "explode", true) {
 			@Override
 			public Shot makeShot(Level l, Barrel b, double x, double y) {
 				double dir = l.r.nextDouble() * 2 * Math.PI;
