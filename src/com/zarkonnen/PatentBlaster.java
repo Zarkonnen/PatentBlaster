@@ -1265,7 +1265,7 @@ public class PatentBlaster implements Game {
 				Rect cyaR = d.textSize("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, 0, 0);
 				d.text("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, sm.width - cyaR.width, sm.height - cyaR.height);
 				
-				if (cooldown > 20 && difficultyLevel.ordinal() < DifficultyLevel.NORMAL.ordinal() && gamesPlayed < 2) {
+				if (cooldown > 20 && difficultyLevel.ordinal() < DifficultyLevel.MEDIUM.ordinal() && gamesPlayed < 2) {
 					d.rect(new Clr(0, 0, 0, 63), 0, 0, sm.width, sm.height);
 					Pt chooseR = d.textSize("CHOOSE YOUR CREATURE", GOUNT);
 					d.rect(Clr.BLACK, 0, sm.height / 2 - chooseR.y / 2 - 10, sm.width, chooseR.y + 20);
@@ -1350,7 +1350,7 @@ public class PatentBlaster implements Game {
 			Rect cyaR = d.textSize("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, 0, 0);
 			d.text("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, sm.width - cyaR.width, 3);
 			
-			if (cooldown > 20 && difficultyLevel.ordinal() < DifficultyLevel.NORMAL.ordinal() && l.power < 3 && gamesPlayed < 2) {
+			if (cooldown > 20 && difficultyLevel.ordinal() < DifficultyLevel.MEDIUM.ordinal() && l.power < 3 && gamesPlayed < 2) {
 				d.rect(new Clr(0, 0, 0, 63), 0, 0, sm.width, sm.height);
 				Pt chooseR = d.textSize("PICK A NEW ITEM", GOUNT);
 				d.rect(Clr.BLACK, 0, sm.height / 2 - chooseR.y / 2 - 10, sm.width, chooseR.y + 20);

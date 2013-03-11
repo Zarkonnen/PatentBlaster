@@ -80,7 +80,7 @@ public class Level implements MusicCallback, Serializable {
 				grid[y][i] = SOLID_START;
 			}
 			if (i != 0 && i != LVL_W - 1) {
-				if (r.nextInt(8) == 0) {
+				if (r.nextInt(12) == 0) {
 					grid[LVL_H - 2 - h][i] = 1;
 				} else if (hasBarrels && r.nextInt(9) == 0) {
 					barrels.add(new Barrel(bType, seed, power, i * GRID_SIZE + 1 + r.nextInt(7), (LVL_H - gridH[i] - 1) * GRID_SIZE - 61, r));
@@ -89,11 +89,11 @@ public class Level implements MusicCallback, Serializable {
 		}
 		
 		for (int i = 0; i < window.length; i++) {
-			window[i] = r.nextInt(9) == 0;
+			window[i] = r.nextInt(20) == 0;
 		}
 		
 		int cFreq = power > 30 ? 1 : power > 15 ? 2 : 3;
-		int monsterStart = (power < 2 && PatentBlaster.difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal())
+		int monsterStart = (power < 3 && PatentBlaster.difficultyLevel.ordinal() < DifficultyLevel.BRUTAL.ordinal())
 				? 18 : 9;
 		for (int i = monsterStart; i < LVL_W - 10; i++) {
 			if (r.nextInt(cFreq) == 0) {
