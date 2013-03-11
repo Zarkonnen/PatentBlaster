@@ -309,7 +309,7 @@ public class Creature extends Entity implements HasDesc {
 		double imgY = y + scrollY - imgH + h;
 		
 		Img theImg = flipped ? flippedImg : img;
-		if (PatentBlaster.ANIM[imgIndex] && (l.tick % PatentBlaster.ANIM_LENGTH[imgIndex] < PatentBlaster.ANIM_B_LENGTH[imgIndex])) {
+		if (!jar && PatentBlaster.ANIM[imgIndex] && (l.tick % PatentBlaster.ANIM_LENGTH[imgIndex] < PatentBlaster.ANIM_B_LENGTH[imgIndex])) {
 			if (bImg == null) {
 				bImg = PatentBlaster.CREATURE_IMGS.get(PatentBlaster.IMG_NAMES[imgIndex] + "_b");
 				flippedBImg = bImg.flip();

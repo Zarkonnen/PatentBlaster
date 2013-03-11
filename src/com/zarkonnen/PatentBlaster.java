@@ -86,6 +86,8 @@ public class PatentBlaster implements Game {
 	public static final Clr DYING = new Clr(255, 100, 100, 32);
 	public static final Clr DEAD = new Clr(255, 100, 100, 127);
 	
+	public static final int[] WIN_Y_INDEX = { 1, 1, 1, 0, 1, -1 };
+	
 	public static final int GOODIE_FETCH_TICKS = 20;
 	
 	public static final HashMap<String, Img> CREATURE_IMGS;
@@ -1356,11 +1358,29 @@ public class PatentBlaster implements Game {
 			}
 		} else {
 			// Background texture
-			if (!lowGraphics && l.background != -1) {
+			if (l.background != -1) {
+				int winYIndex = 0;
 				for (int y = 0; y < (Level.LVL_H) * Level.GRID_SIZE; y += l.backgroundH) {
+					int winIndex = 0;
 					for (int x = 0; x < (Level.LVL_W) * Level.GRID_SIZE; x += l.backgroundW) {
-						d.blit("background_" + l.background, x + (int) scrollX, y + (int) scrollY);
+						if (winYIndex == WIN_Y_INDEX[l.background] && l.window[winIndex++]) {
+							d.blit("landscape", x + (int) scrollX, y + (int) scrollY);
+							d.blit("background_" + l.background + "_window", x + (int) scrollX, y + (int) scrollY);
+						}
 					}
+					winYIndex++;
+				}
+				winYIndex = 0;
+				for (int y = 0; y < (Level.LVL_H) * Level.GRID_SIZE; y += l.backgroundH) {
+					int winIndex = 0;
+					for (int x = 0; x < (Level.LVL_W) * Level.GRID_SIZE; x += l.backgroundW) {
+						if (winYIndex == WIN_Y_INDEX[l.background] && l.window[winIndex++]) {
+							// Nothing
+						} else {
+							d.blit("background_" + l.background, x + (int) scrollX, y + (int) scrollY);
+						}
+					}
+					winYIndex++;
 				}
 			}
 			
