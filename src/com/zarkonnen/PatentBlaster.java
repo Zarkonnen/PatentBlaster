@@ -196,8 +196,8 @@ public class PatentBlaster implements Game {
 	// Prefs stuff
 	public static DifficultyLevel difficultyLevel = DifficultyLevel.EASY;
 	public static final HashMap<String, String> keyBindings = new HashMap<String, String>();
-	public static int soundVolume = 9;
-	public static int musicVolume = 2;
+	public static int soundVolume = 7;
+	public static int musicVolume = 3;
 	public static int plays = 0;
 	
 	public static final List<Pair<String, Pair<String, String>>> KEY_NAMES = l(
@@ -225,8 +225,8 @@ public class PatentBlaster implements Game {
 		try {
 			Preferences p = Preferences.userNodeForPackage(PatentBlaster.class);
 			difficultyLevel = DifficultyLevel.values()[p.getInt("difficultyLevel", 0)];
-			soundVolume = p.getInt("soundVolume", 9);
-			musicVolume = p.getInt("musicVolume", 2);
+			soundVolume = p.getInt("soundVolume", 7);
+			musicVolume = p.getInt("musicVolume", 3);
 			for (Map.Entry<String, String> kb : keyBindings.entrySet()) {
 				//p.put("KEY_" + kb.getKey(), kb.getValue());
 				kb.setValue(p.get("KEY_" + kb.getKey(), kb.getValue()));
