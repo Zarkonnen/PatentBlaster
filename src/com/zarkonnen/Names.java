@@ -67,7 +67,8 @@ public class Names {
 		"Milk",
 		"Kumquat",
 		"The Reverend",
-		"Lapdance"
+		"Lapdance",
+		"Lutefisk"
 	};
 	
 	static {

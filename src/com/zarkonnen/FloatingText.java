@@ -5,14 +5,14 @@ import com.zarkonnen.catengine.util.Pt;
 
 public class FloatingText extends Entity {
 	public String text;
-	public int life = PatentBlaster.FPS * 3 / 2;
+	public int life = PatentBlaster.FPS * 2;
 
 	public FloatingText(String text, double x, double y) {
 		this.text = text;
 		this.x = x;
 		this.y = y;
-		this.gravityMult = -0.4;
-		this.dy = -0.6;
+		this.gravityMult = -0.3;
+		this.dy = -0.4;
 		this.collides = false;
 	}
 	
