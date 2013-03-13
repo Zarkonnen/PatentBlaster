@@ -49,7 +49,7 @@ public class Level implements MusicCallback, Serializable {
 	public LinkedList<Goodie> goodiesBeingTaken = new LinkedList<Goodie>();
 	public boolean[] window = new boolean[LVL_W * GRID_SIZE / 512 + 2];
 	
-	public static final String[] MUSICS = { "DST-1990", "DST-4Tran", "DST-ClubNight", "DST-CreepAlong", "DST-Cv-X", "DST-AngryMod" };
+	public static final String[] MUSICS = { "DST-1990", "DST-Cv-X", "DST-AngryMod" };
 	public static final int[] BACKGROUND_HS = {406, 452, 512, 512, 256, 308};
 	public static final int NUM_BACKGROUNDS = 6;
 	

@@ -84,10 +84,7 @@ public class Weapon implements HasDesc, Serializable {
 		w.swarm = w.homing && r.nextInt(2) == 0;
 		w.shotSize = MIN_SHOT_SIZE + (AVG_SHOT_SIZE - MIN_SHOT_SIZE) * dmg / BASE_DMG;
 		w.shotgun = !w.homing && !w.swarm && r.nextInt(10) == 0;
-		w.sticky = !PatentBlaster.DEMO && w.element == Element.ACID && r.nextInt(8) == 0;
-		w.scattershot = !PatentBlaster.DEMO && !w.homing && !w.swarm && !w.shotgun && r.nextInt(w.sticky ? 3 : 10) == 0;
 		w.grenade = !w.homing && !w.swarm && !w.shotgun && !w.scattershot && r.nextInt(8) == 0;
-		w.sword = !PatentBlaster.DEMO && allowMelee && !w.homing && !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && r.nextInt(10) == 0;
 		w.flamethrower = allowMelee && !w.homing && !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && !w.sword && w.element == Element.FIRE && r.nextInt(6) == 0;
 		w.knockback = !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && !w.sword && r.nextInt(30) == 0;
 		if (w.homing) { w.reload = w.reload * 3 / 2; dmg *= 0.8; w.shotLife = w.shotLife * 3 / 2; }

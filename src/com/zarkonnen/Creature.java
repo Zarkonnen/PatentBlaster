@@ -1264,33 +1264,9 @@ public class Creature extends Entity implements HasDesc {
 		if (boss || (sz > 60 && r.nextInt(3) == 0)) {
 			c.massive = true;
 		}
-		if (!player && !PatentBlaster.DEMO && r.nextInt(10 / power + 1) == 0) {
-			c.trackingAim = true;
-			hp *= 0.8;
-		}
-		if (!PatentBlaster.DEMO && r.nextInt(8) == 0) {
-			c.eating = Math.min(1.0 / 50, power * 0.001);
-			hp *= 0.9;
-		}
-		if (!player && !PatentBlaster.DEMO && r.nextInt(10 / power + 2) == 0) {
-			c.randomShootDelay = true;
-			hp *= 0.9;
-		}
-		if (!player && !PatentBlaster.DEMO && power > 4 && sz > 60 && r.nextInt(30 / power + (boss ? 6 : 10)) == 0) {
-			c.splitsIntoFour = true;
-			hp *= 0.9;
-		}
-		if (!player && !PatentBlaster.DEMO && power > 4 && sz > 60 && r.nextInt(25 / power + (boss ? 4 : 10)) == 0) {
-			c.reproduces = true;
-			hp *= 0.8;
-		}
 		if (!player && power > 2 && !c.splitsIntoFour && r.nextInt((boss ? 10 : 30) / power + (boss ? 4 : 15)) == 0) {
 			c.resurrects = true;
 			hp *= 0.9;
-		}
-		if (!player && !PatentBlaster.DEMO && allowFinalForm && power > 3 && !c.splitsIntoFour && r.nextInt((boss ? 10 : 30) / power + (boss ? 3 : 12)) == 0) {
-			c.finalForm = make(seed + 1349, power * 5 / 4 + 2, numImages, boss, player, false);
-			hp *= 0.8;
 		}
 		if (!player && power > 2 && c.finalForm == null && !c.splitsIntoFour && !c.resurrects && r.nextInt(30 / power + 12) == 0) {
 			c.reviens = true;
@@ -1307,14 +1283,6 @@ public class Creature extends Entity implements HasDesc {
 		if (!player && !boss && !c.reviens && !c.items.get(0).shield && power > 1 && c.finalForm == null && !c.doesResurrect() && r.nextInt(8) == 0) {
 			c.jar = true;
 			sz *= 2;
-		}
-		if (!player && !PatentBlaster.DEMO && !c.explodes && !c.jar && r.nextInt(20 / power + 10) == 0) {
-			c.thief = true;
-			hp *= 0.8;
-		}
-		if (!player && !PatentBlaster.DEMO && !c.jar && r.nextInt((boss ? 10 : 100) / power + (boss ? 3 : 10)) == 0) {
-			c.absorber = true;
-			c.hp *= 0.85;
 		}
 		if (boss) {
 			c.hp *= 1.5;

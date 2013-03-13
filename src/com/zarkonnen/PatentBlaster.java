@@ -45,7 +45,7 @@ import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
 
 public class PatentBlaster implements Game {
-	public static final boolean DEMO = false;
+	public static final boolean DEMO = true;
 	public static final int DEMO_LEVELS = 3;
 	
 	public static final int NUM_ITEM_IMAGES = DEMO ? 5 : 14;
