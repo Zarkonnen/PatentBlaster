@@ -175,7 +175,28 @@ public class Trigrams {
 		}
 	}
 	
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] argh) {
+		Trigrams ts = new Trigrams();
+		try {
+			BufferedReader r = new BufferedReader(new InputStreamReader(Trigrams.class.getResourceAsStream("trigrams.txt"), "UTF-8"));
+			ts.importFrom(r);
+			r.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			LinkedList<String> ll = new LinkedList<String>();
+			ll.add(""); ll.add("");
+			ts.beginnings.add(ll);
+			ts.trigrams.put(" ", new FrequencyTable<String>());
+			ts.trigrams.get(" ").freqs.put("", 1);
+			ts.trigrams.get(" ").total = 1;
+		}
+		for (int i = 0; i < 100; i++) {
+			System.out.println(ts.generate(200, new Random()));
+			System.out.println();
+		}
+	}
+	
+	public static void main2(String[] args) throws Exception {
 		File f = new File("/Users/zar/Desktop/trigrams");
 		FileOutputStream fos = new FileOutputStream(f);
 		ObjectOutputStream o = new ObjectOutputStream(fos);
@@ -202,7 +223,7 @@ public class Trigrams {
 		}
 	}
 	
-	public static void main2(String[] args) throws Exception {
+	public static void main3(String[] args) throws Exception {
 		Trigrams t = new Trigrams();
 		t.addFromDir(args[0]);
 		//System.out.println(t.generate(100, new Random()) + "...");
