@@ -848,6 +848,8 @@ public class PatentBlaster implements Game {
 				}
 			});
 			d.text(menu.toString(), FOUNT, sm.width / 2 + spacing, sm.height / 2 + spacing, hoox);
+			
+			d.text("[BLACK]- $5\n- No DRM\n- Support Indie Gaming", FOUNT, sm.width / 2 + spacing, sm.height / 2 + spacing + FOUNT.height * 2);
 		} else if (splash) {
 			d.blit("splash.jpg", 0, 0);
 			d.text("[BLACK]" + Preload.preloadStatus(), FOUNT, 220, 620);
