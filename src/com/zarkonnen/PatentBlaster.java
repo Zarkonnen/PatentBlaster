@@ -460,7 +460,7 @@ public class PatentBlaster implements Game {
 			targetingBooped = false;
 		}
 		
-		if (l.lost()) {
+		if (l.lost() && !l.player.doesResurrect()) {
 			nextLvlTime++;
 			if (nextLvlTime >= 140) {
 				l = null;
