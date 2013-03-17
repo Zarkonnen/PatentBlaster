@@ -434,6 +434,74 @@ public class Level implements MusicCallback, Serializable {
 			int right = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor((e.x + e.w) / GRID_SIZE)));
 			int top = Math.min(LVL_H - 1, Math.max(0, (int) Math.floor(e.y / GRID_SIZE)));
 			int bottom = Math.min(LVL_H - 1, Math.max(0, (int) Math.floor((e.y + e.h) / GRID_SIZE)));
+			
+			if (grid[top][left] >= SOLID_START &&
+				grid[bottom][left] >= SOLID_START &&
+				grid[top][right] >= SOLID_START &&
+				grid[bottom][right] >= SOLID_START)
+			{
+				if (e.popOnWorldHit) {
+					e.killMe = true;
+					return;
+				}
+				double cx = e.x + e.w / 2;
+				int gx = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor(cx / GRID_SIZE)));
+				double cy = e.y + e.h / 2;
+				int gy = Math.min(LVL_H - 1, Math.max(0, (int) Math.floor(cy / GRID_SIZE)));
+				boolean found = false;
+				double leastDistSq = 1000000000.0;
+				int bestDx = 0;
+				int bestDy = 0;
+				for (int dy = -1; dy < 2; dy++) { for (int dx = -1; dx < 2; dx++) {
+					int tgx = gx + dx;
+					int tgy = gy + dy;
+					if (tgx < 0 || tgx >= LVL_W || tgy < 0 || tgx >= LVL_H || grid[tgy][tgx] >= SOLID_START) {
+						continue;
+					}
+					int tcx = tgx * GRID_SIZE + GRID_SIZE / 2;
+					int tcy = tgy * GRID_SIZE + GRID_SIZE / 2;
+					double distSq = (cx - tcx) * (cx - tcx) + (cy - tcy) * (cy - tcy);
+					if (distSq < leastDistSq) {
+						found = true;
+						bestDx = dx;
+						bestDy = dy;
+						leastDistSq = distSq;
+					}
+				}}
+				
+				if (found) {
+					if (bestDx == 1) {
+						e.x = (gx + bestDx) * GRID_SIZE;
+					}
+					if (bestDx == -1) {
+						e.x = (gx + bestDx + 1) * GRID_SIZE - e.w - 0.0001;
+					}
+					if (bestDy == 1) {
+						e.y = (gy + bestDy) * GRID_SIZE;
+					}
+					if (bestDy == -1) {
+						e.y = (gy + bestDy + 1) * GRID_SIZE - e.h - 0.0001;
+					}
+				} else {
+					// Sob, put it into a safe place.
+					if (e instanceof Shot) {
+						e.killMe = true;
+						return;
+					} else {
+						e.x = LVL_W * GRID_SIZE / 2;
+						e.y = 3 * GRID_SIZE;
+						e.dx = 0;
+						e.dy = 0;
+						texts.add(new FloatingText("RANDOM TELEPORT!", e.x + e.w / 2, e.y));
+					}
+				}
+				
+				left = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor(e.x / GRID_SIZE)));
+				right = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor((e.x + e.w) / GRID_SIZE)));
+				top = Math.min(LVL_H - 1, Math.max(0, (int) Math.floor(e.y / GRID_SIZE)));
+				bottom = Math.min(LVL_H - 1, Math.max(0, (int) Math.floor((e.y + e.h) / GRID_SIZE)));
+			}
+			
 			if ((grid[top][left] >= SOLID_START || grid[bottom][left] >= SOLID_START)) {
 				e.x = (left + 1) * GRID_SIZE + 0.001;
 				left = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor(e.x / GRID_SIZE)));
