@@ -143,6 +143,11 @@ public class Creature extends Entity implements HasDesc {
 	public double targetX, targetY;
 	int ticksInView = 0;
 	
+	public int xDir = 0;
+	public int ticksSinceDirChange = 1000;
+	
+	public static final int MIN_DIR_CHANGE_WAIT = 20;
+	
 	public Pt targetIntersect(Level l, double fromX, double fromY, double shotSpeed, int shotLife) {
 		Creature sim = new Creature();
 		sim.x = x;
@@ -883,7 +888,7 @@ public class Creature extends Entity implements HasDesc {
 							hp = 0;
 						}
 					}
-					if (dx != 0) { flipped = dx > 0; }
+					//if (dx != 0) { flipped = dx > 0; }
 				}
 				if (thief && Math.abs(x - l.player.x) < w / 2 + l.player.w / 2 && Math.abs(y - l.player.y) < h / 2 + l.player.h / 2 && stolenItem == null && stolenWeapon == null && (!l.player.items.isEmpty() || l.player.weapons.size() > 1))
 				{
@@ -1016,12 +1021,22 @@ public class Creature extends Entity implements HasDesc {
 		if (hp > totalMaxHP()) { hp = totalMaxHP(); }
 		heat *= 0.986;
 		
+		ticksSinceDirChange++;
 		if (slipperiness > 0 && !playerControlled && Math.abs(originalDx) > 0.5) {
 			dx = originalDx;
+		} else if (realMoveMode() == MoveMode.FLY && !playerControlled) {
+			dx = 0.96 * originalDx + 0.04 * dx;
+			dy = 0.96 * originalDy + 0.04 * dy;
+			flipped = dx > 0;
 		} else {
-			if (realMoveMode() == MoveMode.FLY && !playerControlled) {
-				dx = 0.96 * originalDx + 0.04 * dx;
-				dy = 0.96 * originalDy + 0.04 * dy;
+			int currentXDir = dx < 0 ? -1 : dx > 0 ? 1 : 0;
+			if (currentXDir != xDir && !playerControlled && ticksSinceDirChange < MIN_DIR_CHANGE_WAIT) {
+				dx = originalDx;
+			}
+			if (ticksSinceDirChange >= MIN_DIR_CHANGE_WAIT && currentXDir != 0) {
+				xDir = currentXDir;
+				flipped = xDir >= 0;
+				ticksSinceDirChange = 0;
 			}
 		}
 		

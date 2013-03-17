@@ -619,12 +619,12 @@ public class PatentBlaster implements Game {
 				}
 				if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (l.player.slipperiness == 0 || Math.abs(l.player.dx) < 0.5) && (in.keyDown(key("LEFT")) || in.keyDown(key("A")))) {
 					l.player.dx = -(l.player.ticksSinceSide < Creature.AIR_STEERING ? Math.min(2.5, l.player.totalSpeed()) : l.player.totalSpeed());
-					l.player.flipped = false;
+					//l.player.flipped = false;
 					l.movedLeft = true;
 				}
 				if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (l.player.slipperiness == 0 || Math.abs(l.player.dx) < 0.5) && (in.keyDown(key("RIGHT")) || in.keyDown(key("D")))) {
 					l.player.dx = l.player.ticksSinceSide < Creature.AIR_STEERING ? Math.min(2.5, l.player.totalSpeed()) : l.player.totalSpeed();
-					l.player.flipped = true;
+					//l.player.flipped = true;
 					l.movedRight = true;
 				}
 				
