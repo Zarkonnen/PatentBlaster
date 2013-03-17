@@ -85,6 +85,7 @@ public class Weapon implements HasDesc, Serializable {
 		w.shotSize = MIN_SHOT_SIZE + (AVG_SHOT_SIZE - MIN_SHOT_SIZE) * dmg / BASE_DMG;
 		w.shotgun = !w.homing && !w.swarm && r.nextInt(10) == 0;
 		w.sticky = !PatentBlaster.DEMO && w.element == Element.ACID && r.nextInt(8) == 0;
+		w.sticky = true; // qqDPS
 		w.scattershot = !PatentBlaster.DEMO && !w.homing && !w.swarm && !w.shotgun && r.nextInt(w.sticky ? 3 : 10) == 0;
 		w.grenade = !w.homing && !w.swarm && !w.shotgun && !w.scattershot && r.nextInt(8) == 0;
 		w.sword = !PatentBlaster.DEMO && allowMelee && !w.homing && !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && r.nextInt(10) == 0;

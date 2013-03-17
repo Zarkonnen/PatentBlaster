@@ -320,7 +320,8 @@ public class Creature extends Entity implements HasDesc {
 		d.blit(theImg, t, imgX, imgY, imgW, imgH, angle);
 		
 		for (Shot s : stuckShots) {
-			s.draw(d, l, scrollX + x, scrollY + y);
+			double delta = flipped ? w - s.x * 2 - s.w : 0;
+			s.draw(d, l, scrollX + x + delta, scrollY + y);
 		}
 		
 		if (!PatentBlaster.lowGraphics) {
@@ -481,10 +482,10 @@ public class Creature extends Entity implements HasDesc {
 		if (splitsIntoFour) {
 			for (int i = 0; i < 4; i++) {
 				Creature tiny = makeTinyVersion(l);
-				tiny.x = x + w * (i % 2);
-				tiny.y = y + h * (i / 2) * 0.9;
-				tiny.dx = dx;
-				tiny.dy = dy;
+				tiny.x = x + w * (i % 2) * 0.5 + w * 0.25;
+				tiny.y = y + h * (i / 2) * 0.5 + h * 0.25;
+				tiny.dx = dx + l.r.nextDouble() * 4 - 2;
+				tiny.dy = dy - l.r.nextDouble() * 4;
 				tiny.heal();
 				l.monstersToAdd.add(tiny);
 				for (Shot s : l.shots) {
@@ -1292,7 +1293,7 @@ public class Creature extends Entity implements HasDesc {
 			c.finalForm = make(seed + 1349, power * 5 / 4 + 2, numImages, boss, player, false);
 			hp *= 0.8;
 		}
-		if (!player && power > 2 && c.finalForm == null && !c.splitsIntoFour && !c.resurrects && r.nextInt(30 / power + 12) == 0) {
+		if (!player && power > 2 && c.finalForm == null && !c.splitsIntoFour && !c.resurrects && !it.resurrect && r.nextInt(30 / power + 12) == 0) {
 			c.reviens = true;
 			hp *= 0.9;
 		}

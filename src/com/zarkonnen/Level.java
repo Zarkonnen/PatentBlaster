@@ -312,6 +312,9 @@ public class Level implements MusicCallback, Serializable {
 							if (s.stickiness > 0) {
 								s.killMe = true;
 								s.x -= player.x;
+								if (player.flipped) {
+									s.x = player.w - s.x;
+								}
 								s.y -= player.y;
 								s.lifeLeft = PatentBlaster.FPS * 4;
 								player.stuckShots.add(s);
@@ -325,6 +328,9 @@ public class Level implements MusicCallback, Serializable {
 								if (s.stickiness > 0) {
 									s.killMe = true;
 									s.x -= c.x;
+									if (c.flipped) {
+										s.x = c.w - s.x;
+									}
 									s.y -= c.y;
 									s.lifeLeft = PatentBlaster.FPS * 4;
 									c.stuckShots.add(s);

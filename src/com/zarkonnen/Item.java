@@ -309,7 +309,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 			}
 		}
 		if (givesInfo) {
-			sb.append(is).append("Gives detailed enemy info\n");
+			sb.append("  ").append("Shows enemy hit points\n");
 		}
 		if (shield) {
 			sb.append(is).append("Energy shield\n");
