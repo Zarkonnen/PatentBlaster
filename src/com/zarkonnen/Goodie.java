@@ -23,7 +23,7 @@ public class Goodie extends Entity {
 		w = GOODIE_SIZE;
 		h = GOODIE_SIZE;
 		dy = -4;
-		dx = from.dy / 10;
+		dx = 0;
 		gravityMult = 1;
 	}
 

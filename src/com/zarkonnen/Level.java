@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
+//import static com.zarkonnen.catengine.util.SpikeProfiler.*;
 
 public class Level implements MusicCallback, Serializable {
 	public static final int GRID_SIZE = 60;
@@ -163,19 +164,26 @@ public class Level implements MusicCallback, Serializable {
 	}
 	
 	public void tick(Input in) {
+		//start("BBQ");
 		for (Iterator<Integer> it = bbqVictims.iterator(); it.hasNext();) {
 			if (it.next() + PatentBlaster.FPS < tick) {
 				it.remove();
 			}
 		}
+		//end("BBQ");
 		if (tick > 1 && !musicPlaying) {
+			//start("Music Starting");
 			musicPlaying = true;
 			if (PatentBlaster.musicVolume > 0) {
 				in.playMusic(music, PatentBlaster.musicVolume * 1.0 / 9, null, this);
 			}
+			//end("Music Starting");
 		}
 		try {
+			//start("Player Tick");
 			player.tick(this);
+			//end("Player Tick");
+			//start("Player Physics");
 			if (player.hp > 0) {
 				if (tick % PatentBlaster.FPS / 6 == 0 && player.totalEating() > 0) {
 					for (Shot s : shots) { if (s == null) { continue; }
@@ -184,6 +192,7 @@ public class Level implements MusicCallback, Serializable {
 				}
 				physics(player);
 			}
+			//end("Player Physics");
 		} catch (Exception e) {
 			e.printStackTrace(PatentBlaster.ERR_STREAM);
 			player.killMe = true;
@@ -192,6 +201,7 @@ public class Level implements MusicCallback, Serializable {
 			soundRequests.add(new SoundRequest("killed_by_physics", player.x + player.w / 2, player.y + player.h / 2, 1.0));
 		}
 		int cIndex = 0;
+		//start("Monsters");
 		for (Iterator<Creature> it = monsters.iterator(); it.hasNext();) {
 			Creature c = it.next();
 			try {
@@ -200,8 +210,12 @@ public class Level implements MusicCallback, Serializable {
 						eatTest(c, s);
 					}
 				}
+				//start("Tick");
 				c.tick(this);
+				//end("Tick");
+				//start("Physics");
 				physics(c);
+				//end("Physics");
 			} catch (Exception e) {
 				e.printStackTrace(PatentBlaster.ERR_STREAM);
 				c.killMe = true;
@@ -215,12 +229,19 @@ public class Level implements MusicCallback, Serializable {
 		}
 		monsters.addAll(monstersToAdd);
 		monstersToAdd.clear();
+		//end("Monsters");
+		//start("Goodies");
 		for (Iterator<Goodie> it = goodies.iterator(); it.hasNext();) {
 			Goodie g = it.next();
 			try {
+				//start("Tick");
 				g.tick(this);
+				//end("Tick");
+				//start("Physics");
 				physics(g);
+				//end("Physics");
 				if (intersects(g, player)) {
+					//start("Pickup");
 					if (g.item != null) {
 						player.newThing = g.item;
 						player.newThingTimer = 0;
@@ -238,6 +259,7 @@ public class Level implements MusicCallback, Serializable {
 					}
 					g.killMe = true;
 					soundRequests.add(new SoundRequest("pickup", player.x + player.w / 2, player.y + player.h / 2, 1.0));
+					//end("Pickup");
 				}
 			} catch (Exception e) {
 				e.printStackTrace(PatentBlaster.ERR_STREAM);
@@ -246,12 +268,18 @@ public class Level implements MusicCallback, Serializable {
 			if (g.killMe) { it.remove(); }
 		}
 		addShots();
+		//end("Goodies");
+		//start("Shots");
 		for (int i = 0; i < shots.size(); i++) {
 			Shot s = shots.get(i);
-			if (s == null) { continue; }
+			if (s == null) { /*start("Skip"); //end("Skip"); */ continue; }
+			//start("Shot " + i);
 			try {
+				//start("Tick");
 				s.tick(this);
+				//end("Tick");
 				boolean kill = s.killMe;
+				//start("Physics");
 				physics(s);
 				if (s.killMe && !kill && s.weapon != null && s.weapon.grenade && s.dmgMultiplier == 1) {
 					s.explode(this);
@@ -261,6 +289,8 @@ public class Level implements MusicCallback, Serializable {
 					s.hoverer.y -= 2.5;
 					s.hoverer.ticksSinceBottom = 0;
 				}
+				//end("Physics");
+				//start("Flammables");
 				if ((s.age < 2 || s.killMe) && s.weapon != null && s.weapon.element == Element.FIRE) {
 					for (Iterator<Shot> fit = flammables.iterator(); fit.hasNext();) {
 						Shot flam = fit.next();
@@ -285,6 +315,8 @@ public class Level implements MusicCallback, Serializable {
 						}
 					}
 				}
+				//end("Flammables");
+				//start("Hitting");
 				if (s.shooter != null) {
 					if (s.shooter == player || s.freeAgent) {
 						for (Creature c : monsters) {
@@ -295,6 +327,8 @@ public class Level implements MusicCallback, Serializable {
 						hitTest(player, s);
 					}
 				}
+				//end("Hitting");
+				//start("Slippery");
 				if (s.slipperiness > 0) {
 					if (intersects(player, s)) {
 						player.slipperiness = s.slipperiness;
@@ -305,6 +339,8 @@ public class Level implements MusicCallback, Serializable {
 						}
 					}
 				}
+				//end("Slippery");
+				//start("Sticky");
 				if (s.stickiness > 0) {
 					boolean playerStuck = false;
 					if (s.shooter != player) {
@@ -340,6 +376,8 @@ public class Level implements MusicCallback, Serializable {
 						}
 					}
 				}
+				//end("Sticky");
+				//start("Barrels");
 				if (!s.killMe && s.weapon != null) {
 					for (Barrel b : barrels) {
 						if (intersects(s, b)) {
@@ -354,6 +392,7 @@ public class Level implements MusicCallback, Serializable {
 						}
 					}
 				}
+				//end("Barrels");
 			} catch (Exception e) {
 				e.printStackTrace(PatentBlaster.ERR_STREAM);
 				s.killMe = true;
@@ -362,6 +401,7 @@ public class Level implements MusicCallback, Serializable {
 				//it.remove();
 				shots.set(i, null);
 			}
+			//end("Shot " + i);
 		}
 		for (Iterator<Goodie> it = goodiesBeingTaken.iterator(); it.hasNext();) {
 			if (++it.next().timeSpentTaken > PatentBlaster.GOODIE_FETCH_TICKS) {
@@ -369,6 +409,8 @@ public class Level implements MusicCallback, Serializable {
 			}
 		}
 		addShots();
+		//end("Shots");
+		//start("Floating Text");
 		for (Iterator<FloatingText> it = texts.iterator(); it.hasNext();) {
 			FloatingText ft = it.next();
 			try {
@@ -380,23 +422,31 @@ public class Level implements MusicCallback, Serializable {
 			}
 			if (ft.killMe) { it.remove(); }
 		}
+		//end("Floating Text");
+		//start("Sound Requests");
 		ScreenMode sMode = in.mode();
 		if (PatentBlaster.soundVolume > 0) {
+			//start("Sorting Sound Requests");
 			Collections.sort(soundRequests);
+			//end("Sorting Sound Requests");
 			int played = 0;
 			for (SoundRequest sr : soundRequests) {
 				double sx = (sr.x - player.x - player.w / 2) / sMode.width * 2;
 				double sy = (sr.y - player.y - player.h / 2) / sMode.height * 2;
 				//System.out.println(sx + "/" + sy);
+				//start(sr.sound);
 				in.play(sr.sound, 1.0, sr.volume * PatentBlaster.soundVolume * 1.0 / 9, sx, sy);
+				//end(sr.sound);
 				if (++played >= MAX_SOUND_REQUESTS) { break; }
 			}
 		}
 		soundRequests.clear();
+		//end("Sound Requests");
 		tick++;
 	}
 	
 	void addShots() {
+		//start("Add Shots");
 		int i = 0;
 		for (Shot s : shotsToAdd) {
 			if (s.flammable) {
@@ -412,6 +462,7 @@ public class Level implements MusicCallback, Serializable {
 			}
 		}
 		shotsToAdd.clear();
+		//end("Add Shots");
 	}
 	
 	public void physics(Entity e) {

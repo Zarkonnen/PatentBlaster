@@ -17,11 +17,13 @@ import com.zarkonnen.catengine.util.Clr;
 import com.zarkonnen.catengine.util.Pt;
 import com.zarkonnen.catengine.util.Rect;
 import com.zarkonnen.catengine.util.ScreenMode;
+import com.zarkonnen.catengine.util.SpikeProfiler;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import static com.zarkonnen.catengine.util.Utils.*;
+//import static com.zarkonnen.catengine.util.SpikeProfiler.*;
 import com.zarkonnen.trigram.Trigrams;
 import java.awt.Desktop;
 import java.io.File;
@@ -31,6 +33,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -194,7 +197,7 @@ public class PatentBlaster implements Game {
 	int nothingInViewTicks = 0;
 	boolean thingsToRight = false;
 	boolean hasHadBarrelWarning = false;
-	
+		
 	// Prefs stuff
 	public static DifficultyLevel difficultyLevel = DifficultyLevel.EASY;
 	public static final HashMap<String, String> keyBindings = new HashMap<String, String>();
@@ -215,8 +218,8 @@ public class PatentBlaster implements Game {
 		p("Pause         ", p("P",     (String) null)),
 		p("Show FPS      ", p("I",     (String) null))
 	);
-	
-	static {
+		
+	static {		
 		for (Pair<String, Pair<String, String>> n : KEY_NAMES) {
 			keyBindings.put(n.b.a, n.b.a);
 			if (n.b.b != null) {
@@ -283,10 +286,23 @@ public class PatentBlaster implements Game {
 		//}
 	}
 	
+	boolean threaded = false;
+	
 	@Override
 	public void input(Input in) {
+		if (!threaded) {
+			Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+		}
+		//SpikeProfiler.active = false; // qqDPS
+		//SpikeProfiler.outputDir = new File("spikeLogs");
+		doInput(in);
+		//frameDone(12);
+	}
+	
+	public void doInput(Input in) {
 		Preload.preload(in);
 		tick++;
+		//start("Input Processing");
 		if (in.keyDown("ESCAPE") || in.keyDown("ESC") || in.keyDown("⎋")) {
 			if (settings && cooldown == 0) {
 				settings = false;
@@ -638,7 +654,7 @@ public class PatentBlaster implements Game {
 						l.shots.set(index, null);
 					}
 				} else if (l.player.weapon.clickEmptyTimer == 0 && l.player.weapon.reloadLeft < l.player.weapon.reload - 10 && l.player.weapon.reloadLeft > 30) {
-					in.play("empty", 1.0, 1.0, 0, 0);
+					l.soundRequests.add(new SoundRequest("empty", 0, 0, 1.0));
 					l.player.weapon.clickEmptyTimer = Math.min(FPS, l.player.weapon.reload);
 				}
 			} else if (in.keyDown(key("SPACE"))) {
@@ -680,7 +696,7 @@ public class PatentBlaster implements Game {
 							l.shotsFired++;
 						} else if (nearest != null) {
 							if (!targetingBooped) {
-								in.play("boop", 1.0, 0.5, 0, 0);
+								l.soundRequests.add(new SoundRequest("empty", 0, 0, 0.5));
 								if (!l.player.noTargetInRangeWarning) {
 									l.texts.add(new FloatingText("NO TARGET IN RANGE", l.player.x + l.player.w / 2, l.player.y));
 									l.player.noTargetInRangeWarning = true;
@@ -690,7 +706,7 @@ public class PatentBlaster implements Game {
 						}
 					}
 				} else if (l.player.weapon.clickEmptyTimer == 0 && l.player.weapon.reloadLeft < l.player.weapon.reload - 10 && l.player.weapon.reloadLeft > 30) {
-					in.play("empty", 1.0, 1.0, 0, 0);
+					l.soundRequests.add(new SoundRequest("empty", 0, 0, 1.0));
 					l.player.weapon.clickEmptyTimer = Math.min(FPS, l.player.weapon.reload);
 				}
 			}
@@ -719,7 +735,11 @@ public class PatentBlaster implements Game {
 			l.player.targetX = in.cursor().x - scrollX;
 			l.player.targetY = in.cursor().y - scrollY;
 		}
+		//end("Input Processing");
+		//start("Level Tick");
 		l.tick(in);
+		//end("Level Tick");
+		//start("Screen Mode and Info");
 		ScreenMode sm = in.mode();
 		scrollX = sm.width / 2 - l.player.x - l.player.w / 2;
 		scrollY = sm.height * 2 / 3 - l.player.y - l.player.h / 2;
@@ -740,6 +760,7 @@ public class PatentBlaster implements Game {
 		} else {
 			l.player.newThing = null;
 		}
+		//end("Screen Mode and Info");
 	}
 	
 	boolean doRender = false;
@@ -770,13 +791,22 @@ public class PatentBlaster implements Game {
 	
 	@Override
 	public void render(Frame f) {
-		//if (lowGraphics && (doRender = !doRender)) { return; } // Go down to 30 FPS for low gfx.
+		//SpikeProfiler.active = false;
+		//start("Render");
+		doRender(f);
+		//end("Render");
+		//frameDone(12);
+		//SpikeProfiler.active = false;
+	}
+	
+	public void doRender(Frame f) {
+		//start("Init");
 		Draw d = new Draw(f);
 		ScreenMode sm = f.mode();
 		d.rect(Clr.DARK_GREY, 0, 0, sm.width, sm.height);
 		String textBGTint = !lowGraphics ? "[bg=00000099]" : "[bg=222222]";
-		
 		if (chosenMode == null) {
+			//start("Screen Mode Chooser");
 			d.text("Choose a screen mode.", FOUNT, 100, 100);
 			int y = 100;
 			for (final ScreenMode m : availableModes) {
@@ -801,6 +831,7 @@ public class PatentBlaster implements Game {
 		}
 		
 		if (buyScreen) {
+			//start("Buy Screen");
 			if (buyArguments.isEmpty()) {
 				buyArguments.addAll(Arrays.asList(BuyScreenArgument.values()));
 				Collections.shuffle(buyArguments);
@@ -845,9 +876,11 @@ public class PatentBlaster implements Game {
 			});
 			d.text(menu.toString(), FOUNT, sm.width / 2 + spacing, sm.height / 2 + spacing, hoox);
 		} else if (splash) {
+			//start("Splash");
 			d.blit("splash.jpg", 0, 0);
 			d.text("[BLACK]" + Preload.preloadStatus(), FOUNT, 220, 620);
 		} else if (settings) {
+			//start("Settings");
 			if (lowGraphics) {
 				d.rect(PAPER, 0, 0, sm.width, sm.height);
 			} else {
@@ -1005,6 +1038,7 @@ public class PatentBlaster implements Game {
 				}
 			});
 		} else if (mainMenu) {
+			//start("Main Menu");
 			if (lowGraphics) {
 				d.rect(PAPER, 0, 0, sm.width, sm.height);
 			} else {
@@ -1143,7 +1177,7 @@ public class PatentBlaster implements Game {
 							} else {
 								if (cooldown == 0) {
 									cooldown += 10;
-									in.play("boop", 1.0, 1.0, 0, 0);
+									l.soundRequests.add(new SoundRequest("boop", 0, 0, 1.0));
 								}
 							}
 						}
@@ -1175,6 +1209,7 @@ public class PatentBlaster implements Game {
 				}
 			}
 		} else if (setup) {
+			//start("Setup");
 			int spacing = 24;
 
 			if (lowGraphics) {
@@ -1259,6 +1294,7 @@ public class PatentBlaster implements Game {
 				}
 			}
 		} else if (!l.shopItems.isEmpty()) {
+			//start("Shop");
 			int spacing = 24;
 			if (lowGraphics) {
 				d.rect(PAPER, 0, 0, sm.width, sm.height);
@@ -1343,7 +1379,9 @@ public class PatentBlaster implements Game {
 				d.text("PICK A NEW ITEM", GOUNT, sm.width / 2 - chooseR.x / 2, sm.height / 2 - chooseR.y / 2 + 10);
 			}
 		} else {
+			//start("Game");
 			// Background texture
+			//start("BG");
 			if (l.background != -1) {
 				int winYIndex = 0;
 				for (int y = 0; y < (Level.LVL_H) * Level.GRID_SIZE; y += l.backgroundH) {
@@ -1369,7 +1407,7 @@ public class PatentBlaster implements Game {
 					winYIndex++;
 				}
 			}
-			
+			//endStart("Grid");
 			for (int y = 0; y < l.grid.length; y++) {
 				for (int x = 0; x < l.grid[0].length; x++) {
 					if (l.grid[y][x] == 2) {
@@ -1382,36 +1420,45 @@ public class PatentBlaster implements Game {
 					}
 				}
 			}
-			
+			//endStart("Brackets");
 			// Bracket this in
 			// bottom
 			d.rect(Clr.DARK_GREY, scrollX - 600, scrollY + Level.LVL_H * Level.GRID_SIZE, Level.LVL_W * Level.GRID_SIZE + 1200, 600);
 			// right
 			d.rect(Clr.DARK_GREY, scrollX + Level.LVL_W * Level.GRID_SIZE, scrollY - 600, 600, Level.LVL_H * Level.GRID_SIZE + 1200);
-			
+			//endStart("Barrels");
 			for (Barrel b : l.barrels) {
 				b.draw(d, l, scrollX, scrollY);
 			}
+			//endStart("Monsters");
 			for (Creature c : l.monsters) {
 				c.draw(d, l, scrollX, scrollY);
 			}
+			//endStart("Player");
 			l.player.draw(d, l, scrollX, scrollY);
+			//endStart("Goodies");
 			for (Goodie g : l.goodies) {
 				g.draw(d, l, scrollX, scrollY);
 			}
+			//endStart("Shots");
 			for (Shot s : l.shots) { if (s == null) { continue; }
 				s.draw(d, l, scrollX, scrollY);
 			}
+			//endStart("Monster Bars");
 			for (Creature c : l.monsters) {
 				c.drawBars(d, l, scrollX, scrollY);
 			}
+			//endStart("Player Bars");
 			l.player.drawBars(d, l, scrollX, scrollY);
+			//endStart("Floating Text");
 			for (FloatingText ft : l.texts) {
 				ft.draw(d, l, scrollX, scrollY);
 			}
+			//endStart("Goodies");
 			for (Goodie g : l.goodiesBeingTaken) {
 				g.draw(d, l, 0, 0);
 			}
+			//endStart("Blood");
 			if (!lowGraphics && l.player.hp <= 0) {
 				d.rect(DEAD, 0, 0, sm.width, sm.height);
 			} else if (!lowGraphics && l.player.hp < l.player.totalMaxHP() / 8) {
@@ -1421,6 +1468,7 @@ public class PatentBlaster implements Game {
 				d.text(l.player.desc(), new Fount("LiberationMono18", 12, 12, 24), 20, 20);
 			}*/
 			
+			//endStart("X me!");
 			if (l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
 				for (Goodie g : l.goodies) {
 					if (g.age > FPS * 2) {
@@ -1439,20 +1487,28 @@ public class PatentBlaster implements Game {
 				}
 			}
 			
+			//end("X me!");
 			showEquipment(d, sm, FOUNT, textBGTint, true);
+			//start("Level #");
 			Pt ts = d.textSize("Level " + l.power, FOUNT);
 			d.text("Level " + l.power, FOUNT, sm.width - ts.x - 10, 10);
 			
+			//endStart("Arrow");
 			if (l.player.hp > 0 && nothingInViewTicks > FPS * 2 + (difficultyLevel.ordinal() * difficultyLevel.ordinal()) && (!l.monsters.isEmpty() || !l.goodies.isEmpty())) {
 				d.blit("rightarrow", sm.width / 2 - 200, sm.height / 4, 0, 0, !thingsToRight);
 			}
+			//end("Arrow");
 		}
 		
+		//endStart("FPS");
 		if (showFPS) {
 			d.text(f.fps() + " FPS", FOUNT, sm.width - 100, 40);
 		}
 		
+		//d.text(timeSinceGC++ + " since GC", FOUNT, sm.width - 200, 70);
+		
 		if (!splash && !setup && !mainMenu && l != null && l.power == 1 && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
+			//endStart("Move Hints");
 			if (!l.movedRight && !l.movedLeft) {
 				d.text(textBGTint + key("D") + " or " + key("RIGHT") + " to move right", FOUNT, sm.width / 2 + 50, sm.height * 2 / 3 - FOUNT.lineHeight / 2);
 			}
@@ -1465,13 +1521,16 @@ public class PatentBlaster implements Game {
 				d.text(textBGTint + key("W") + " or " + key("UP") + " to jump", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.lineHeight / 2 - 50);
 			}
 		} else if (!setup && !mainMenu && l != null && l.shopItems.isEmpty() && !l.player.hovered && l.player.ticksSinceGainingHover < FPS * 8 && l.player.canHover() && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.BRUTAL.ordinal()) {
+			//endStart("Hover Hint");
 			Pt sz = d.textSize(key("H") + " to toggle hover mode", FOUNT);
 			d.text(textBGTint + key("H") + " to toggle hover mode", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.lineHeight / 2 - 50);
 		} else if (!setup && !mainMenu && l != null && l.shopItems.isEmpty() && !l.player.flown && l.player.ticksSinceGainingFlight < FPS * 8 && l.player.canFly() && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.BRUTAL.ordinal()) {
+			//endStart("Fly Hint");
 			Pt sz = d.textSize(key("F") + " to toggle flight mode", FOUNT);
 			d.text(textBGTint + key("F") + " to toggle flight mode", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.lineHeight / 2 - 50);
 		}
 		if (hideCurs < 3 || mainMenu || setup || splash || !l.shopItems.isEmpty()) {
+			//endStart("Cursor");
 			Clr recC = Clr.RED;
 			boolean tooFar = false;
 			if (!splash && !setup && !mainMenu && l != null && l.shopItems.isEmpty() && l.player.hp > 0) {
@@ -1497,6 +1556,7 @@ public class PatentBlaster implements Game {
 				d.rect(recC, curs.x - 10, curs.y - 1, 20, 2);
 			}
 			if (!splash && !setup && !mainMenu && l != null && l.power == 1 && l.movedRight && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
+				//start("Shoot Hints");
 				if (l.shotsFired == 0) {
 					Pt sz = d.textSize("Mouse to aim, click to shoot\nOr press " + key("SPACE") + " to auto-aim", FOUNT);
 					d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "Mouse to aim, click to shoot\nOr press " + key("SPACE") + " to auto-aim", FOUNT, Math.min(sm.width - sz.x, curs.x + 3), curs.y + 3);
@@ -1505,12 +1565,14 @@ public class PatentBlaster implements Game {
 					Pt sz = d.textSize("White reticle = weapon ready", FOUNT);
 					d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "White reticle = weapon ready", FOUNT, Math.min(sm.width - sz.x, curs.x + 3), curs.y + 3);
 				}
+				//end("Shoot Hints");
 			}
 		}
 		h = d.getHooks();
 	}
 	
 	private void showEquipment(Draw d, ScreenMode sm, Fount fount, String textBGTint, boolean hilite) {
+		//start("Player");
 		int i = 0;
 		d.blit(l.player.img, l.player.tint, 15 + i * 40, 15, Goodie.GOODIE_SIZE, Goodie.GOODIE_SIZE, new Hook(Hook.Type.HOVER) {
 			@Override
@@ -1520,6 +1582,7 @@ public class PatentBlaster implements Game {
 				infoImg = l.player.img;
 			}
 		});
+		//endStart("Weapons");
 		i = 2;
 		for (final Weapon w : l.player.weapons) {
 			if (w == l.player.weapon && hilite) {
@@ -1549,6 +1612,7 @@ public class PatentBlaster implements Game {
 		if (l.shopItems.isEmpty() && !l.player.changedGun && l.player.weapons.size() > 1 && l.player.weapons.size() < 5 && l.player.showingWeaponSwitchInfo++ < FPS * 10 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
 			d.text(((l.tick / 20 % 2 == 0) ? "[dddddd]" : "") + textBGTint + "Press " + key("Q") + " and " + key("E") + " or the number keys to switch weapons.", FOUNT, 20 + i * 40, 20);
 		}
+		//endStart("Items");
 		i = 0;
 		int spacing = 40;
 		if ((l.player.items.size() + 1) * 40 > sm.width) {
@@ -1571,11 +1635,14 @@ public class PatentBlaster implements Game {
 			});
 			i++;
 		}
+		//endStart("Info");
 		if (!info.equals("")) {
 			double y = (infoFor instanceof Item) ? (sm.height - 50 - 160 - d.textSize(info, fount).y) : 50;
 			d.blit(infoImg, infoFor instanceof Creature ? ((Creature) infoFor).tint : infoFor instanceof Weapon ? ((Weapon) infoFor).tint : ((Item) infoFor).tint, 10, y);
 			d.text(textBGTint + info, fount, 10, y + 160);
 		}
+		//end("Info");
+		//end("Equipment");
 	}
 	
 	void goodiePos(Goodie g, ScreenMode sm) {
