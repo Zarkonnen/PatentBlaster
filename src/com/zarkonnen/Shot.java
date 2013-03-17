@@ -39,7 +39,6 @@ public class Shot extends Entity {
 	public double friction = 0.99;
 	public double stickiness = 0;
 	public int slipperiness = 0;
-	public Clr glint = null;
 	public boolean freeAgent = false;
 	public boolean flammable = false;
 	public Weapon flammableWeapon = null;
@@ -56,14 +55,6 @@ public class Shot extends Entity {
 		this.tint = HOVER;
 		this.popOnWorldHit = true;
 		this.lifeLeft = (int) (Level.GRID_SIZE * (1.2 + l.r.nextDouble() * 0.5) / this.dy);
-	}
-	
-	@Override
-	public void draw(Draw d, Level l, double scrollX, double scrollY) {
-		super.draw(d, l, scrollX, scrollY);
-		if (glint != null) {
-			d.rect(glint, scrollX + x + 1, scrollY + y + 1, w - 1, 1);
-		}
 	}
 
 	public Shot(Level l, Weapon w, Creature shooter, double tx, double ty) {
@@ -395,7 +386,7 @@ public class Shot extends Entity {
 		}
 	}
 	
-	public Shot(Clr c, double sz, boolean pop, int life, double x, double y, double dx, double dy, double grav, Creature origin, boolean reform, boolean revenant, boolean finalForm, double originalX, double originalY, int frozenAmt) {
+	public Shot(Clr c, double w, double h, boolean pop, int life, double x, double y, double dx, double dy, double grav, Creature origin, boolean reform, boolean revenant, boolean finalForm, double originalX, double originalY, int frozenAmt) {
 		this.tint = c;
 		this.thawedTint = c;
 		this.popOnWorldHit = pop;
@@ -404,8 +395,8 @@ public class Shot extends Entity {
 		this.dx = dx;
 		this.dy = dy;
 		this.lifeLeft = life;
-		this.w = sz;
-		this.h = sz;
+		this.w = w;
+		this.h = h;
 		this.gravityMult = grav;
 		this.bleeder = origin;
 		this.reform = reform;

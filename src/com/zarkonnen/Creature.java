@@ -429,7 +429,7 @@ public class Creature extends Entity implements HasDesc {
 						double sy = gy + by * gh / Grids.GRID_SZ;
 						double tx = targetGx + reformPoints.get(reformGridIndex).a * targetGw / Grids.GRID_SZ;
 						double ty = targetGy + reformPoints.get(reformGridIndex).b * targetGh / Grids.GRID_SZ;
-						bloodShots.add(new Shot(blood, gw / Grids.GRID_SZ + 1, false, 120 + l.r.nextInt(80), sx, sy, (l.r.nextDouble() - 0.5) * gibsSpeedMult, (l.r.nextDouble() - 0.5) * gibsSpeedMult, 1.0, this, doesResurrect(), reviens, finalForm != null, tx, ty, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
+						bloodShots.add(new Shot(blood, gw / Grids.GRID_SZ, gh / Grids.GRID_SZ, false, 120 + l.r.nextInt(80), sx, sy, (l.r.nextDouble() - 0.5) * gibsSpeedMult, (l.r.nextDouble() - 0.5) * gibsSpeedMult, 1.0, this, doesResurrect(), reviens, finalForm != null, tx, ty, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
 						reformGridIndex += skipAmt;
 					}
 				}
@@ -441,7 +441,7 @@ public class Creature extends Entity implements HasDesc {
 			double sy = gy + gh / 2;
 			double tx = targetGx + reformPoints.get(reformGridIndex).a * targetGw / Grids.GRID_SZ;
 			double ty = targetGy + reformPoints.get(reformGridIndex).b * targetGh / Grids.GRID_SZ;
-			bloodShots.add(new Shot(blood, gw / Grids.GRID_SZ + 1, false, 120 + l.r.nextInt(80), sx, sy, (l.r.nextDouble() - 0.5) * gibsSpeedMult, (l.r.nextDouble() - 0.5) * gibsSpeedMult, 1.0, this, doesResurrect(), reviens, finalForm != null, tx, ty, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
+			bloodShots.add(new Shot(blood, gw / Grids.GRID_SZ, gh / Grids.GRID_SZ, false, 120 + l.r.nextInt(80), sx, sy, (l.r.nextDouble() - 0.5) * gibsSpeedMult, (l.r.nextDouble() - 0.5) * gibsSpeedMult, 1.0, this, doesResurrect(), reviens, finalForm != null, tx, ty, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
 			reformGridIndex += skipAmt;
 		}
 		
@@ -991,7 +991,7 @@ public class Creature extends Entity implements HasDesc {
 					reproCooldown = PatentBlaster.FPS * (babies.size() * 4 + 3);
 					sound("squelch", l);
 					for (int i = 0; i < 60; i++) {
-						Shot s = new Shot(Clr.WHITE, w / 20 + 1, false, 50 + l.r.nextInt(200), x + w / 2, y + h / 2, l.r.nextDouble() * 8 - 4, l.r.nextDouble() * 8 - 4, 1.0, null, false, false, false, 0, 0, 0);
+						Shot s = new Shot(Clr.WHITE, w / 20 + 1, w / 20 + 1, false, 50 + l.r.nextInt(200), x + w / 2, y + h / 2, l.r.nextDouble() * 8 - 4, l.r.nextDouble() * 8 - 4, 1.0, null, false, false, false, 0, 0, 0);
 						l.shotsToAdd.add(s);
 					}
 					Creature baby = makeTinyVersion(l);
@@ -1129,7 +1129,7 @@ public class Creature extends Entity implements HasDesc {
 				if (resistance != null) { blood = resistance.tint; }
 				int nBlood = 20 * intDmg / totalMaxHP() / PatentBlaster.shotDivider() + 1;
 				for (int i = 0; i < nBlood; i++) {
-					bloodShots.add(new Shot(blood, w / 10, false, 120 + l.r.nextInt(80), shot.x + shot.w / 2 - w / 20, shot.y + shot.h / 2 - h / 20, l.r.nextDouble() * 4 - 2, l.r.nextDouble() * 4 - 2, 1.0, this, false, false, false, 0, 0, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
+					bloodShots.add(new Shot(blood, w / 10, w / 10, false, 120 + l.r.nextInt(80), shot.x + shot.w / 2 - w / 20, shot.y + shot.h / 2 - h / 20, l.r.nextDouble() * 4 - 2, l.r.nextDouble() * 4 - 2, 1.0, this, false, false, false, 0, 0, frozen > 0 ? l.r.nextInt(40) + 10 : 0));
 				}
 				l.shotsToAdd.addAll(bloodShots);
 				if (src.knockback && !massive) {

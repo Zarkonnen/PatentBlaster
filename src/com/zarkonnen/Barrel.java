@@ -10,13 +10,11 @@ public class Barrel extends Entity {
 	public static enum Type {
 		OIL(4, "squelch", false) {
 			final Clr TINT = new Clr(10, 5, 0);
-			final Clr GLINT = new Clr(10, 5, 0);
 			@Override
 			public Shot makeShot(Level l, Barrel b, double x, double y) {
-				Shot s = new Shot(TINT, chunkSize + 2, false, 10000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 3 - 1.5, l.r.nextDouble() * 3 - 1.5, 1.0, null, false, false, false, x, y, 0);
+				Shot s = new Shot(TINT, chunkSize + 2, chunkSize + 2, false, 10000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 3 - 1.5, l.r.nextDouble() * 3 - 1.5, 1.0, null, false, false, false, x, y, 0);
 				s.slipperiness = 2;
 				s.friction = 0.98;
-				s.glint = GLINT;
 				s.flammable = true;
 				s.flammableWeapon = b.weapon;
 				return s;
@@ -25,7 +23,7 @@ public class Barrel extends Entity {
 		GLUE(4, "squelch", true) {
 			@Override
 			public Shot makeShot(Level l, Barrel b, double x, double y) {
-				Shot s = new Shot(GLUE_TINT, chunkSize, false, 10000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 10 - 5, l.r.nextDouble() * 10 - 8, 1.0, null, false, false, false, x, y, 0);
+				Shot s = new Shot(GLUE_TINT, chunkSize, chunkSize, false, 10000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 10 - 5, l.r.nextDouble() * 10 - 8, 1.0, null, false, false, false, x, y, 0);
 				s.stickiness = Const.powerLvl(l.power);
 				s.friction = 0.9;
 				return s;
@@ -83,7 +81,7 @@ public class Barrel extends Entity {
 		WOMBAT_BLOOD(2, "squelch", false) {
 			@Override
 			public Shot makeShot(Level l, Barrel b, double x, double y) {
-				Shot s = new Shot(Clr.RED, chunkSize, false, 3000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 2 - 1, l.r.nextDouble() * 2 - 1, 1.0, b.meatSource, false, false, false, x, y, 0);
+				Shot s = new Shot(Clr.RED, chunkSize, chunkSize, false, 3000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 2 - 1, l.r.nextDouble() * 2 - 1, 1.0, b.meatSource, false, false, false, x, y, 0);
 				s.friction = 0.998;
 				return s;
 			}
@@ -92,7 +90,7 @@ public class Barrel extends Entity {
 			final Clr TINT = new Clr(167, 82, 66);
 			@Override
 			public Shot makeShot(Level l, Barrel b, double x, double y) {
-				Shot s = new Shot(TINT, chunkSize, false, 3000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 4 - 2, l.r.nextDouble() * 4 - 2, 1.0, b.meatSource, false, false, false, x, y, 0);
+				Shot s = new Shot(TINT, chunkSize, chunkSize, false, 3000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 4 - 2, l.r.nextDouble() * 4 - 2, 1.0, b.meatSource, false, false, false, x, y, 0);
 				s.friction = 0.985;
 				return s;
 			}
@@ -205,7 +203,7 @@ public class Barrel extends Entity {
 		}
 		for (int gy = 0; gy < 6; gy++) {
 			for (int gx = 0; gx < 4; gx++) {
-				Shot s = new Shot(tint, 10, false, 30 + l.r.nextInt(60), x + gx * 10 - 6, y + gy * 10 - 6, l.r.nextDouble() - 0.5, l.r.nextDouble() - 0.5, 1.0, null, false, false, false, x + gx * 10 - 6, y + gy * 10 - 6, 0);
+				Shot s = new Shot(tint, 10, 10, false, 30 + l.r.nextInt(60), x + gx * 10 - 6, y + gy * 10 - 6, l.r.nextDouble() - 0.5, l.r.nextDouble() - 0.5, 1.0, null, false, false, false, x + gx * 10 - 6, y + gy * 10 - 6, 0);
 				l.shotsToAdd.add(s);
 			}
 		}

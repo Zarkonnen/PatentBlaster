@@ -1518,7 +1518,7 @@ public class PatentBlaster implements Game {
 	
 	private void showEquipment(Draw d, ScreenMode sm, Fount fount, String textBGTint, boolean hilite) {
 		int i = 0;
-		d.blit(l.player.img, l.player.tint, 15 + i * 40, 15, 30, 30, new Hook(Hook.Type.HOVER) {
+		d.blit(l.player.img, l.player.tint, 15 + i * 40, 15, Goodie.GOODIE_SIZE, Goodie.GOODIE_SIZE, new Hook(Hook.Type.HOVER) {
 			@Override
 			public void run(Input in, Pt p, Hook.Type type) {
 				infoFor = l.player;
@@ -1535,7 +1535,7 @@ public class PatentBlaster implements Game {
 			if (w == l.player.newThing && hilite) {
 				t = (l.tick / 20) % 2 == 0 ? Clr.WHITE : t;
 			}
-			d.blit(w.img, t, 15 + i * 40, 15, 30, 30, new Hook(Hook.Type.HOVER, Hook.Type.MOUSE_1) {
+			d.blit(w.img, t, 15 + i * 40, 15, Goodie.GOODIE_SIZE, Goodie.GOODIE_SIZE, new Hook(Hook.Type.HOVER, Hook.Type.MOUSE_1) {
 				@Override
 				public void run(Input in, Pt p, Hook.Type type) {
 					if (type == Hook.Type.MOUSE_1) {
@@ -1567,7 +1567,7 @@ public class PatentBlaster implements Game {
 			if (it == l.player.newThing && hilite) {
 				t = (l.tick / 20) % 2 == 0 ? Clr.WHITE : t;
 			}
-			d.blit(it.img, t, 15 + i * spacing, sm.height - 45, 30, 30, new Hook(Hook.Type.HOVER) {
+			d.blit(it.img, t, 15 + i * spacing, sm.height - 45, Goodie.GOODIE_SIZE, Goodie.GOODIE_SIZE, new Hook(Hook.Type.HOVER) {
 				@Override
 				public void run(Input in, Pt p, Hook.Type type) {
 					infoFor = it;

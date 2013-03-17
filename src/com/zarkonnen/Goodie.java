@@ -4,7 +4,7 @@ import com.zarkonnen.catengine.Draw;
 import com.zarkonnen.catengine.util.Clr;
 
 public class Goodie extends Entity {
-	public static final int GOODIE_SIZE = 30;
+	public static final int GOODIE_SIZE = 32;
 	
 	public Item item;
 	public Weapon weapon;
@@ -19,9 +19,11 @@ public class Goodie extends Entity {
 	
 	private Goodie(Creature from) {
 		x = from.x + from.w / 2 - GOODIE_SIZE / 2;
-		y = from.y + from.h / 2 - GOODIE_SIZE / 2;
+		y = from.h < GOODIE_SIZE - 1 ? (from.y - GOODIE_SIZE + from.h - 0.001) : (from.y + from.h / 2 - GOODIE_SIZE / 2);
 		w = GOODIE_SIZE;
 		h = GOODIE_SIZE;
+		dy = -4;
+		dx = from.dy / 10;
 		gravityMult = 1;
 	}
 
