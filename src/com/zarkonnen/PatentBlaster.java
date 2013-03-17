@@ -616,12 +616,6 @@ public class PatentBlaster implements Game {
 					l.player.dx = oldDx * 0.96 + l.player.dx * 0.04;
 					l.player.dy = oldDy * 0.96 + l.player.dy * 0.04;
 					double speedLimit = l.player.totalSpeed();
-					/*double speedSq = l.player.dx * l.player.dx + l.player.dy * l.player.dy;
-					if (speedSq > 0 && speedSq > speedLimit * speedLimit) {
-						double total = Math.abs(l.player.dx) + Math.abs(l.player.dx) + 1;
-						l.player.dx = l.player.dx * speedLimit / total;
-						l.player.dy = l.player.dy * speedLimit / total;
-					}*/
 					if (Math.abs(l.player.dx) > speedLimit) {
 						l.player.dx = l.player.dx / Math.abs(l.player.dx) * speedLimit;
 					}
