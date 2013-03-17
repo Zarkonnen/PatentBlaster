@@ -5,6 +5,7 @@ import com.zarkonnen.catengine.MusicCallback;
 import com.zarkonnen.catengine.util.ScreenMode;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
@@ -16,6 +17,7 @@ public class Level implements MusicCallback, Serializable {
 	public static final int LVL_W = 50;
 	public static final int LVL_H = 15;
 	public static final int SOLID_START = 2;
+	public static final int MAX_SOUND_REQUESTS = 4;
 	public int[][] grid;
 	public int[] gridH;
 	public Creature player;
@@ -374,11 +376,14 @@ public class Level implements MusicCallback, Serializable {
 		}
 		ScreenMode sMode = in.mode();
 		if (PatentBlaster.soundVolume > 0) {
+			Collections.sort(soundRequests);
+			int played = 0;
 			for (SoundRequest sr : soundRequests) {
 				double sx = (sr.x - player.x - player.w / 2) / sMode.width * 2;
 				double sy = (sr.y - player.y - player.h / 2) / sMode.height * 2;
 				//System.out.println(sx + "/" + sy);
 				in.play(sr.sound, 1.0, sr.volume * PatentBlaster.soundVolume * 1.0 / 9, sx, sy);
+				if (++played >= MAX_SOUND_REQUESTS) { break; }
 			}
 		}
 		soundRequests.clear();
