@@ -8,40 +8,12 @@ import java.util.Random;
 public class Barrel extends Entity {
 	public static final Clr GLUE_TINT = new Clr(220, 220, 190);
 	public static enum Type {
-		OIL(4, "squelch", false) {
-			final Clr TINT = new Clr(10, 5, 0);
-			@Override
-			public Shot makeShot(Level l, Barrel b, double x, double y) {
-				Shot s = new Shot(TINT, chunkSize + 2, chunkSize + 2, false, 10000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 3 - 1.5, l.r.nextDouble() * 3 - 1.5, 1.0, null, false, false, false, x, y, 0);
-				s.slipperiness = 2;
-				s.friction = 0.98;
-				s.flammable = true;
-				s.flammableWeapon = b.weapon;
-				return s;
-			}
-		},
 		GLUE(4, "squelch", true) {
 			@Override
 			public Shot makeShot(Level l, Barrel b, double x, double y) {
 				Shot s = new Shot(GLUE_TINT, chunkSize, chunkSize, false, 10000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 10 - 5, l.r.nextDouble() * 10 - 8, 1.0, null, false, false, false, x, y, 0);
 				s.stickiness = Const.powerLvl(l.power);
 				s.friction = 0.9;
-				return s;
-			}
-		},
-		EXPLOSIVES(3, "explode", false) {
-			@Override
-			public Shot makeShot(Level l, Barrel b, double x, double y) {
-				double dir = l.r.nextDouble() * 2 * Math.PI;
-				Shot s = new Shot(l, b.weapon, b.meatSource, x + Math.cos(dir) * 100, y + Math.sin(dir) * 100);
-				s.dx *= 0.5 + l.r.nextDouble();
-				s.dy *= 0.5 + l.r.nextDouble();
-				s.gravityMult = 0.3;
-				s.x = x;
-				s.y = y;
-				s.freeAgent = true;
-				s.lifeLeft = s.lifeLeft / 2 + l.r.nextInt(s.lifeLeft / 2);
-				s.sprayProbability /= 4;
 				return s;
 			}
 		},
@@ -58,31 +30,6 @@ public class Barrel extends Entity {
 				s.freeAgent = true;
 				s.lifeLeft = s.lifeLeft / 2 + l.r.nextInt(s.lifeLeft / 2);
 				s.sprayProbability /= 4;
-				return s;
-			}
-		},
-		ACID(5, "squelch", false) {
-			@Override
-			public Shot makeShot(Level l, Barrel b, double x, double y) {
-				double dir = l.r.nextDouble() * 2 * Math.PI;
-				Shot s = new Shot(l, b.weapon, b.meatSource, x + Math.cos(dir) * 100, y + Math.sin(dir) * 100);
-				s.dx *= 0.1;
-				s.dy *= 0.1;
-				s.popOnWorldHit = false;
-				s.gravityMult = 0.3;
-				s.x = x;
-				s.y = y;
-				s.freeAgent = true;
-				s.lifeLeft = s.lifeLeft * 5 + l.r.nextInt(s.lifeLeft * 5);
-				s.sprayProbability = 0;
-				return s;
-			}
-		},
-		WOMBAT_BLOOD(2, "squelch", false) {
-			@Override
-			public Shot makeShot(Level l, Barrel b, double x, double y) {
-				Shot s = new Shot(Clr.RED, chunkSize, chunkSize, false, 3000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 2 - 1, l.r.nextDouble() * 2 - 1, 1.0, b.meatSource, false, false, false, x, y, 0);
-				s.friction = 0.998;
 				return s;
 			}
 		},
@@ -166,16 +113,6 @@ public class Barrel extends Entity {
 			case LIQUID_NITROGEN:
 				weapon.element = Element.ICE;	
 				weapon.tint = Element.ICE.tint;	
-				break;
-			case OIL:
-				weapon.dmg *= 6;
-			case EXPLOSIVES:
-				weapon.element = Element.FIRE;
-				weapon.tint = Element.FIRE.tint;	
-				break;
-			case ACID:
-				weapon.element = Element.ACID;
-				weapon.tint = Element.ACID.tint;
 				break;
 		}
 	}
