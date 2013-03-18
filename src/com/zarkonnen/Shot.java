@@ -212,6 +212,9 @@ public class Shot extends Entity {
 				if (shooter.lastShot != null && shooter.lastShot.age > 1) {
 					killMe = true;
 				}
+				if (shooter.weapon != weapon) {
+					killMe = true;
+				}
 			} else {
 				killMe = true;
 			}

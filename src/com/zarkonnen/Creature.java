@@ -264,6 +264,13 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public double gunX() {
+		if (weapon != null && weapon.sword) {
+			if (flipped) {
+				return x + w * (1 - PatentBlaster.IMG_HAND_X[imgIndex]);
+			} else {
+				return x + w * PatentBlaster.IMG_HAND_X[imgIndex];
+			}
+		}
 		if (flipped) {
 			return x + w * (1 - PatentBlaster.IMG_SHOOT_X[imgIndex]);
 		} else {
@@ -272,6 +279,9 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public double gunY() {
+		if (weapon != null && weapon.sword) {
+			return y + h * PatentBlaster.IMG_HAND_Y[imgIndex];
+		}
 		return y + h * PatentBlaster.IMG_SHOOT_Y[imgIndex];
 	}
 	
