@@ -193,10 +193,6 @@ public class PatentBlaster implements Game {
 	boolean targetingBooped = false;
 	static boolean musicStarted = false;
 	boolean splash = true;
-	boolean buyScreen = false;
-	boolean exitAfterBuyScreen = false;
-	boolean buyScreenAfterDefeat = false;
-	ArrayList<BuyScreenArgument> buyArguments = new ArrayList<BuyScreenArgument>();
 	int gamesPlayed = 0;
 	int nothingInViewTicks = 0;
 	boolean thingsToRight = false;
@@ -311,25 +307,18 @@ public class PatentBlaster implements Game {
 			if (settings && cooldown == 0) {
 				settings = false;
 				cooldown += 10;
-			} else if (buyScreen && cooldown == 0) {
-				if (exitAfterBuyScreen) {
-					in.quit();
-				} else {
-					buyScreen = false;
-				}
 			} else if (mainMenu && cooldown == 0) {
 				if (showCredits) {
 					showCredits = false;
 					cooldown += 15;
 				} else {
-					if (DEMO && plays > 1) {
-						buyScreen = true;
-						buyArguments.clear();
-						exitAfterBuyScreen = true;
-						cooldown += 10;
-					} else {
-						in.quit();
+					if (DEMO) {
+						try {
+							in.setMode(new ScreenMode(1024, 768, false));
+							Desktop.getDesktop().browse(new URI("http://www.patent-blaster.com/postDemo/"));
+						} catch (Exception e) {}
 					}
+					in.quit();
 				}
 			} else {
 				if (cooldown == 0) {
@@ -393,18 +382,6 @@ public class PatentBlaster implements Game {
 		}
 		
 		menuHover = "FISHCAKES";
-		
-		if (buyScreen) {
-			hit(in);
-			if (cooldown == 0 && in.clickButton() != 0) {
-				if (exitAfterBuyScreen) {
-					in.quit();
-				} else {
-					buyScreen = false;
-				}
-			}
-			return;
-		}
 		
 		if (splash) {
 			if (Preload.allPreloaded() || cooldown == 0 && (in.clickButton() != 0 || in.lastKeyPressed() != null)) {
@@ -487,11 +464,6 @@ public class PatentBlaster implements Game {
 				autoSave();
 				setup = true;
 				nextLvlTime = 0;
-				if (buyScreenAfterDefeat && gamesPlayed++ % 8 == 0) {
-					buyArguments.clear();
-					buyScreen = true;
-					exitAfterBuyScreen = false;
-				}
 				cooldown += difficultyLevel == DifficultyLevel.EASY ? 100 : 30;
 				return;
 			}
@@ -503,7 +475,6 @@ public class PatentBlaster implements Game {
 				l.player.explode(l);
 				nextLvlTime = 0;
 				l.texts.add(new FloatingText("KILLED BY THE DEMO LIMIT", l.player.x + l.player.w / 2, l.player.y));
-				buyScreenAfterDefeat = true;
 				return;
 			}
 			nextLvlTime++;
@@ -834,52 +805,7 @@ public class PatentBlaster implements Game {
 			return;
 		}
 		
-		if (buyScreen) {
-			//start("Buy Screen");
-			if (buyArguments.isEmpty()) {
-				buyArguments.addAll(Arrays.asList(BuyScreenArgument.values()));
-				Collections.shuffle(buyArguments);
-			}
-			if (lowGraphics) {
-				d.rect(PAPER, 0, 0, sm.width, sm.height);
-			} else {
-				for (int y = 0; y < sm.width; y += 600) {
-					for (int x = 0; x < sm.height; x += 600) {
-						d.blit("paper.jpg", x, y);
-					}
-				}
-			}
-			
-			int spacing = 40;
-			for (int i = 0; i < 3; i++) {
-				BuyScreenArgument arg = buyArguments.get(i);
-				int x = sm.width / 2 * (i % 2) + spacing;
-				int y = (sm.height / 2 - 30) * (i / 2) + spacing;
-				d.text("[BLACK]" + arg.text, FOUNT, x, y);
-				d.blit(arg.name(), x, y + FOUNT.lineHeight + 5);
-			}
-			
-			StringBuilder menu = new StringBuilder();
-			HashMap<String, Hook> hoox = new HashMap<String, Hook>();
-			menu.append("[bg=ff5555]");
-			menuItem("buy", "  BUY THE FULL VERSION  ", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
-				@Override
-				public void run(Input in, Pt p, Type type) {
-					in.setMode(new ScreenMode(1024, 768, false));
-					try {
-						Desktop.getDesktop().browse(new URI("http://www.patent-blaster.com/buy/"));
-					} catch (Exception e) {
-						JOptionPane.showMessageDialog(null, "Oops. Looks like we can't get a web browser open. But if you go to http://www.patent-blaster.com/buy/ , you'll be able to get the full version!");
-					}
-					if (exitAfterBuyScreen) {
-						in.quit();
-					} else {
-						buyScreen = false;
-					}
-				}
-			});
-			d.text(menu.toString(), FOUNT, sm.width / 2 + spacing, sm.height / 2 + spacing, hoox);
-		} else if (splash) {
+		if (splash) {
 			//start("Splash");
 			d.blit("splash.jpg", 0, 0);
 			d.text("[BLACK]" + Preload.preloadStatus(), FOUNT, 220, 620);
@@ -1160,6 +1086,12 @@ public class PatentBlaster implements Game {
 					@Override
 					public void run(Input in, Pt p, Hook.Type type) {
 						if (cooldown > 0) { return; }
+						if (DEMO) {
+							try {
+								in.setMode(new ScreenMode(1024, 768, false));
+								Desktop.getDesktop().browse(new URI("http://www.patent-blaster.com/postDemo/"));
+							} catch (Exception e) {}
+						}
 						in.quit();
 					}
 				});
@@ -1196,9 +1128,8 @@ public class PatentBlaster implements Game {
 				y += menuR.height + spacing;
 				if (DEMO) {
 					menu = new StringBuilder();
-					menu.append("[bg=ff5555]");
 					hoox = new HashMap<String, Hook>();
-					menuItem("buy", "  BUY THE FULL VERSION  ", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+					menuItem("buy", "BUY THE FULL VERSION", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 						@Override
 						public void run(Input in, Pt p, Type type) {
 							in.setMode(new ScreenMode(1024, 768, false));
