@@ -23,12 +23,13 @@ public class Preload {
 	public static void preload(Input in) {
 		if (preloadStarted) { return; }
 		preloadStarted = true;
-		in.preloadSounds(SOUNDS_TO_PRELOAD, new Runnable() {
+		/*in.preloadSounds(SOUNDS_TO_PRELOAD, new Runnable() {
 			@Override
 			public void run() {
 				preloadCompleted = true;
 			}
-		});
+		});*/
+		preloadCompleted = true; // qqDPS
 	}
 	
 	public static boolean allPreloaded() {

@@ -193,14 +193,32 @@ public class PatentBlaster implements Game {
 	boolean targetingBooped = false;
 	static boolean musicStarted = false;
 	boolean splash = true;
-	boolean buyScreen = false;
-	boolean exitAfterBuyScreen = false;
-	boolean buyScreenAfterDefeat = false;
-	ArrayList<BuyScreenArgument> buyArguments = new ArrayList<BuyScreenArgument>();
 	int gamesPlayed = 0;
 	int nothingInViewTicks = 0;
 	boolean thingsToRight = false;
 	boolean hasHadBarrelWarning = false;
+	
+	// Some images
+	Img rightarrow = new Img("rightarrow");
+	Img leftarrow = new Img("rightarrow").flip();
+	Img paper = new Img("paper.jpg");
+	Img splashImg = new Img("splash.jpg");
+	Img landscape = new Img("landscape");
+	Img[] drawingImgs = new Img[IMG_NAMES.length];
+	Img[] drawingImgsLarge = new Img[IMG_NAMES.length];
+	Img[] backdropImgs = new Img[Level.NUM_BACKGROUNDS];
+	Img[] backdropWindowImgs = new Img[Level.NUM_BACKGROUNDS];
+	
+	public PatentBlaster() {
+		for (int i = 0; i < IMG_NAMES.length; i++) {
+			drawingImgs[i] = new Img("drawings/" + IMG_NAMES[i] + "_drawing");
+			drawingImgsLarge[i] = new Img("drawings/" + IMG_NAMES[i] + "_drawing_large");
+		}
+		for (int i = 0; i < Level.NUM_BACKGROUNDS; i++) {
+			backdropImgs[i] = new Img("background_" + i);
+			backdropWindowImgs[i] = new Img("background_" + i + "_window");
+		}
+	}
 		
 	// Prefs stuff
 	public static DifficultyLevel difficultyLevel = DifficultyLevel.EASY;
@@ -311,25 +329,12 @@ public class PatentBlaster implements Game {
 			if (settings && cooldown == 0) {
 				settings = false;
 				cooldown += 10;
-			} else if (buyScreen && cooldown == 0) {
-				if (exitAfterBuyScreen) {
-					in.quit();
-				} else {
-					buyScreen = false;
-				}
 			} else if (mainMenu && cooldown == 0) {
 				if (showCredits) {
 					showCredits = false;
 					cooldown += 15;
 				} else {
-					if (DEMO && plays > 1) {
-						buyScreen = true;
-						buyArguments.clear();
-						exitAfterBuyScreen = true;
-						cooldown += 10;
-					} else {
-						in.quit();
-					}
+					in.quit();
 				}
 			} else {
 				if (cooldown == 0) {
@@ -393,18 +398,6 @@ public class PatentBlaster implements Game {
 		}
 		
 		menuHover = "FISHCAKES";
-		
-		if (buyScreen) {
-			hit(in);
-			if (cooldown == 0 && in.clickButton() != 0) {
-				if (exitAfterBuyScreen) {
-					in.quit();
-				} else {
-					buyScreen = false;
-				}
-			}
-			return;
-		}
 		
 		if (splash) {
 			if (Preload.allPreloaded() || cooldown == 0 && (in.clickButton() != 0 || in.lastKeyPressed() != null)) {
@@ -487,11 +480,6 @@ public class PatentBlaster implements Game {
 				autoSave();
 				setup = true;
 				nextLvlTime = 0;
-				if (buyScreenAfterDefeat && gamesPlayed++ % 8 == 0) {
-					buyArguments.clear();
-					buyScreen = true;
-					exitAfterBuyScreen = false;
-				}
 				cooldown += difficultyLevel == DifficultyLevel.EASY ? 100 : 30;
 				return;
 			}
@@ -503,7 +491,6 @@ public class PatentBlaster implements Game {
 				l.player.explode(l);
 				nextLvlTime = 0;
 				l.texts.add(new FloatingText("KILLED BY THE DEMO LIMIT", l.player.x + l.player.w / 2, l.player.y));
-				buyScreenAfterDefeat = true;
 				return;
 			}
 			nextLvlTime++;
@@ -834,54 +821,9 @@ public class PatentBlaster implements Game {
 			return;
 		}
 		
-		if (buyScreen) {
-			//start("Buy Screen");
-			if (buyArguments.isEmpty()) {
-				buyArguments.addAll(Arrays.asList(BuyScreenArgument.values()));
-				Collections.shuffle(buyArguments);
-			}
-			if (lowGraphics) {
-				d.rect(PAPER, 0, 0, sm.width, sm.height);
-			} else {
-				for (int y = 0; y < sm.width; y += 600) {
-					for (int x = 0; x < sm.height; x += 600) {
-						d.blit("paper.jpg", x, y);
-					}
-				}
-			}
-			
-			int spacing = 40;
-			for (int i = 0; i < 3; i++) {
-				BuyScreenArgument arg = buyArguments.get(i);
-				int x = sm.width / 2 * (i % 2) + spacing;
-				int y = (sm.height / 2 - 30) * (i / 2) + spacing;
-				d.text("[BLACK]" + arg.text, FOUNT, x, y);
-				d.blit(arg.name(), x, y + FOUNT.lineHeight + 5);
-			}
-			
-			StringBuilder menu = new StringBuilder();
-			HashMap<String, Hook> hoox = new HashMap<String, Hook>();
-			menu.append("[bg=ff5555]");
-			menuItem("buy", "  BUY THE FULL VERSION  ", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
-				@Override
-				public void run(Input in, Pt p, Type type) {
-					in.setMode(new ScreenMode(1024, 768, false));
-					try {
-						Desktop.getDesktop().browse(new URI("http://www.patent-blaster.com/buy/"));
-					} catch (Exception e) {
-						JOptionPane.showMessageDialog(null, "Oops. Looks like we can't get a web browser open. But if you go to http://www.patent-blaster.com/buy/ , you'll be able to get the full version!");
-					}
-					if (exitAfterBuyScreen) {
-						in.quit();
-					} else {
-						buyScreen = false;
-					}
-				}
-			});
-			d.text(menu.toString(), FOUNT, sm.width / 2 + spacing, sm.height / 2 + spacing, hoox);
-		} else if (splash) {
+		if (splash) {
 			//start("Splash");
-			d.blit("splash.jpg", 0, 0);
+			d.blit(splashImg, 0, 0);
 			d.text("[BLACK]" + Preload.preloadStatus(), FOUNT, 220, 620);
 		} else if (settings) {
 			//start("Settings");
@@ -890,7 +832,7 @@ public class PatentBlaster implements Game {
 			} else {
 				for (int y = 0; y < sm.width; y += 600) {
 					for (int x = 0; x < sm.height; x += 600) {
-						d.blit("paper.jpg", x, y);
+						d.blit(paper, x, y);
 					}
 				}
 			}
@@ -911,7 +853,7 @@ public class PatentBlaster implements Game {
 			} else {
 				if (patentName != null) {
 					d.text("[BLACK]" + patentName, FOUNT, sm.width / 2 + spacing * 2, y);
-					d.blit("drawings/" + IMG_NAMES[patentImg] + "_drawing_large", PAPER, sm.width / 2 + spacing * 2, y + 40);
+					d.blit(drawingImgsLarge[patentImg], PAPER, sm.width / 2 + spacing * 2, y + 40);
 					d.text("[BLACK]" + patentText, FOUNT, sm.width / 2 + spacing * 2, y + 465, sm.width / 2 - spacing * 4);
 					d.hook(sm.width / 2, 0, sm.width / 2, sm.height, new Hook(Type.MOUSE_1) {
 						@Override
@@ -1048,7 +990,7 @@ public class PatentBlaster implements Game {
 			} else {
 				for (int y = 0; y < sm.width; y += 600) {
 					for (int x = 0; x < sm.height; x += 600) {
-						d.blit("paper.jpg", x, y);
+						d.blit(paper, x, y);
 					}
 				}
 			}
@@ -1078,7 +1020,7 @@ public class PatentBlaster implements Game {
 				} else {
 					if (patentName != null) {
 						d.text("[BLACK]" + patentName, FOUNT, sm.width / 2 + spacing * 2, y);
-						d.blit("drawings/" + IMG_NAMES[patentImg] + "_drawing_large", PAPER, sm.width / 2 + spacing * 2, y + 40);
+						d.blit(drawingImgsLarge[patentImg], PAPER, sm.width / 2 + spacing * 2, y + 40);
 						d.text("[BLACK]" + patentText, FOUNT, sm.width / 2 + spacing * 2, y + 465, sm.width / 2 - spacing * 4);
 						d.hook(sm.width / 2, 0, sm.width / 2, sm.height, new Hook(Type.MOUSE_1) {
 							@Override
@@ -1221,7 +1163,7 @@ public class PatentBlaster implements Game {
 			} else {
 				for (int y = 0; y < sm.width; y += 600) {
 					for (int x = 0; x < sm.height; x += 600) {
-						d.blit("paper.jpg", x, y);
+						d.blit(paper, x, y);
 					}
 				}
 			}
@@ -1251,7 +1193,7 @@ public class PatentBlaster implements Game {
 						boolean hover = tileR.contains(curs);
 						d.text("[BLACK]" + c.name().toUpperCase(), FOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH);
 						Clr t = c.tint;//!hover ? c.tint.mix(0.9, PAPER) : c.tint;
-						d.blit("drawings/" + IMG_NAMES[c.imgIndex] + "_drawing", t, xOffset + tileX * tileW, yOffset + tileY * tileH + 35);
+						d.blit(drawingImgs[c.imgIndex], t, xOffset + tileX * tileW, yOffset + tileY * tileH + 35);
 						d.text("[BLACK][default=BLACK]" + c.desc(Clr.BLACK, IMG_NUMS[c.imgIndex]), SMOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH + 150, (int) (tileW - 10));
 						/*d.hook(tileR.x, tileR.y, tileR.width, tileR.height, */
 						button(d, "Select", xOffset + tileX * tileW + 100 + spacing, yOffset + tileY * tileH + 35 + 50 - 14, 0, new Hook(Hook.Type.MOUSE_1) {
@@ -1305,7 +1247,7 @@ public class PatentBlaster implements Game {
 			} else {
 				for (int y = 0; y < sm.width; y += 600) {
 					for (int x = 0; x < sm.height; x += 600) {
-						d.blit("paper.jpg", x, y);
+						d.blit(paper, x, y);
 					}
 				}
 			}
@@ -1392,8 +1334,8 @@ public class PatentBlaster implements Game {
 					int winIndex = 0;
 					for (int x = 0; x < (Level.LVL_W) * Level.GRID_SIZE; x += l.backgroundW) {
 						if (winYIndex == WIN_Y_INDEX[l.background] && l.window[winIndex++]) {
-							d.blit("landscape", x + (int) scrollX, y + (int) scrollY);
-							d.blit("background_" + l.background + "_window", x + (int) scrollX, y + (int) scrollY);
+							d.blit(landscape, x + (int) scrollX, y + (int) scrollY);
+							d.blit(backdropWindowImgs[l.background], x + (int) scrollX, y + (int) scrollY);
 						}
 					}
 					winYIndex++;
@@ -1405,7 +1347,7 @@ public class PatentBlaster implements Game {
 						if (winYIndex == WIN_Y_INDEX[l.background] && l.window[winIndex++]) {
 							// Nothing
 						} else {
-							d.blit("background_" + l.background, x + (int) scrollX, y + (int) scrollY);
+							d.blit(backdropImgs[l.background], x + (int) scrollX, y + (int) scrollY);
 						}
 					}
 					winYIndex++;
@@ -1499,7 +1441,7 @@ public class PatentBlaster implements Game {
 			
 			//endStart("Arrow");
 			if (l.player.hp > 0 && nothingInViewTicks > FPS * 2 + (difficultyLevel.ordinal() * difficultyLevel.ordinal()) && (!l.monsters.isEmpty() || !l.goodies.isEmpty())) {
-				d.blit("rightarrow", sm.width / 2 - 200, sm.height / 4, 0, 0, !thingsToRight);
+				d.blit(thingsToRight ? rightarrow : leftarrow, sm.width / 2 - 200, sm.height / 4, 0, 0);
 			}
 			//end("Arrow");
 		}
