@@ -20,16 +20,16 @@ public class Preload {
 	public static boolean preloadStarted;
 	public static boolean preloadCompleted;
 	
-	public static void preload(Input in) {
+	public static void preload(final Input in) {
 		if (preloadStarted) { return; }
 		preloadStarted = true;
-		/*in.preloadSounds(SOUNDS_TO_PRELOAD, new Runnable() {
+		new Thread("Sound Preloader") {
 			@Override
 			public void run() {
-				preloadCompleted = true;
+				in.preloadSounds(SOUNDS_TO_PRELOAD);
+			preloadCompleted = true;
 			}
-		});*/
-		preloadCompleted = true; // qqDPS
+		}.start();
 	}
 	
 	public static boolean allPreloaded() {
