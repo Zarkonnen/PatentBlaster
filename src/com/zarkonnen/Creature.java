@@ -161,7 +161,7 @@ public class Creature extends Entity implements HasDesc {
 		
 		int tick = 0;
 		while (tick <= shotLife) {
-			l.physics(sim);
+			l.physics(sim, 1.0);
 			tick++;
 			double xDelta = fromX - sim.x - sim.w / 2;
 			double yDelta = fromY - sim.y - sim.h / 2;
