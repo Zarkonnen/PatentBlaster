@@ -21,8 +21,8 @@ public class Level implements MusicCallback, Serializable {
 	public static final int LVL_H = 15;
 	public static final int SOLID_START = 2;
 	public static final int MAX_SOUND_REQUESTS = 4;
-	public int[][] grid;
-	public int[] gridH;
+	//public int[][] grid;
+	//public int[] gridH;
 	public Creature player;
 	public ArrayList<Wall> walls = new ArrayList<Wall>();
 	public ArrayList<Creature> monsters = new ArrayList<Creature>();
@@ -68,7 +68,21 @@ public class Level implements MusicCallback, Serializable {
 		music = MUSICS[r.nextInt(MUSICS.length)];
 		background = r.nextInt(NUM_BACKGROUNDS);
 		backgroundH = background > -1 ? BACKGROUND_HS[background] : 512;
-		grid = new int[LVL_H][LVL_W];
+		
+		walls.add(new Wall(0, 0, GRID_SIZE * LVL_W, GRID_SIZE));
+		walls.add(new Wall(0, GRID_SIZE * LVL_H - GRID_SIZE, GRID_SIZE * LVL_W, GRID_SIZE));
+		walls.add(new Wall(0, GRID_SIZE, GRID_SIZE, GRID_SIZE * LVL_H - GRID_SIZE * 2));
+		walls.add(new Wall(GRID_SIZE * LVL_W - GRID_SIZE, GRID_SIZE, GRID_SIZE, GRID_SIZE * LVL_H - GRID_SIZE * 2));
+		
+		for (int i = 0; i < 10; i++) {
+			walls.add(new Wall(
+					GRID_SIZE * 3 + r.nextInt(GRID_SIZE * (LVL_W - 7)),
+					GRID_SIZE * 3 + r.nextInt((GRID_SIZE * (LVL_H - 5))),
+					GRID_SIZE + r.nextInt(GRID_SIZE * 3),
+					(int) (MAX_SPEED * 1.5)));
+		}
+		
+		/*grid = new int[LVL_H][LVL_W];
 		gridH = new int[LVL_W];
 		for (int i = 0; i < LVL_H; i++) {
 			grid[i][0] = SOLID_START;
@@ -92,7 +106,7 @@ public class Level implements MusicCallback, Serializable {
 					barrels.add(new Barrel(bType, seed, power, i * GRID_SIZE + 1 + r.nextInt(7), (LVL_H - gridH[i] - 1) * GRID_SIZE - 61, r));
 				}
 			}
-		}
+		}*/
 		
 		for (int i = 0; i < window.length; i++) {
 			window[i] = r.nextInt(20) == 0;
@@ -106,17 +120,20 @@ public class Level implements MusicCallback, Serializable {
 				int type = r.nextInt(4);
 				Creature c = Creature.make(seed + type * 12345, power, PatentBlaster.NUM_IMAGES, false, false, true);
 				int reach = (int) Math.floor(c.w / GRID_SIZE);
-				if (grid[LVL_H - gridH[i] - 2][i + reach] >= SOLID_START) {
+				/*if (grid[LVL_H - gridH[i] - 2][i + reach] >= SOLID_START) {
 					continue;
-				}
+				}*/
 				c.x = i * GRID_SIZE;
-				c.y = (LVL_H - gridH[i] - 1) * GRID_SIZE - c.h - (c.moveMode == MoveMode.FLY || c.moveMode == MoveMode.HOVER ? c.h / 4 : 0) - 1;
+				drop(c);
+				if (c.realMoveMode() == MoveMode.FLY || c.realMoveMode() == MoveMode.HOVER) {
+					c.y -= c.h / 4;
+				}
 				monsters.add(c);
 			}
 		}
 		
 		player.x = GRID_SIZE * 2;
-		player.y = (LVL_H - gridH[2] - 1) * GRID_SIZE - player.h - (player.moveMode == MoveMode.FLY || player.moveMode == MoveMode.HOVER ? player.h / 4 : 0) - 1;
+		drop(player);
 		
 		int numBosses = (power % 20) == 10 ? 4 : 1;
 		for (int b = 0; b < numBosses; b++) {
@@ -142,28 +159,13 @@ public class Level implements MusicCallback, Serializable {
 			}
 			boss.heal();
 			boss.x = (LVL_W - 8 - b) * GRID_SIZE;
-			boss.y = (LVL_H - gridH[LVL_W - 8 - b] - 1) * GRID_SIZE - boss.h - (boss.moveMode == MoveMode.FLY || boss.moveMode == MoveMode.HOVER ? boss.h / 4 : 0) - 1;
+			drop(boss);
 			if (r.nextBoolean()) {
 				boss.dropItem = true;
 			} else {
 				boss.dropWeapon = true;
 			}
 			monsters.add(boss);
-		}
-		
-		// For now just add walls manually.
-		for (int y = 0; y < LVL_H; y++) {
-			for (int x = 0; x < LVL_W; x++) {
-				if (grid[y][x] >= SOLID_START) {
-					Wall w = new Wall();
-					w.x = x * GRID_SIZE;
-					w.y = y * GRID_SIZE;
-					w.w = GRID_SIZE;
-					w.h = GRID_SIZE;
-					w.tint = Clr.GREY; // For what it's worth.
-					walls.add(w);
-				}
-			}
 		}
 	}
 	
@@ -433,28 +435,39 @@ public class Level implements MusicCallback, Serializable {
 		shotsToAdd.clear();
 		//end("Add Shots");
 	}
+	
+	public void drop(Entity e) {
+		e.y = GRID_SIZE + 10;
+		e.dy = 2;
+		while (!physics(e, 1.0)) {
+			// Do nuffink.
+		}
+	}
 		
-	public void physics(Entity e, double amt) {
+	public boolean physics(Entity e, double amt) {
 		e.dx = e.dx > MAX_SPEED ? MAX_SPEED : e.dx < -MAX_SPEED ? -MAX_SPEED : e.dx;
 		e.dy = e.dy > MAX_SPEED ? MAX_SPEED : e.dy < -MAX_SPEED ? -MAX_SPEED : e.dy;
 		if (!e.collides || e.ignoresWalls) {
 			e.dy += e.gravityMult * G * amt;
 			e.x += e.dx * amt;
 			e.y += e.dy * amt;
-			return;
+			return false;
 		}
-		
+
+		boolean collided = false;
+		double slipperBonus = (e instanceof Creature && ((Creature) e).slipperiness > 0) ? 2 : 1;
 		for (double step = 0; step < amt; step += PHYSICS_STEP) {
 			double stepAmt = (amt - step) > PHYSICS_STEP ? PHYSICS_STEP : (amt - step);
 			e.dy += e.gravityMult * G * stepAmt;
-			e.x += e.dx * stepAmt;
+			e.x += e.dx * stepAmt * slipperBonus;
 			e.y += e.dy * stepAmt;
 			
 			for (Wall w : walls) {
 				if (e.x + e.w > w.x && e.y + e.h > w.y && e.x < w.x + w.w && e.y < w.y + w.h) {
+					collided = true;
 					if (e.popOnWorldHit) {
 						e.killMe = true;
-						return;
+						return true;
 					}
 					double dx = (e.x + e.w / 2 > w.x + w.w / 2) ? e.x - w.x - w.w : e.x + e.w - w.x;
 					double dy = (e.y + e.h / 2 > w.y + w.h / 2) ? e.y - w.y - w.h : e.y + e.h - w.y;
@@ -462,6 +475,7 @@ public class Level implements MusicCallback, Serializable {
 						e.x -= dx;
 						e.dx = 0;
 						e.ticksSinceSide = 0;
+						e.ticksSinceBottom = 0;
 						if (dx < 0) {
 							e.leftPress += e.pressAmount;
 						} else {
@@ -482,137 +496,9 @@ public class Level implements MusicCallback, Serializable {
 		e.rightPress = Math.min(e.maxPress, Math.max(0, e.rightPress - e.inflateAmount));
 		e.bottomPress = Math.min(e.maxPress, Math.max(0, e.bottomPress - e.bottomInflateAmount));
 		
-		/*e.dy += e.gravityMult * G;
-		if (e instanceof Creature && ((Creature) e).slipperiness > 0) {
-			e.dx *= 2;
-		}
-		int iters = 1;
-		if (!e.popOnWorldHit && (Math.abs(e.dx) > e.w / 2 || Math.abs(e.dy) > e.h / 2)) {
-			while ((e.dx > e.w / 2 || e.dy > e.h / 2)) {
-				iters *= 2;
-				e.dx /= 2;
-				e.dy /= 2;
-			}
-		}
-		for (int i = 0; i < iters; i++) {
-			e.x += e.dx;
-			if (!e.collides || e.ignoresWalls) { e.y += e.dy; return; }
-			int left = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor(e.x / GRID_SIZE)));
-			int right = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor((e.x + e.w) / GRID_SIZE)));
-			int top = Math.min(LVL_H - 1, Math.max(0, (int) Math.floor(e.y / GRID_SIZE)));
-			int bottom = Math.min(LVL_H - 1, Math.max(0, (int) Math.floor((e.y + e.h) / GRID_SIZE)));
-			
-			if (grid[top][left] >= SOLID_START &&
-				grid[bottom][left] >= SOLID_START &&
-				grid[top][right] >= SOLID_START &&
-				grid[bottom][right] >= SOLID_START)
-			{
-				if (e.popOnWorldHit) {
-					e.killMe = true;
-					return;
-				}
-				double cx = e.x + e.w / 2;
-				int gx = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor(cx / GRID_SIZE)));
-				double cy = e.y + e.h / 2;
-				int gy = Math.min(LVL_H - 1, Math.max(0, (int) Math.floor(cy / GRID_SIZE)));
-				boolean found = false;
-				double leastDistSq = 1000000000.0;
-				int bestDx = 0;
-				int bestDy = 0;
-				for (int dy = -1; dy < 2; dy++) { for (int dx = -1; dx < 2; dx++) {
-					int tgx = gx + dx;
-					int tgy = gy + dy;
-					if (tgx < 0 || tgx >= LVL_W || tgy < 0 || tgx >= LVL_H || grid[tgy][tgx] >= SOLID_START) {
-						continue;
-					}
-					int tcx = tgx * GRID_SIZE + GRID_SIZE / 2;
-					int tcy = tgy * GRID_SIZE + GRID_SIZE / 2;
-					double distSq = (cx - tcx) * (cx - tcx) + (cy - tcy) * (cy - tcy);
-					if (distSq < leastDistSq) {
-						found = true;
-						bestDx = dx;
-						bestDy = dy;
-						leastDistSq = distSq;
-					}
-				}}
-				
-				if (found) {
-					if (bestDx == 1) {
-						e.x = (gx + bestDx) * GRID_SIZE;
-					}
-					if (bestDx == -1) {
-						e.x = (gx + bestDx + 1) * GRID_SIZE - e.w - 0.0001;
-					}
-					if (bestDy == 1) {
-						e.y = (gy + bestDy) * GRID_SIZE;
-					}
-					if (bestDy == -1) {
-						e.y = (gy + bestDy + 1) * GRID_SIZE - e.h - 0.0001;
-					}
-				} else {
-					// Sob, put it into a safe place.
-					if (e instanceof Shot) {
-						e.killMe = true;
-						return;
-					} else {
-						e.x = LVL_W * GRID_SIZE / 2;
-						e.y = 3 * GRID_SIZE;
-						e.dx = 0;
-						e.dy = 0;
-						texts.add(new FloatingText("RANDOM TELEPORT!", e.x + e.w / 2, e.y));
-					}
-				}
-				
-				left = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor(e.x / GRID_SIZE)));
-				right = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor((e.x + e.w) / GRID_SIZE)));
-				top = Math.min(LVL_H - 1, Math.max(0, (int) Math.floor(e.y / GRID_SIZE)));
-				bottom = Math.min(LVL_H - 1, Math.max(0, (int) Math.floor((e.y + e.h) / GRID_SIZE)));
-			}
-			
-			if ((grid[top][left] >= SOLID_START || grid[bottom][left] >= SOLID_START)) {
-				e.x = (left + 1) * GRID_SIZE + 0.001;
-				left = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor(e.x / GRID_SIZE)));
-				right = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor((e.x + e.w) / GRID_SIZE)));
-				e.ticksSinceBottom = 0;
-				e.ticksSinceSide = 0;
-				e.leftPress += e.pressAmount;
-				if (e.popOnWorldHit) { e.killMe = true; }
-			} else if ((grid[top][right] >= SOLID_START || grid[bottom][right] >= SOLID_START)) {
-				e.x = right * GRID_SIZE - e.w - 0.001;
-				left = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor(e.x / GRID_SIZE)));
-				right = Math.min(LVL_W - 1, Math.max(0, (int) Math.floor((e.x + e.w) / GRID_SIZE)));
-				e.ticksSinceBottom = 0;
-				e.ticksSinceSide = 0;
-				e.rightPress += e.pressAmount;
-				if (e.popOnWorldHit) { e.killMe = true; }
-			}
-			e.y += e.dy;
-			top = Math.min(LVL_H - 1, Math.max(0, (int) Math.floor(e.y / GRID_SIZE)));
-			bottom = Math.min(LVL_H - 1, Math.max(0, (int) Math.floor((e.y + e.h) / GRID_SIZE)));
-			if ((grid[bottom][left] >= SOLID_START || grid[bottom][right] >= SOLID_START)) {
-				e.y = bottom * GRID_SIZE - e.h - 0.001;
-				if (e.dy > G * 2) {
-					e.bottomPress = (int) (e.dy * e.bottomPressSpeedMult);
-				}
-				e.dy = 0;
-				e.ticksSinceBottom = 0;
-				if (e.popOnWorldHit) { e.killMe = true; }
-			} else if ((grid[top][left] >= SOLID_START || grid[top][right] >= SOLID_START)) {
-				e.y = (top + 1) * GRID_SIZE + 0.001;
-				e.dy = 0;
-				if (e.popOnWorldHit) { e.killMe = true; }
-			}
-		}
-		e.dx *= iters;
-		e.dy *= iters;
-		e.ticksSinceBottom++;
-		e.ticksSinceSide++;
-		e.leftPress = Math.min(e.maxPress, Math.max(0, e.leftPress - e.inflateAmount));
-		e.rightPress = Math.min(e.maxPress, Math.max(0, e.rightPress - e.inflateAmount));
-		e.bottomPress = Math.min(e.maxPress, Math.max(0, e.bottomPress - e.bottomInflateAmount));
-		if (e instanceof Creature && ((Creature) e).slipperiness > 0) {
-			e.dx /= 2.05;
-		}*/
+		e.dx *= (1.01 - slipperBonus * 0.01);
+		
+		return collided;
 	}
 	
 	public boolean intersectsShot(Creature c, Shot s) {

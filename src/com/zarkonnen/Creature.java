@@ -856,9 +856,9 @@ public class Creature extends Entity implements HasDesc {
 								dx = 0;
 								dy = 0;
 								double ts = totalSpeed();
-								if ((rmm == MoveMode.CANTER || rmm == MoveMode.SLIDE || rmm == MoveMode.HOP) &&
+								if (2 * 2 == 4/*(rmm == MoveMode.CANTER || rmm == MoveMode.SLIDE || rmm == MoveMode.HOP) &&
 										((y + h - l.player.y - l.player.h) > 1 ||
-										l.grid[gy][(xpd < 0 ? gRight + 1 : gLeft - 1)] >= Level.SOLID_START))
+										l.grid[gy][(xpd < 0 ? gRight + 1 : gLeft - 1)] >= Level.SOLID_START)*/) // qqDPS
 								{
 									jump();
 									if (xpd > 0) {

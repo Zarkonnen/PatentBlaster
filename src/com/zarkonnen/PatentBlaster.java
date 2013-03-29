@@ -1354,7 +1354,7 @@ public class PatentBlaster implements Game {
 				}
 			}
 			//endStart("Grid");
-			for (int y = 0; y < l.grid.length; y++) {
+			/*for (int y = 0; y < l.grid.length; y++) {
 				for (int x = 0; x < l.grid[0].length; x++) {
 					if (l.grid[y][x] == 2) {
 						d.rect(Clr.GREY, x * Level.GRID_SIZE + scrollX, y * Level.GRID_SIZE + scrollY, Level.GRID_SIZE, Level.GRID_SIZE);
@@ -1365,7 +1365,7 @@ public class PatentBlaster implements Game {
 						d.blit(l.boss.img, l.boss.tint, x * Level.GRID_SIZE + scrollX + 20, y * Level.GRID_SIZE + scrollY + 20, Level.GRID_SIZE - 40, Level.GRID_SIZE - 40);
 					}
 				}
-			}
+			}*/
 			//endStart("Brackets");
 			// Bracket this in
 			// bottom
@@ -1373,6 +1373,9 @@ public class PatentBlaster implements Game {
 			// right
 			d.rect(Clr.DARK_GREY, scrollX + Level.LVL_W * Level.GRID_SIZE, scrollY - 600, 600, Level.LVL_H * Level.GRID_SIZE + 1200);
 			//endStart("Barrels");
+			for (Wall w : l.walls) {
+				w.draw(d, l, scrollX, scrollY);
+			}
 			for (Barrel b : l.barrels) {
 				b.draw(d, l, scrollX, scrollY);
 			}
