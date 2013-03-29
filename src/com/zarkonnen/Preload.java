@@ -1,8 +1,10 @@
 package com.zarkonnen;
 
+import com.zarkonnen.catengine.Img;
 import com.zarkonnen.catengine.Input;
 import static com.zarkonnen.catengine.util.Utils.*;
 import com.zarkonnen.trigram.Trigrams;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Preload {
@@ -23,11 +25,13 @@ public class Preload {
 	public static void preload(final Input in) {
 		if (preloadStarted) { return; }
 		preloadStarted = true;
-		new Thread("Sound Preloader") {
+		in.preload(new ArrayList<Img>(PatentBlaster.ITEM_IMGS.values()));
+		in.preload(new ArrayList<Img>(PatentBlaster.LARGE_ITEM_IMGS.values()));
+		new Thread("Sound and Image Preloader") {
 			@Override
 			public void run() {
 				in.preloadSounds(SOUNDS_TO_PRELOAD);
-			preloadCompleted = true;
+				preloadCompleted = true;
 			}
 		}.start();
 	}
@@ -39,7 +43,7 @@ public class Preload {
 	public static String preloadStatus() {
 		StringBuilder sb = new StringBuilder();
 		if (!preloadCompleted) {
-			sb.append("Caching sounds.\n");
+			sb.append("Caching sounds and images.\n");
 		}
 		if (!Names.namesLoaded()) {
 			sb.append("Downloading random names.\n");

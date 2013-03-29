@@ -132,7 +132,7 @@ public class Level implements MusicCallback, Serializable {
 			}
 		}
 		
-		player.x = GRID_SIZE * 2;
+		player.x = GRID_SIZE * 3;
 		drop(player);
 		
 		int numBosses = (power % 20) == 10 ? 4 : 1;

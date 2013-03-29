@@ -46,6 +46,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
 
 public class PatentBlaster implements Game {
 	public static final String version = "1.0.1";
@@ -103,6 +105,11 @@ public class PatentBlaster implements Game {
 	public static final HashMap<String, Img> ITEM_IMGS;
 	public static final HashMap<String, Img> LARGE_ITEM_IMGS;
 	
+	public static Img[] drawingImgs = new Img[IMG_NAMES.length];
+	public static Img[] drawingImgsLarge = new Img[IMG_NAMES.length];
+	public static Img[] backdropImgs = new Img[Level.NUM_BACKGROUNDS];
+	public static Img[] backdropWindowImgs = new Img[Level.NUM_BACKGROUNDS];
+	
 	public static final PrintStream ERR_STREAM;
 	
 	static {
@@ -146,6 +153,15 @@ public class PatentBlaster implements Game {
 			System.exit(1);
 		}
 		LARGE_ITEM_IMGS = liis;
+		
+		for (int i = 0; i < IMG_NAMES.length; i++) {
+			drawingImgs[i] = new Img("drawings/" + IMG_NAMES[i] + "_drawing");
+			drawingImgsLarge[i] = new Img("drawings/" + IMG_NAMES[i] + "_drawing_large");
+		}
+		for (int i = 0; i < Level.NUM_BACKGROUNDS; i++) {
+			backdropImgs[i] = new Img("background_" + i);
+			backdropWindowImgs[i] = new Img("background_" + i + "_window");
+		}
 	}
 			
 	public static void main(String[] args) {
@@ -204,21 +220,6 @@ public class PatentBlaster implements Game {
 	Img paper = new Img("paper.jpg");
 	Img splashImg = new Img("splash.jpg");
 	Img landscape = new Img("landscape");
-	Img[] drawingImgs = new Img[IMG_NAMES.length];
-	Img[] drawingImgsLarge = new Img[IMG_NAMES.length];
-	Img[] backdropImgs = new Img[Level.NUM_BACKGROUNDS];
-	Img[] backdropWindowImgs = new Img[Level.NUM_BACKGROUNDS];
-	
-	public PatentBlaster() {
-		for (int i = 0; i < IMG_NAMES.length; i++) {
-			drawingImgs[i] = new Img("drawings/" + IMG_NAMES[i] + "_drawing");
-			drawingImgsLarge[i] = new Img("drawings/" + IMG_NAMES[i] + "_drawing_large");
-		}
-		for (int i = 0; i < Level.NUM_BACKGROUNDS; i++) {
-			backdropImgs[i] = new Img("background_" + i);
-			backdropWindowImgs[i] = new Img("background_" + i + "_window");
-		}
-	}
 		
 	// Prefs stuff
 	public static DifficultyLevel difficultyLevel = DifficultyLevel.EASY;
@@ -309,6 +310,7 @@ public class PatentBlaster implements Game {
 	}
 	
 	boolean threaded = false;
+	boolean splashDrawn = false;
 	
 	@Override
 	public void input(Input in) {
@@ -322,7 +324,9 @@ public class PatentBlaster implements Game {
 	}
 	
 	public void doInput(Input in) {
-		Preload.preload(in);
+		if (splashDrawn) {
+			Preload.preload(in);
+		}
 		tick++;
 		//start("Input Processing");
 		if (in.keyDown("ESCAPE") || in.keyDown("ESC") || in.keyDown("⎋")) {
@@ -347,7 +351,7 @@ public class PatentBlaster implements Game {
 		}
 		
 		if (!System.getProperty("os.name").toLowerCase().matches(".*[iu]n[ui]x.*")) {
-			chosenMode = new ScreenMode(1024, 768, false);
+			chosenMode = new ScreenMode(1024, 768, true);
 		}
 		if (chosenMode == null) {
 			if (availableModes.isEmpty()) {
@@ -791,6 +795,7 @@ public class PatentBlaster implements Game {
 	}
 	
 	public void doRender(Frame f) {
+		GL11.glEnable(GL13.GL_MULTISAMPLE);
 		//start("Init");
 		Draw d = new Draw(f);
 		ScreenMode sm = f.mode();
@@ -825,6 +830,7 @@ public class PatentBlaster implements Game {
 			//start("Splash");
 			d.blit(splashImg, 0, 0);
 			d.text("[BLACK]" + Preload.preloadStatus(), FOUNT, 220, 620);
+			splashDrawn = true;
 		} else if (settings) {
 			//start("Settings");
 			if (lowGraphics) {
