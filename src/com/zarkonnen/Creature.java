@@ -697,14 +697,6 @@ public class Creature extends Entity implements HasDesc {
 			} else {
 				fuseTimer = 0;
 			}
-			int gLeft = (int) Math.floor((x) / Level.GRID_SIZE);
-			int gRight = (int) Math.floor((x + w) / Level.GRID_SIZE);
-			int gCenter = (int) Math.floor((x + w / 2) / Level.GRID_SIZE);
-			int gy = (int) Math.floor((y + h) / Level.GRID_SIZE);
-			if (gy > Level.LVL_H - 2) { gy = Level.LVL_H - 2; }
-			if (gy < 0) { gy = 0; }
-			if (gLeft < 0) { gLeft = 0; }
-			if (gRight >= Level.LVL_W) { gRight = Level.LVL_W - 1; } 
 			animCycle = (animCycle + 1) % animCycleLength;
 			double relCycle = animCycle * 1.0 / animCycleLength;
 			angle = 0;
@@ -856,9 +848,8 @@ public class Creature extends Entity implements HasDesc {
 								dx = 0;
 								dy = 0;
 								double ts = totalSpeed();
-								if (2 * 2 == 4/*(rmm == MoveMode.CANTER || rmm == MoveMode.SLIDE || rmm == MoveMode.HOP) &&
-										((y + h - l.player.y - l.player.h) > 1 ||
-										l.grid[gy][(xpd < 0 ? gRight + 1 : gLeft - 1)] >= Level.SOLID_START)*/) // qqDPS
+								if ((rmm == MoveMode.CANTER || rmm == MoveMode.SLIDE || rmm == MoveMode.HOP) &&
+										((y + h - l.player.y - l.player.h) > 1 || hasObstacle(l, xpd)))
 								{
 									jump();
 									if (xpd > 0) {
@@ -1649,5 +1640,23 @@ public class Creature extends Entity implements HasDesc {
 				break;
 		}
 		weapon.tint = weapon.element.tint;
+	}
+
+	private boolean hasObstacle(Level l, double xpd) {
+		double top = y - h;
+		double bottom = y + h;
+		double left = x - w;
+		double right = x + w * 2;
+		for (Wall w : l.walls) {
+			if (w.x < right &&
+				w.x + w.w > left &&
+				w.y < bottom &&
+				w.y + w.h > top)
+			{
+				//w.tint = tint;
+				return true;
+			}
+		}
+		return false;
 	}
 }

@@ -74,7 +74,7 @@ public class Level implements MusicCallback, Serializable {
 		walls.add(new Wall(0, GRID_SIZE, GRID_SIZE, GRID_SIZE * LVL_H - GRID_SIZE * 2));
 		walls.add(new Wall(GRID_SIZE * LVL_W - GRID_SIZE, GRID_SIZE, GRID_SIZE, GRID_SIZE * LVL_H - GRID_SIZE * 2));
 		
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 40; i++) {
 			walls.add(new Wall(
 					GRID_SIZE * 3 + r.nextInt(GRID_SIZE * (LVL_W - 7)),
 					GRID_SIZE * 3 + r.nextInt((GRID_SIZE * (LVL_H - 5))),
