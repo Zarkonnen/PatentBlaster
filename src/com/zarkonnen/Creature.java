@@ -150,7 +150,7 @@ public class Creature extends Entity implements HasDesc {
 	public int ticksSinceDirChange = 1000;
 	
 	public static final int MIN_DIR_CHANGE_WAIT = 20;
-	
+		
 	public Pt targetIntersect(Level l, double fromX, double fromY, double shotSpeed, int shotLife) {
 		Creature sim = new Creature();
 		sim.x = x;
@@ -352,9 +352,24 @@ public class Creature extends Entity implements HasDesc {
 		}
 		
 		// qqDPS BAD
-		ShootVector sv = shootVector(l);
+		/*ShootVector sv = shootVector(l, 0);
 		((Graphics) d.frame().nativeRenderer()).setColor(sv.valid ? Color.green : Color.red);
 		((Graphics) d.frame().nativeRenderer()).drawLine((float) (sv.a.x + scrollX), (float) (sv.a.y + scrollY), (float) (sv.b.x + scrollX), (float) (sv.b.y + scrollY));
+		
+		if (__vsvxt != -1) {
+			d.rect(Clr.MAGENTA, __vsvxt - 2 + scrollX, y + h / 2 - 2 + scrollY, 5, 5);
+		}
+		
+		if (sv.obstacle != null) {
+			double goLeft = sv.obstacle.x - w - Math.abs(y + h / 2 - l.player.y - l.player.h / 2);
+			double goRight = sv.obstacle.x + sv.obstacle.w + Math.abs(y + h / 2 - l.player.y - l.player.h / 2);
+			sv = shootVector(l, goLeft - gunX());
+			((Graphics) d.frame().nativeRenderer()).setColor(sv.valid ? Color.cyan : Color.pink);
+			((Graphics) d.frame().nativeRenderer()).drawLine((float) (sv.a.x + scrollX), (float) (sv.a.y + scrollY), (float) (sv.b.x + scrollX), (float) (sv.b.y + scrollY));
+			sv = shootVector(l, goRight - gunX());
+			((Graphics) d.frame().nativeRenderer()).setColor(sv.valid ? Color.cyan : Color.pink);
+			((Graphics) d.frame().nativeRenderer()).drawLine((float) (sv.a.x + scrollX), (float) (sv.a.y + scrollY), (float) (sv.b.x + scrollX), (float) (sv.b.y + scrollY));
+		}*/
 	}
 	
 	public void drawBars(Draw d, Level l, double scrollX, double scrollY) {
@@ -852,7 +867,16 @@ public class Creature extends Entity implements HasDesc {
 						}
 					} else {
 						if (ticksSinceBottom < AIR_STEERING) {
-							if (((charges && explodes) || far || fleeing || thief)) {
+							double vsvxt = weapon.reloadLeft != 0 || fleeing ? -1 : validShootVectorXTarget(l);
+							if (vsvxt != -1) {
+								dx = vsvxt > x ? totalSpeed() : -totalSpeed();
+								if (rmm == MoveMode.CANTER || rmm == MoveMode.SLIDE || rmm == MoveMode.HOP) {
+									jump();
+								}
+							} else if (((charges && explodes) || far || fleeing || thief)) {
+								if (vsvxt != -1) {
+									xpd = x - vsvxt;
+								}
 								dx = 0;
 								dy = 0;
 								double ts = totalSpeed();
@@ -897,7 +921,6 @@ public class Creature extends Entity implements HasDesc {
 							hp = 0;
 						}
 					}
-					//if (dx != 0) { flipped = dx > 0; }
 				}
 				if (thief && Math.abs(x - l.player.x) < w / 2 + l.player.w / 2 && Math.abs(y - l.player.y) < h / 2 + l.player.h / 2 && stolenItem == null && stolenWeapon == null && (!l.player.items.isEmpty() || l.player.weapons.size() > 1))
 				{
@@ -930,16 +953,19 @@ public class Creature extends Entity implements HasDesc {
 				if (Math.abs(xpd) < 512 + w) {
 					spotted = true;
 					if (weapon.reloadLeft == 0) {
+						ShootVector sv = shootVector(l, 0);
 						boolean doShoot = false;
-						if (randomShootDelay) {
-							shootDelay++;
-							if (shootDelay > todaysShootDelay) {
-								shootDelay = 0;
-								todaysShootDelay = l.r.nextInt(weapon.reload / 2 + 1);
+						if (sv.valid) {
+							if (randomShootDelay) {
+								shootDelay++;
+								if (shootDelay > todaysShootDelay) {
+									shootDelay = 0;
+									todaysShootDelay = l.r.nextInt(weapon.reload / 2 + 1);
+									doShoot = true;
+								}
+							} else {
 								doShoot = true;
 							}
-						} else {
-							doShoot = true;
 						}
 						if (doShoot) {
 							if (trackingAim) {
@@ -1650,32 +1676,75 @@ public class Creature extends Entity implements HasDesc {
 		weapon.tint = weapon.element.tint;
 	}
 	
-	private ShootVector shootVector(Level l) {
-		Pt src = new Pt(gunX(), gunY());
+	private ShootVector shootVector(Level l, double xOffset) {
+		Pt src = new Pt(gunX() + xOffset, gunY());
 		Pt target = new Pt(l.player.x + l.player.w / 2, l.player.y + l.player.h / 2);
-		if ((src.x - target.x) * (src.x - target.x) + (src.y - target.y) * (src.y - target.y) > weapon.range() * weapon.range()) {
-			return new ShootVector(src, target, false);
-		}
+		/*if ((src.x - target.x) * (src.x - target.x) + (src.y - target.y) * (src.y - target.y) > weapon.range() * weapon.range()) {
+			return new ShootVector(src, target, false, null);
+		}*/
 		// Being verrrry naughty. qqDPS
 		boolean valid = true;
+		Wall obstacle = null;
 		for (Wall wall : l.walls) {
 			Rectangle2D.Double r = new Rectangle2D.Double(wall.x, wall.y, wall.w, wall.h);
 			if (r.intersectsLine(src.x, src.y, target.x, target.y)) {
 				valid = false;
+				obstacle = wall;
 				break;
 			}
 		}
-		return new ShootVector(src, target, valid);
+		return new ShootVector(src, target, valid, obstacle);
+	}
+	
+	private double validShootVectorXTarget(Level l) {
+		ShootVector sv = shootVector(l, 0);
+		if (sv.valid) { return -1; }
+		double goLeft = sv.obstacle.x - w - Math.abs(y + h / 2 - l.player.y - l.player.h / 2);
+		double goRight = sv.obstacle.x + sv.obstacle.w + Math.abs(y + h / 2 - l.player.y - l.player.h / 2);
+		
+		boolean canGoLeft = validShootPosition(l, goLeft);
+		boolean canGoRight = validShootPosition(l, goRight);
+		
+		if (canGoLeft) {
+			if (canGoRight) {
+				if (Math.abs(x - goLeft) < Math.abs(x - goRight)) {
+					return goLeft;
+				} else {
+					return goRight;
+				}
+			} else {
+				return goLeft;
+			}
+		} else {
+			if (canGoRight) {
+				return goRight;
+			} else {
+				return -1;
+			}
+		}
+		
+		// find the current obstacle to shooting
+		// check the two possible sides of the obstacle:
+		// - are they valid places for us to be?
+		// - do they offer a clear shot?
+		// if either of them is valid, return its x-pos
+		// otherwise return -1
+	}
+	
+	private boolean validShootPosition(Level l, double x) {
+		return /*x > 0 && x < Level.LVL_W * Level.GRID_SIZE - w && */shootVector(l, x - gunX()).valid;
 	}
 	
 	static class ShootVector {
 		Pt a, b;
 		boolean valid;
+		Wall obstacle;
 
-		public ShootVector(Pt a, Pt b, boolean valid) {
+		public ShootVector(Pt a, Pt b, boolean valid, Wall obstacle) {
 			this.a = a;
 			this.b = b;
 			this.valid = valid;
+			this.obstacle = obstacle;
 		}
 	}
 
