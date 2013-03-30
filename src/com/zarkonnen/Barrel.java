@@ -5,7 +5,7 @@ import com.zarkonnen.catengine.util.Clr;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Barrel extends Entity {
+public class Barrel extends Wall {
 	public static final Clr GLUE_TINT = new Clr(220, 220, 190);
 	public static enum Type {
 		OIL(4, "squelch", false) {
@@ -123,8 +123,6 @@ public class Barrel extends Entity {
 		}
 	}
 	
-	public int initialHP;
-	public int hp;
 	public Type t;
 	public Weapon weapon;
 	public Creature meatSource;
@@ -136,17 +134,18 @@ public class Barrel extends Entity {
 		d.text("[bg=dddd88][BLACK]" + t.name().substring(textShift, Math.min(t.name().length(), 6) + textShift).replace("_", " "), PatentBlaster.SMOUNT, x + scrollX + 1, y + scrollY + 20);
 	}
 	
-	public Barrel(Type t, long seed, int power, double x, double y, Random r) {
+	public Barrel(Type t, long seed, int power, int x, int y, Random r) {
+		super(x, y, 42, 60);
 		if (t.name().length() > 6) {
 			textShift = r.nextInt(t.name().length() - 5);
 		}
 		this.t = t;
-		this.x = x;
-		this.y = y;
 		hp = (int) (Const.BASE_BARREL_HP * Const.powerLvl(power)) + 1;
 		initialHP = hp;
-		this.w = 42;
-		this.h = 60;
+		destructible = true;
+		gravityMult = 1;
+		collides = true;
+		ignoresWalls = false;
 		tint = Clr.GREY;
 		meatSource = new Creature();
 		meatSource.maxHP = (int) (Const.BASE_HP * Const.powerLvl(power)) + 1;
@@ -180,9 +179,9 @@ public class Barrel extends Entity {
 		}
 	}
 	
+	@Override
 	public void doDamage(Level l, Shot s) {
-		if (s.weapon == null) { return; }
-		hp -= s.weapon.dmg * s.dmgMultiplier;
+		super.doDamage(l, s);
 		if (hp < 0) {
 			explode(l);
 			killMe = true;
@@ -194,11 +193,14 @@ public class Barrel extends Entity {
 	}
 	
 	private void explode(Level l) {
+		meatSource.x = x;
+		meatSource.y = y;
 		l.soundRequests.add(new SoundRequest("shatter", x + w / 2, y + h / 2, 1.0));
 		l.soundRequests.add(new SoundRequest(t.breakSound, x + w / 2, y + h / 2, 1.0));
 		for (int gy = 0; gy < 56 / t.chunkSize; gy++) {
 			for (int gx = 0; gx < 38 / t.chunkSize; gx++) {
-				l.shotsToAdd.add(t.makeShot(l, this, x + gx * t.chunkSize, y + gy * t.chunkSize));
+				Shot s = t.makeShot(l, this, x + gx * t.chunkSize, y + gy * t.chunkSize);
+				l.shotsToAdd.add(s);
 			}
 		}
 		for (int gy = 0; gy < 6; gy++) {

@@ -21,8 +21,6 @@ public class Level implements MusicCallback, Serializable {
 	public static final int LVL_H = 15;
 	public static final int SOLID_START = 2;
 	public static final int MAX_SOUND_REQUESTS = 4;
-	//public int[][] grid;
-	//public int[] gridH;
 	public Creature player;
 	public ArrayList<Wall> walls = new ArrayList<Wall>();
 	public ArrayList<Creature> monsters = new ArrayList<Creature>();
@@ -32,7 +30,6 @@ public class Level implements MusicCallback, Serializable {
 	public LinkedList<Shot> flammables = new LinkedList<Shot>();
 	public ArrayList<Shot> shotsToAdd = new ArrayList<Shot>();
 	public ArrayList<FloatingText> texts = new ArrayList<FloatingText>();
-	public ArrayList<Barrel> barrels = new ArrayList<Barrel>();
 	public int tick = 0;
 	public Random r;
 	public Creature boss;
@@ -74,7 +71,15 @@ public class Level implements MusicCallback, Serializable {
 		walls.add(new Wall(0, GRID_SIZE, GRID_SIZE, GRID_SIZE * LVL_H - GRID_SIZE * 2));
 		walls.add(new Wall(GRID_SIZE * LVL_W - GRID_SIZE, GRID_SIZE, GRID_SIZE, GRID_SIZE * LVL_H - GRID_SIZE * 2));
 		
-		for (int i = 0; i < 40; i++) {
+		if (hasBarrels) {
+			for (int i = 0; i < 10; i++) {
+				Barrel b = new Barrel(bType, seed, power, GRID_SIZE * 2 + r.nextInt(10 + GRID_SIZE * (LVL_W - 4)), 100, r);
+				drop(b);
+				walls.add(b);
+			}
+		}
+		
+		for (int i = 0; i < 12; i++) {
 			walls.add(new Wall(
 					GRID_SIZE * 3 + r.nextInt(GRID_SIZE * (LVL_W - 7)),
 					GRID_SIZE * 3 + r.nextInt((GRID_SIZE * (LVL_H - 5))),
@@ -362,26 +367,20 @@ public class Level implements MusicCallback, Serializable {
 						}
 					}
 				}
-				if (!s.killMe && s.weapon != null) {
-					for (Barrel b : barrels) {
-						if (intersects(s, b)) {
-							if (!s.remains && !s.weapon.sword) {
-								s.killMe = true;
-							}
-							b.doDamage(this, s);
-							if (b.killMe) {
-								barrels.remove(b);
-							}
-							break;
-						}
-					}
-				}
 			} catch (Exception e) {
 				e.printStackTrace(PatentBlaster.ERR_STREAM);
 				s.killMe = true;
 			}
 			if (s.killMe) {
 				shots.set(i, null);
+			}
+		}
+		for (Iterator<Wall> it = walls.iterator(); it.hasNext();) {
+			Wall w = it.next();
+			physics(w, physicsAmt);
+			w.tick(this);
+			if (w.killMe) {
+				it.remove();
 			}
 		}
 		for (Iterator<Goodie> it = goodiesBeingTaken.iterator(); it.hasNext();) {
@@ -436,7 +435,7 @@ public class Level implements MusicCallback, Serializable {
 		//end("Add Shots");
 	}
 	
-	public void drop(Entity e) {
+	public final void drop(Entity e) {
 		e.y = GRID_SIZE + 10;
 		e.dy = 2;
 		while (!physics(e, 1.0)) {
@@ -463,10 +462,16 @@ public class Level implements MusicCallback, Serializable {
 			e.y += e.dy * stepAmt;
 			
 			for (Wall w : walls) {
-				if (e.x + e.w > w.x && e.y + e.h > w.y && e.x < w.x + w.w && e.y < w.y + w.h) {
+				if (w != e && e.x + e.w > w.x && e.y + e.h > w.y && e.x < w.x + w.w && e.y < w.y + w.h) {
 					collided = true;
 					if (e.popOnWorldHit) {
 						e.killMe = true;
+						if (e instanceof Shot) {
+							w.doDamage(this, (Shot) e);
+							if (w.killMe) {
+								walls.remove(w);
+							}
+						}
 						return true;
 					}
 					double dx = (e.x + e.w / 2 > w.x + w.w / 2) ? e.x - w.x - w.w : e.x + e.w - w.x;

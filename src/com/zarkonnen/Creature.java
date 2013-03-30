@@ -11,8 +11,11 @@ import java.util.Random;
 import static com.zarkonnen.PatentBlaster.round;
 import static com.zarkonnen.Const.*;
 import com.zarkonnen.catengine.Img;
+import java.awt.geom.Rectangle2D;
 import java.util.Collections;
 import java.util.LinkedList;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.Graphics;
 
 public class Creature extends Entity implements HasDesc {
 	public static final double MAX_SPEED = 5;
@@ -347,6 +350,11 @@ public class Creature extends Entity implements HasDesc {
 				d.rect(new Clr(255, 255, 255, shield), scrollX + x - w / 10, scrollY + y - h / 10, w + w / 5, h + h / 5, angle);
 			}
 		}
+		
+		// qqDPS BAD
+		ShootVector sv = shootVector(l);
+		((Graphics) d.frame().nativeRenderer()).setColor(sv.valid ? Color.green : Color.red);
+		((Graphics) d.frame().nativeRenderer()).drawLine((float) (sv.a.x + scrollX), (float) (sv.a.y + scrollY), (float) (sv.b.x + scrollX), (float) (sv.b.y + scrollY));
 	}
 	
 	public void drawBars(Draw d, Level l, double scrollX, double scrollY) {
@@ -1641,19 +1649,47 @@ public class Creature extends Entity implements HasDesc {
 		}
 		weapon.tint = weapon.element.tint;
 	}
+	
+	private ShootVector shootVector(Level l) {
+		Pt src = new Pt(gunX(), gunY());
+		Pt target = new Pt(l.player.x + l.player.w / 2, l.player.y + l.player.h / 2);
+		if ((src.x - target.x) * (src.x - target.x) + (src.y - target.y) * (src.y - target.y) > weapon.range() * weapon.range()) {
+			return new ShootVector(src, target, false);
+		}
+		// Being verrrry naughty. qqDPS
+		boolean valid = true;
+		for (Wall wall : l.walls) {
+			Rectangle2D.Double r = new Rectangle2D.Double(wall.x, wall.y, wall.w, wall.h);
+			if (r.intersectsLine(src.x, src.y, target.x, target.y)) {
+				valid = false;
+				break;
+			}
+		}
+		return new ShootVector(src, target, valid);
+	}
+	
+	static class ShootVector {
+		Pt a, b;
+		boolean valid;
+
+		public ShootVector(Pt a, Pt b, boolean valid) {
+			this.a = a;
+			this.b = b;
+			this.valid = valid;
+		}
+	}
 
 	private boolean hasObstacle(Level l, double xpd) {
 		double top = y - h;
 		double bottom = y + h;
 		double left = x - w;
 		double right = x + w * 2;
-		for (Wall w : l.walls) {
-			if (w.x < right &&
-				w.x + w.w > left &&
-				w.y < bottom &&
-				w.y + w.h > top)
+		for (Wall wall : l.walls) {
+			if (wall.x < right &&
+				wall.x + wall.w > left &&
+				wall.y < bottom &&
+				wall.y + wall.h > top)
 			{
-				//w.tint = tint;
 				return true;
 			}
 		}

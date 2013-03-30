@@ -212,7 +212,6 @@ public class PatentBlaster implements Game {
 	int gamesPlayed = 0;
 	int nothingInViewTicks = 0;
 	boolean thingsToRight = false;
-	boolean hasHadBarrelWarning = false;
 	
 	// Some images
 	Img rightarrow = new Img("rightarrow");
@@ -657,49 +656,38 @@ public class PatentBlaster implements Game {
 					if (difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
 						l.player.weapon.reduceInaccuracy = true;
 					}
-					boolean barrelWarning = false;
-					for (Barrel b : l.barrels) {
-						if (l.player.gunX() >= b.x && l.player.gunX() <= b.x + b.w && l.player.gunY() >= b.y && l.player.gunY() <= b.y + b.h) {
-							barrelWarning = true;
-						}
-					}
-					if (barrelWarning && !hasHadBarrelWarning) {
-						l.texts.add(new FloatingText("DON'T SHOOT THE BARREL!", l.player.x + l.player.w / 2, l.player.y));
-					}
-					hasHadBarrelWarning = barrelWarning;
-					if (!barrelWarning) {
-						hideCurs++;
-						Creature targ = null;
-						Creature nearest = null;
-						double bestDsq = 100000 * 100000;
-						for (Creature c : l.monsters) {
-							double dx = (l.player.gunX() - c.x - c.w / 2);
-							double dy = (l.player.gunY() - c.y - c.h / 2);
-							double dsq = dx * dx + dy * dy;
-							if (dsq < bestDsq) {
-								nearest = c;
-								bestDsq = dsq;
-								if (dsq < l.player.weapon.range() * l.player.weapon.range()) {
-									targ = c;
-								}
-							}
-						}
-						if (targ != null) {
-							double tx = targ.x + targ.w / 2;
-							double ty = targ.y + targ.h / 2;
-							l.player.shoot(tx, ty, l);
-							l.shotsFired++;
-						} else if (nearest != null) {
-							if (!targetingBooped) {
-								l.soundRequests.add(new SoundRequest("empty", 0, 0, 0.5));
-								if (!l.player.noTargetInRangeWarning) {
-									l.texts.add(new FloatingText("NO TARGET IN RANGE", l.player.x + l.player.w / 2, l.player.y));
-									l.player.noTargetInRangeWarning = true;
-								}
-								targetingBooped = true;
+					hideCurs++;
+					Creature targ = null;
+					Creature nearest = null;
+					double bestDsq = 100000 * 100000;
+					for (Creature c : l.monsters) {
+						double dx = (l.player.gunX() - c.x - c.w / 2);
+						double dy = (l.player.gunY() - c.y - c.h / 2);
+						double dsq = dx * dx + dy * dy;
+						if (dsq < bestDsq) {
+							nearest = c;
+							bestDsq = dsq;
+							if (dsq < l.player.weapon.range() * l.player.weapon.range()) {
+								targ = c;
 							}
 						}
 					}
+					if (targ != null) {
+						double tx = targ.x + targ.w / 2;
+						double ty = targ.y + targ.h / 2;
+						l.player.shoot(tx, ty, l);
+						l.shotsFired++;
+					} else if (nearest != null) {
+						if (!targetingBooped) {
+							l.soundRequests.add(new SoundRequest("empty", 0, 0, 0.5));
+							if (!l.player.noTargetInRangeWarning) {
+								l.texts.add(new FloatingText("NO TARGET IN RANGE", l.player.x + l.player.w / 2, l.player.y));
+								l.player.noTargetInRangeWarning = true;
+							}
+							targetingBooped = true;
+						}
+					}
+					l.player.weapon.reduceInaccuracy = false;
 				} else if (l.player.weapon.clickEmptyTimer == 0 && l.player.weapon.reloadLeft < l.player.weapon.reload - 10 && l.player.weapon.reloadLeft > 30) {
 					l.soundRequests.add(new SoundRequest("empty", 0, 0, 1.0));
 					l.player.weapon.clickEmptyTimer = Math.min(FPS, l.player.weapon.reload);
@@ -1381,9 +1369,6 @@ public class PatentBlaster implements Game {
 			//endStart("Barrels");
 			for (Wall w : l.walls) {
 				w.draw(d, l, scrollX, scrollY);
-			}
-			for (Barrel b : l.barrels) {
-				b.draw(d, l, scrollX, scrollY);
 			}
 			//endStart("Monsters");
 			for (Creature c : l.monsters) {
