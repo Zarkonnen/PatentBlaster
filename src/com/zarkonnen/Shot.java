@@ -43,6 +43,15 @@ public class Shot extends Entity {
 	public boolean flammable = false;
 	public Weapon flammableWeapon = null;
 	public boolean remains;
+	public Clr glowTint;
+	
+	@Override
+	public void draw(Draw d, Level l, double scrollX, double scrollY) {
+		if (glowTint != null) {
+			d.rect(glowTint, x - w / 2 + scrollX, y - h / 2 + + scrollY, w * 2, h * 2);
+		}
+		d.rect(tint, x + scrollX, y + scrollY, w, h);
+	}
 	
 	public Shot(Level l, Creature hoverer) {
 		this.hoverer = hoverer;
@@ -75,6 +84,7 @@ public class Shot extends Entity {
 		this.weapon = w;
 		this.shooter = shooter;
 		this.tint = w.element.tint;
+		this.glowTint = w.element.glowTint;
 		this.w = w.shotSize;
 		this.h = w.shotSize;
 		this.x = shooter.x - w.shotSize / 2 + (shooter.flipped ? (1 - PatentBlaster.IMG_SHOOT_X[shooter.imgIndex]) : PatentBlaster.IMG_SHOOT_X[shooter.imgIndex]) * shooter.w;
@@ -100,6 +110,12 @@ public class Shot extends Entity {
 			case STEEL:
 				sprayProbability = 0;
 				break;
+			case BLESSED:
+				sprayProbability = 1;
+				break;
+			case CURSED:
+				sprayProbability = 1;
+				break;
 		}
 		if (w.shotgun || w.flamethrower) {
 			sprayProbability /= 8;
@@ -118,6 +134,10 @@ public class Shot extends Entity {
 			stickiness = w.dmg * 2;
 			this.tint = STICKY_TINT;
 		}
+		if (w.bouncing) {
+			bounces = true;
+			popOnWorldHit = false;
+		}
 	}
 	
 	public Shot(Level l, Shot p) {
@@ -128,6 +148,7 @@ public class Shot extends Entity {
 		weapon = p.weapon;
 		shooter = p.shooter;
 		tint = p.tint;
+		glowTint = p.glowTint;
 		w = p.w / 2;
 		h = p.h / 2;
 		if (weapon.element == Element.ACID) {
@@ -136,8 +157,9 @@ public class Shot extends Entity {
 		}
 		x = p.x + p.w / 2 - w / 2;
 		y = p.y + p.h / 2 - h / 2;
-		dx = p.weapon.shotSpeed * (l.r.nextDouble() * 0.1 - 0.05);
-		dy = p.weapon.shotSpeed * (l.r.nextDouble() * 0.1 - 0.05);
+		double direction = l.r.nextDouble() * Math.PI * 2;
+		dx = Math.cos(direction) * p.weapon.shotSpeed * 0.05;//p.weapon.shotSpeed * (l.r.nextDouble() * 0.1 - 0.05);
+		dy = Math.sin(direction) * p.weapon.shotSpeed * 0.05;//p.weapon.shotSpeed * (l.r.nextDouble() * 0.1 - 0.05);
 		lifeLeft = p.weapon.shotLife / PatentBlaster.shotDivider();
 		switch (weapon.element) {
 			case ACID:
@@ -160,6 +182,19 @@ public class Shot extends Entity {
 				gravityMult = 0;
 				popOnWorldHit = true;
 				dmgMultiplier = 0.2 * PatentBlaster.shotDivider();
+				break;
+			case BLESSED:
+			case CURSED:
+				dx *= 3;
+				dy *= 3;
+				dx += p.dx;
+				dy += p.dy;
+				x += p.dx;
+				y += p.dy;
+				gravityMult = 0;
+				popOnWorldHit = true;
+				dmgMultiplier = 0.01 * PatentBlaster.shotDivider();
+				lifeLeft *= 0.2;
 				break;
 		}
 		

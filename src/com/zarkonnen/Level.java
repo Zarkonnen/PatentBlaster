@@ -87,32 +87,6 @@ public class Level implements MusicCallback, Serializable {
 					(int) (MAX_SPEED * 1.5)));
 		}
 		
-		/*grid = new int[LVL_H][LVL_W];
-		gridH = new int[LVL_W];
-		for (int i = 0; i < LVL_H; i++) {
-			grid[i][0] = SOLID_START;
-			grid[i][LVL_W - 1] = SOLID_START;
-		}
-		int h = 0;
-		for (int i = 0; i < LVL_W; i++) {
-			grid[0][i] = SOLID_START;
-			if (i < LVL_W - 4 && i > 3 && i % 3 == 0 && r.nextInt(5) != 0) {
-				h = h - 1 + r.nextInt(3);
-				h = Math.min(LVL_H - 6, Math.max(0, h));
-			}
-			gridH[i] = h;
-			for (int y = LVL_H - 1 - h; y < LVL_H; y++) {
-				grid[y][i] = SOLID_START;
-			}
-			if (i != 0 && i != LVL_W - 1) {
-				if (r.nextInt(12) == 0) {
-					grid[LVL_H - 2 - h][i] = 1;
-				} else if (i > 4 && hasBarrels && r.nextInt(9) == 0) {
-					barrels.add(new Barrel(bType, seed, power, i * GRID_SIZE + 1 + r.nextInt(7), (LVL_H - gridH[i] - 1) * GRID_SIZE - 61, r));
-				}
-			}
-		}*/
-		
 		for (int i = 0; i < window.length; i++) {
 			window[i] = r.nextInt(20) == 0;
 		}
@@ -124,10 +98,6 @@ public class Level implements MusicCallback, Serializable {
 			if (r.nextInt(cFreq) == 0) {
 				int type = r.nextInt(4);
 				Creature c = Creature.make(seed + type * 12345, power, PatentBlaster.NUM_IMAGES, false, false, true);
-				int reach = (int) Math.floor(c.w / GRID_SIZE);
-				/*if (grid[LVL_H - gridH[i] - 2][i + reach] >= SOLID_START) {
-					continue;
-				}*/
 				c.x = i * GRID_SIZE;
 				drop(c);
 				if (c.realMoveMode() == MoveMode.FLY || c.realMoveMode() == MoveMode.HOVER) {
@@ -478,7 +448,11 @@ public class Level implements MusicCallback, Serializable {
 					double dy = (e.y + e.h / 2 > w.y + w.h / 2) ? e.y - w.y - w.h : e.y + e.h - w.y;
 					if (Math.abs(dx) < Math.abs(dy)) {
 						e.x -= dx;
-						e.dx = 0;
+						if (e.bounces) {
+							e.dx *= -0.8;
+						} else {
+							e.dx = 0;
+						}
 						e.ticksSinceSide = 0;
 						e.ticksSinceBottom = 0;
 						if (dx < 0) {
@@ -489,7 +463,11 @@ public class Level implements MusicCallback, Serializable {
 					} else {
 						if (dy > 0) { e.ticksSinceBottom = 0; }
 						e.y -= dy;
-						e.dy = 0;
+						if (e.bounces) {
+							e.dy *= -0.8;
+						} else {
+							e.dy = 0;
+						}
 					}
 				}
 			}

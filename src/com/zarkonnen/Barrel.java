@@ -58,6 +58,7 @@ public class Barrel extends Wall {
 				s.freeAgent = true;
 				s.lifeLeft = s.lifeLeft / 2 + l.r.nextInt(s.lifeLeft / 2);
 				s.sprayProbability /= 4;
+				s.bounces = true;
 				return s;
 			}
 		},
@@ -75,6 +76,42 @@ public class Barrel extends Wall {
 				s.freeAgent = true;
 				s.lifeLeft = s.lifeLeft * 5 + l.r.nextInt(s.lifeLeft * 5);
 				s.sprayProbability = 0;
+				return s;
+			}
+		},
+		HOLY_WATER(2, "squelch", false) {
+			@Override
+			public Shot makeShot(Level l, Barrel b, double x, double y) {
+				double dir = l.r.nextDouble() * 2 * Math.PI;
+				Shot s = new Shot(l, b.weapon, b.meatSource, x + Math.cos(dir) * 100, y + Math.sin(dir) * 100);
+				s.dx *= 0.1;
+				s.dy *= 0.1;
+				s.popOnWorldHit = false;
+				s.gravityMult = 0.3;
+				s.x = x;
+				s.y = y;
+				s.freeAgent = true;
+				s.lifeLeft = s.lifeLeft * 5 + l.r.nextInt(s.lifeLeft * 5);
+				s.sprayProbability = 0.0001;
+				s.remains = true;
+				return s;
+			}
+		},
+		UNHOLY_WATER(2, "squelch", false) {
+			@Override
+			public Shot makeShot(Level l, Barrel b, double x, double y) {
+				double dir = l.r.nextDouble() * 2 * Math.PI;
+				Shot s = new Shot(l, b.weapon, b.meatSource, x + Math.cos(dir) * 100, y + Math.sin(dir) * 100);
+				s.dx *= 0.1;
+				s.dy *= 0.1;
+				s.popOnWorldHit = false;
+				s.gravityMult = 0.3;
+				s.x = x;
+				s.y = y;
+				s.freeAgent = true;
+				s.lifeLeft = s.lifeLeft * 5 + l.r.nextInt(s.lifeLeft * 5);
+				s.sprayProbability = 0.0001;
+				s.remains = true;
 				return s;
 			}
 		},
@@ -175,6 +212,16 @@ public class Barrel extends Wall {
 			case ACID:
 				weapon.element = Element.ACID;
 				weapon.tint = Element.ACID.tint;
+				break;
+			case HOLY_WATER:
+				weapon.element = Element.BLESSED;
+				weapon.tint = Element.BLESSED.tint;
+				weapon.dmg = 0;
+				break;
+			case UNHOLY_WATER:
+				weapon.element = Element.CURSED;
+				weapon.tint = Element.CURSED.tint;
+				weapon.dmg = 0;
 				break;
 		}
 	}

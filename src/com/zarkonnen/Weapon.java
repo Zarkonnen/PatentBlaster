@@ -44,11 +44,13 @@ public class Weapon implements HasDesc, Serializable {
 	public boolean grenade;
 	public boolean sword;
 	public boolean flamethrower;
+	public boolean bouncing;
 	public int numBullets = 1;
 	public String name;
 	public long seed;
 	public int clickEmptyTimer;
 	public boolean reduceInaccuracy;
+	public boolean doesPenetrate;
 	
 	public void tick() {
 		if (reloadLeft > 0) { reloadLeft--; } else { clickEmptyTimer = 0; }
@@ -68,7 +70,7 @@ public class Weapon implements HasDesc, Serializable {
 		Random r = new Random(seed);
 		Weapon w = new Weapon();
 		w.seed = seed;
-		w.element = Element.values()[r.nextInt(Element.values().length)];
+		w.element = Element.pick(r);
 		double dmg = BASE_DMG * w.element.dmgMult;
 		w.reload = MIN_RELOAD + r.nextInt(MAX_RELOAD - MIN_RELOAD);
 		w.reloadLeft = w.reload;
@@ -89,7 +91,9 @@ public class Weapon implements HasDesc, Serializable {
 		w.grenade = !w.homing && !w.swarm && !w.shotgun && !w.scattershot && r.nextInt(8) == 0;
 		w.sword = !PatentBlaster.DEMO && allowMelee && !w.homing && !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && r.nextInt(10) == 0;
 		w.flamethrower = allowMelee && !w.homing && !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && !w.sword && w.element == Element.FIRE && r.nextInt(6) == 0;
-		w.knockback = !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && !w.sword && !w.flamethrower && r.nextInt(30) == 0;
+		w.knockback = false;
+		w.bouncing = !w.flamethrower && !w.sticky && !w.sword && !w.homing && !w.swarm && r.nextInt(8) == 0;
+		
 		if (w.homing) { w.reload = w.reload * 3 / 2; dmg *= 0.8; w.shotLife = w.shotLife * 3 / 2; }
 		if (w.swarm) { dmg /= 8; w.shotSize = w.shotSize / 4 + 1; w.numBullets = 8; }
 		if (w.knockback) { dmg *= 0.8; }
@@ -99,6 +103,10 @@ public class Weapon implements HasDesc, Serializable {
 		if (w.grenade) { w.shotSize = w.shotSize * 1.5; w.reload *= 1.5; w.dmg *= 1.5; w.shotLife *= 0.6; w.shotSpeed *= 0.9; }
 		if (w.sword) { dmg /= w.reload; dmg *= 3; w.reload = 1; w.shotLife *= 0.5; w.jitter = 0; w.shotSize += 3; w.shotSpeed = 3; w.shotLife = Math.min(50, w.shotLife); }
 		if (w.flamethrower) { dmg /= w.reload; dmg *= 3; w.reload = 1; w.shotLife *= 0.4; w.jitter += 0.2; w.shotSize *= 0.75; }
+		if (w.bouncing) {
+			dmg *= 0.8;
+			w.shotLife *= 1.5;
+		}
 		w.tint = w.element.tint;
 		w.name = Names.pick(r);
 		w.imgIndex = r.nextInt(PatentBlaster.NUM_ITEM_IMAGES);
@@ -184,6 +192,9 @@ public class Weapon implements HasDesc, Serializable {
 		if (flamethrower) {
 			sb.append(is).append("Flamethrower.\n");
 		}
+		if (bouncing) {
+			sb.append(is).append("Bouncing.\n");
+		}
 		if (homing) {
 			if (swarm) {
 				sb.append(is).append("Homing Swarm.\n");
@@ -195,7 +206,7 @@ public class Weapon implements HasDesc, Serializable {
 	}
 
 	public boolean penetrates() {
-		return element == Element.STEEL || sword;
+		return element == Element.STEEL || sword || doesPenetrate;
 	}
 
 	@Override

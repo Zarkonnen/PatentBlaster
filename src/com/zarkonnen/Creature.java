@@ -14,8 +14,7 @@ import com.zarkonnen.catengine.Img;
 import java.awt.geom.Rectangle2D;
 import java.util.Collections;
 import java.util.LinkedList;
-import org.newdawn.slick.Color;
-import org.newdawn.slick.Graphics;
+import java.util.ListIterator;
 
 public class Creature extends Entity implements HasDesc {
 	public static final double MAX_SPEED = 5;
@@ -150,6 +149,12 @@ public class Creature extends Entity implements HasDesc {
 	public int ticksSinceDirChange = 1000;
 	
 	public static final int MIN_DIR_CHANGE_WAIT = 20;
+	
+	public LinkedList<Integer> curses = new LinkedList<Integer>();
+	public LinkedList<Integer> blessings = new LinkedList<Integer>();
+	
+	public static final String[] BLESSED = { "[" + Element.BLESSED.tint + "]BLESSED", "[" + Element.BLESSED.tint + "]TWICE BLESSED", "[" + Element.BLESSED.tint + "]THRICE BLESSED" };
+	public static final String[] CURSES = { "[" + Element.CURSED.tint + "]CURSED", "[" + Element.CURSED.tint + "]TWICE CURSED", "[" + Element.CURSED.tint + "]THRICE CURSED" };
 		
 	public Pt targetIntersect(Level l, double fromX, double fromY, double shotSpeed, int shotLife) {
 		Creature sim = new Creature();
@@ -213,7 +218,7 @@ public class Creature extends Entity implements HasDesc {
 		if (getStickiness() > totalMaxHP() / 4) {
 			s = Math.max(0, (s - 1) / 3);
 		}
-		return s * (charging ? 2 : 1);
+		return s * (charging ? 2 : 1) * (1.0 - Math.min(3, curses.size()) * 0.2);
 	}
 	
 	public int totalMaxHP() {
@@ -349,6 +354,20 @@ public class Creature extends Entity implements HasDesc {
 			if (shield > 0) {
 				d.rect(new Clr(255, 255, 255, shield), scrollX + x - w / 10, scrollY + y - h / 10, w + w / 5, h + h / 5, angle);
 			}
+		}
+		
+		String text = null;
+		int bls = Math.min(3, blessings.size());
+		if (bls > 0) {
+			text = BLESSED[bls - 1];
+		}
+		int crs = Math.min(3, curses.size());
+		if (crs > 0) {
+			text = CURSES[crs - 1];
+		}
+		if (text != null) {
+			Pt sz = d.textSize(text, PatentBlaster.FOUNT);
+			d.text(text, PatentBlaster.FOUNT, x + w / 2 - sz.x / 2 + scrollX, y - sz.y + scrollY);
 		}
 		
 		// qqDPS BAD
@@ -701,6 +720,22 @@ public class Creature extends Entity implements HasDesc {
 			}
 			killMe = true;
 			return;
+		}
+		for (ListIterator<Integer> it = blessings.listIterator(); it.hasNext();) {
+			int i = it.next();
+			if (i <= 0) {
+				it.remove();
+			} else {
+				it.set(i - 1);
+			}
+		}
+		for (ListIterator<Integer> it = curses.listIterator(); it.hasNext();) {
+			int i = it.next();
+			if (i <= 0) {
+				it.remove();
+			} else {
+				it.set(i - 1);
+			}
 		}
 		if (jar) {
 			return;
@@ -1145,7 +1180,40 @@ public class Creature extends Entity implements HasDesc {
 	public int takeDamage(Level l, Shot shot) {
 		if (hp <= 0) { return 0; }
 		Weapon src = shot.weapon;
+		if (shot.dmgMultiplier == 1) {
+			switch (src.element) {
+				case CURSED:
+					if (!blessings.isEmpty()) {
+						blessings.pop();
+					} else {
+						if (resistance(Element.CURSED) < 0.5) {
+							curses.add(PatentBlaster.FPS * 5);
+						}
+					}
+					break;
+				case BLESSED:
+					if (!curses.isEmpty()) {
+						curses.pop();
+					} else {
+						if (resistance(Element.BLESSED) < 0.5) {
+							blessings.add(PatentBlaster.FPS * 5);
+						}
+					}
+					break;
+			}
+		}
 		double dmg = src.dmg * shot.dmgMultiplier;
+		int crs = Math.min(3, curses.size());
+		int bls = Math.min(3, blessings.size());
+		dmg *= (1.0 - bls * 0.3);
+		switch (src.element) {
+			case CURSED:
+				dmg *= (1 + crs * 0.5);
+				break;
+			default:
+				dmg *= (1 + crs * 0.2);
+				break;
+		}
 		if (jar) {
 			dmg *= 10;
 		}
@@ -1268,7 +1336,7 @@ public class Creature extends Entity implements HasDesc {
 		Weapon w = Weapon.make(seed, power, !player);
 		c.weapon = w;
 		c.weapons.add(w);
-		Element el = Element.values()[r.nextInt(Element.values().length)];
+		Element el = Element.pick(r);
 		
 		Item it = Item.make(seed, power, c, null);
 		c.items.add(it);
@@ -1602,6 +1670,10 @@ public class Creature extends Entity implements HasDesc {
 
 	void heal() {
 		killMe = false;
+		dx = 0;
+		dy = 0;
+		curses.clear();
+		blessings.clear();
 		weapon.reloadLeft = 0;
 		hp = totalMaxHP();
 		heat = 0;
@@ -1653,6 +1725,12 @@ public class Creature extends Entity implements HasDesc {
 				case ICE:
 					resistance = Element.FIRE;
 					break;
+				case CURSED:
+					resistance = Element.BLESSED;
+					break;
+				case BLESSED:
+					resistance = Element.CURSED;
+					break;
 			}
 			tint = resistance.tint;
 		} else {
@@ -1671,6 +1749,14 @@ public class Creature extends Entity implements HasDesc {
 				break;
 			case ICE:
 				weapon.element = Element.FIRE;
+				break;
+			case CURSED:
+				weapon.element = Element.BLESSED;
+				weapon.dmg *= 2;
+				break;
+			case BLESSED:
+				weapon.element = Element.CURSED;
+				weapon.dmg /= 2;
 				break;
 		}
 		weapon.tint = weapon.element.tint;
