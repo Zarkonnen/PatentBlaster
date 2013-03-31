@@ -194,7 +194,9 @@ public class Shot extends Entity {
 				gravityMult = 0;
 				popOnWorldHit = true;
 				dmgMultiplier = 0.01 * PatentBlaster.shotDivider();
-				lifeLeft *= 0.2;
+				if (!p.weapon.grenade) {
+					lifeLeft *= 0.2;
+				}
 				break;
 		}
 		

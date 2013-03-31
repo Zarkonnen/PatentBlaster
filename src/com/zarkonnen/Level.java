@@ -450,6 +450,7 @@ public class Level implements MusicCallback, Serializable {
 						e.x -= dx;
 						if (e.bounces) {
 							e.dx *= -0.8;
+							e.numBounces++;
 						} else {
 							e.dx = 0;
 						}
@@ -465,6 +466,7 @@ public class Level implements MusicCallback, Serializable {
 						e.y -= dy;
 						if (e.bounces) {
 							e.dy *= -0.8;
+							e.numBounces++;
 						} else {
 							e.dy = 0;
 						}
@@ -544,6 +546,18 @@ public class Level implements MusicCallback, Serializable {
 						texts.add(new FloatingText("BBQ", s.x + s.w / 2, s.y));
 						//soundRequests.add(new SoundRequest("BBQ", s.x + s.w / 2, s.y + s.h / 2, 1.0));
 					}
+				}
+				if (preHP > 0 && c.hp <= 0 && s.numBounces == 1) {
+					texts.add(new FloatingText("TRICK SHOT", s.x + s.w / 2, s.y));
+				}
+				if (s.numBounces == 2) {
+					texts.add(new FloatingText("DOUBLE TRICK SHOT", s.x + s.w / 2, s.y));
+				}
+				if (s.numBounces == 3) {
+					texts.add(new FloatingText("TRIPLE TRICK SHOT", s.x + s.w / 2, s.y));
+				}
+				if (s.numBounces > 3) {
+					texts.add(new FloatingText(s.numBounces + "X TRICK SHOT!", s.x + s.w / 2, s.y));
 				}
 			}
 			if (!s.remains && !s.weapon.sword && (c.massive || !s.weapon.penetrates() || s.weapon.homing)) {

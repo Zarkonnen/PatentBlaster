@@ -53,10 +53,14 @@ public class Creature extends Entity implements HasDesc {
 	public boolean jar;
 	public boolean thief;
 	public boolean absorber;
+	public boolean sleepy;
 	public MoveMode moveMode;
 	
 	public boolean hovered = false;
 	public boolean flown = false;
+	
+	public boolean asleep;
+	public int sleepTimer = 0;
 	
 	public boolean unsplorted = false;
 	
@@ -155,6 +159,7 @@ public class Creature extends Entity implements HasDesc {
 	
 	public static final String[] BLESSED = { "[" + Element.BLESSED.tint + "]BLESSED", "[" + Element.BLESSED.tint + "]TWICE BLESSED", "[" + Element.BLESSED.tint + "]THRICE BLESSED" };
 	public static final String[] CURSES = { "[" + Element.CURSED.tint + "]CURSED", "[" + Element.CURSED.tint + "]TWICE CURSED", "[" + Element.CURSED.tint + "]THRICE CURSED" };
+	public static final int SLEEP_TIMEOUT = PatentBlaster.FPS * 5;
 		
 	public Pt targetIntersect(Level l, double fromX, double fromY, double shotSpeed, int shotLife) {
 		Creature sim = new Creature();
@@ -712,6 +717,14 @@ public class Creature extends Entity implements HasDesc {
 		if (slipperiness > 0) {
 			slipperiness--;
 		}
+		if (sleepy && hp == totalMaxHP()) {
+			if (sleepTimer++ > SLEEP_TIMEOUT) {
+				asleep = true;
+			}
+		} else {
+			asleep = false;
+			sleepTimer = 0;
+		}
 		newThingTimer++;
 		flamethrowerTicks++;
 		if (hp <= 0) {
@@ -742,7 +755,15 @@ public class Creature extends Entity implements HasDesc {
 		}
 		if (canFly()) { ticksSinceGainingFlight++; }
 		if (canHover()) { ticksSinceGainingHover++; }
-		if (frozen == 0) {
+		if (asleep) {
+			dx = 0;
+			gravityMult = 1.0;
+			if ((l.tick + (int) x) % 40 == 0) {
+				FloatingText ft = new FloatingText("Z", x + w / 2, y);
+				ft.dx = l.r.nextDouble() - 0.5;
+				l.texts.add(ft);
+			}
+		} else if (frozen == 0) {
 			if (jumpElongate > 0) {
 				jumpElongate = Math.max(0, jumpElongate - bottomInflateAmount);
 			}
@@ -1434,6 +1455,11 @@ public class Creature extends Entity implements HasDesc {
 		if (!player && !PatentBlaster.DEMO && !c.jar && r.nextInt((boss ? 10 : 100) / power + (boss ? 3 : 10)) == 0) {
 			c.absorber = true;
 			c.hp *= 0.85;
+		}
+		if (!player && !c.jar && r.nextInt(8) == 0) {
+			c.sleepy = true;
+			c.asleep = true;
+			c.hp *= 2;
 		}
 		if (boss) {
 			c.hp *= 1.5;
