@@ -135,7 +135,7 @@ public class Shot extends Entity {
 			this.tint = STICKY_TINT;
 		}
 		if (w.bouncing) {
-			bounces = true;
+			bounciness = 0.85;
 			popOnWorldHit = false;
 		}
 	}

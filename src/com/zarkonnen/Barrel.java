@@ -58,7 +58,7 @@ public class Barrel extends Wall {
 				s.freeAgent = true;
 				s.lifeLeft = s.lifeLeft / 2 + l.r.nextInt(s.lifeLeft / 2);
 				s.sprayProbability /= 4;
-				s.bounces = true;
+				s.bounciness = 0.7;
 				return s;
 			}
 		},

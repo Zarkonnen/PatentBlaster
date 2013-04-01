@@ -448,12 +448,8 @@ public class Level implements MusicCallback, Serializable {
 					double dy = (e.y + e.h / 2 > w.y + w.h / 2) ? e.y - w.y - w.h : e.y + e.h - w.y;
 					if (Math.abs(dx) < Math.abs(dy)) {
 						e.x -= dx;
-						if (e.bounces) {
-							e.dx *= -0.8;
-							e.numBounces++;
-						} else {
-							e.dx = 0;
-						}
+						e.dx *= e.bounciness;
+						e.numBounces++;
 						e.ticksSinceSide = 0;
 						e.ticksSinceBottom = 0;
 						if (dx < 0) {
@@ -464,12 +460,8 @@ public class Level implements MusicCallback, Serializable {
 					} else {
 						if (dy > 0) { e.ticksSinceBottom = 0; }
 						e.y -= dy;
-						if (e.bounces) {
-							e.dy *= -0.8;
-							e.numBounces++;
-						} else {
-							e.dy = 0;
-						}
+						e.dy *= -e.bounciness;
+						e.numBounces++;
 					}
 				}
 			}
