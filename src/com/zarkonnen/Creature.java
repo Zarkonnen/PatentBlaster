@@ -25,7 +25,7 @@ public class Creature extends Entity implements HasDesc {
 	public static final Clr FROZEN_CLR = new Clr(100, 110, 200);;
 	public static final Clr FROZEN_CUBE_CLR = new Clr(100, 110, 200, 120);
 	public static final int CLOAK_START_FADE = PatentBlaster.FPS;
-	public static final int CLOAK_END_FADE = PatentBlaster.FPS * 3;
+	public static final int CLOAK_END_FADE = PatentBlaster.FPS * 4;
 	public static final int OVERHEAT_RELOAD_MULT = 2;
 	public static final int OVERHEATING_START_MULT = 4;
 	public static final int MAX_OVERHEAT = 8;
@@ -375,10 +375,17 @@ public class Creature extends Entity implements HasDesc {
 					: 0;
 		
 		if (alpha > 0) {
+			if (playerControlled) {
+				alpha = Math.min(1.0, alpha + 0.05);
+			}
 			d.blit(theImg, t, alpha, imgX, imgY, imgW, imgH, angle);
+		} else {
+			if (playerControlled) {
+				d.blit(theImg, Item.Type.CLOAKING.tint, 0.55 + Math.sin(l.tick * 0.08) * 0.25, imgX, imgY, imgW, imgH, angle);
+			}
 		}
 		
-		if (cloakAmt > CLOAK_START_FADE) {
+		if (cloakAmt > CLOAK_START_FADE && !playerControlled) {
 			return;
 		}
 		
@@ -878,7 +885,7 @@ public class Creature extends Entity implements HasDesc {
 				fleeing = false;
 			}
 			
-			if (!playerControlled && l.player.hp > 0) {
+			if (!playerControlled && l.player.hp > 0 && !l.player.isInvisible()) {
 				targetX = l.player.x + l.player.w / 2;
 				targetY = l.player.y + l.player.h / 2;
 				if (voiceTimer > 0) { voiceTimer--; }
@@ -1358,8 +1365,9 @@ public class Creature extends Entity implements HasDesc {
 		}
 		
 		if (intDmg > 0) {
-			cloakAmt -= intDmg * 20 / Math.max(1, hp);
-			cloakAmt = cloakAmt < 0 ? 0 : cloakAmt;
+			decloaking = true;
+			//cloakAmt = 0;//-= intDmg * 100 / Math.max(1, hp);
+			//cloakAmt = cloakAmt < 0 ? 0 : cloakAmt;
 		}
 
 		hp -= intDmg;
@@ -1635,6 +1643,9 @@ public class Creature extends Entity implements HasDesc {
 		if (absorber) {
 			n = "Absorbing " + n;
 		}
+		if (cloaking) {
+			n = "Invisible " + n;
+		}
 		switch (realMoveMode()) {
 			case CANTER:
 				n = "Cantering " + n;
@@ -1725,6 +1736,7 @@ public class Creature extends Entity implements HasDesc {
 		if (resurrects) { sb.append("Resurrects.\n"); }
 		if (finalForm != null) { sb.append("Resurrects into a new form.\n"); }
 		if (splitsIntoFour) { sb.append("Splits into four smaller creatures.\n"); }
+		if (cloaking) { sb.append("Can turn invisible.\n"); }
 		if (jar) { sb.append("Creature jar.\n"); }
 		sb.append(weapon.desc(textTint));
 		for (Item it : items) {
@@ -1786,6 +1798,9 @@ public class Creature extends Entity implements HasDesc {
 		stuckShots.clear();
 		for (Item it : items) {
 			it.shieldReload = 0;
+		}
+		if (canCloak()) {
+			cloakAmt = CLOAK_END_FADE;
 		}
 	}
 
