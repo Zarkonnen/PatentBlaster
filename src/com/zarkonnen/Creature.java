@@ -24,6 +24,12 @@ public class Creature extends Entity implements HasDesc {
 	public static final Clr JAR_CLR = new Clr(110, 90, 85);
 	public static final Clr FROZEN_CLR = new Clr(100, 110, 200);;
 	public static final Clr FROZEN_CUBE_CLR = new Clr(100, 110, 200, 120);
+	public static final int CLOAK_START_FADE = PatentBlaster.FPS;
+	public static final int CLOAK_END_FADE = PatentBlaster.FPS * 3;
+	public static final int OVERHEAT_RELOAD_MULT = 2;
+	public static final int OVERHEATING_START_MULT = 4;
+	public static final int MAX_OVERHEAT = 8;
+	public static final double JITTER_PER_OVERHEAT = 0.06;
 	
 	public int imgIndex;
 	public Img bImg, flippedBImg;
@@ -54,6 +60,7 @@ public class Creature extends Entity implements HasDesc {
 	public boolean thief;
 	public boolean absorber;
 	public boolean sleepy;
+	public boolean cloaking;
 	public MoveMode moveMode;
 	
 	public boolean hovered = false;
@@ -61,6 +68,9 @@ public class Creature extends Entity implements HasDesc {
 	
 	public boolean asleep;
 	public int sleepTimer = 0;
+	
+	public int cloakAmt = 0;
+	public boolean decloaking = false;
 	
 	public boolean unsplorted = false;
 	
@@ -249,6 +259,18 @@ public class Creature extends Entity implements HasDesc {
 		return canFly() ? MoveMode.FLY : canHover() ? MoveMode.HOVER : moveMode;
 	}
 	
+	public boolean canCloak() {
+		if (cloaking) { return true; }
+		for (Item it : items) {
+			if (it.cloaking) { return true; }
+		}
+		return false;
+	}
+	
+	public boolean isInvisible() {
+		return cloakAmt >= CLOAK_END_FADE;
+	}
+	
 	public int shieldAmt() {
 		int a = 0;
 		for (Item it : items) {
@@ -345,7 +367,20 @@ public class Creature extends Entity implements HasDesc {
 			theImg = flipped ? flippedBImg : bImg;
 		}
 		
-		d.blit(theImg, t, imgX, imgY, imgW, imgH, angle);
+		double alpha =
+				cloakAmt < CLOAK_START_FADE
+				? 1
+				: cloakAmt < CLOAK_END_FADE 
+					? 1.0 - (cloakAmt - CLOAK_START_FADE) * 1.0 / (CLOAK_END_FADE - CLOAK_START_FADE)
+					: 0;
+		
+		if (alpha > 0) {
+			d.blit(theImg, t, alpha, imgX, imgY, imgW, imgH, angle);
+		}
+		
+		if (cloakAmt > CLOAK_START_FADE) {
+			return;
+		}
 		
 		for (Shot s : stuckShots) {
 			double delta = flipped ? w - s.x * 2 - s.w : 0;
@@ -398,6 +433,9 @@ public class Creature extends Entity implements HasDesc {
 	
 	public void drawBars(Draw d, Level l, double scrollX, double scrollY) {
 		if (hp <= 0) { return; }
+		if (cloakAmt > CLOAK_START_FADE && !playerControlled) {
+			return;
+		}
 		int tmh = totalMaxHP();
 		if ((l.player.canSeeStats || this == l.player) && (hp < tmh * 0.9 || heat > tmh / 16 || -heat > tmh / 16)) {
 			d.rect(weapon.reloadLeft == 0 ? Clr.WHITE : Clr.LIGHT_GREY, x + scrollX, y + scrollY + h - 10, w, 8);
@@ -764,6 +802,15 @@ public class Creature extends Entity implements HasDesc {
 				l.texts.add(ft);
 			}
 		} else if (frozen == 0) {
+			if (decloaking && cloakAmt > 0) {
+				cloakAmt -= 3;
+				if (cloakAmt <= 0) {
+					cloakAmt = 0;
+					decloaking = false;
+				}
+			} else if (cloakAmt < CLOAK_END_FADE && canCloak()) {
+				cloakAmt++;
+			}
 			if (jumpElongate > 0) {
 				jumpElongate = Math.max(0, jumpElongate - bottomInflateAmount);
 			}
@@ -1023,6 +1070,7 @@ public class Creature extends Entity implements HasDesc {
 								doShoot = true;
 							}
 						}
+						if (fleeing && cloaking) { doShoot = false; }
 						if (doShoot) {
 							if (trackingAim) {
 								Pt solution = l.player.targetIntersect(l, gunX(), gunY(), weapon.shotSpeed, weapon.shotLife);
@@ -1160,6 +1208,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public Shot shoot(double tx, double ty, Level l) {
+		decloaking = true;
 		if (weapon.reloadLeft == 0 && (!weapon.sword || lastShot == null || lastShot.age > 3) && !weapon.flamethrower) {
 			l.soundRequests.add(new SoundRequest(weapon.element.shotSound, x + w / 2, y + h / 2, 1.0));
 		}
@@ -1168,6 +1217,12 @@ public class Creature extends Entity implements HasDesc {
 			flamethrowerTicks = 0;
 		}
 		weapon.reloadLeft = weapon.reload;
+		if (weapon.overheats) {
+			weapon.overheating += weapon.reload * OVERHEAT_RELOAD_MULT;
+			if (weapon.overheating > weapon.reload * MAX_OVERHEAT) {
+				weapon.overheating = weapon.reload * MAX_OVERHEAT;
+			}
+		}
 		Shot s = null;
 		for (int i = 0; i < weapon.numBullets; i++) {
 			s = new Shot(l, weapon, this, tx, ty);
@@ -1300,6 +1355,11 @@ public class Creature extends Entity implements HasDesc {
 				}
 				bloodShots.get(0).eatHPGain = (int) (dmg * tv);
 			}
+		}
+		
+		if (intDmg > 0) {
+			cloakAmt -= intDmg * 20 / Math.max(1, hp);
+			cloakAmt = cloakAmt < 0 ? 0 : cloakAmt;
 		}
 
 		hp -= intDmg;
@@ -1460,6 +1520,11 @@ public class Creature extends Entity implements HasDesc {
 			c.sleepy = true;
 			c.asleep = true;
 			c.hp *= 2;
+		}
+		if (!player && !c.jar && !c.sleepy && power > 10 && r.nextInt(15) == 0) {
+			c.cloaking = true;
+			c.cloakAmt = CLOAK_END_FADE;
+			c.hp *= 0.7;
 		}
 		if (boss) {
 			c.hp *= 1.5;

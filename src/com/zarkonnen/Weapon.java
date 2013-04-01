@@ -45,6 +45,7 @@ public class Weapon implements HasDesc, Serializable {
 	public boolean sword;
 	public boolean flamethrower;
 	public boolean bouncing;
+	public boolean overheats;
 	public int numBullets = 1;
 	public String name;
 	public long seed;
@@ -52,9 +53,12 @@ public class Weapon implements HasDesc, Serializable {
 	public boolean reduceInaccuracy;
 	public boolean doesPenetrate;
 	
+	public int overheating = 0;
+	
 	public void tick() {
 		if (reloadLeft > 0) { reloadLeft--; } else { clickEmptyTimer = 0; }
 		if (clickEmptyTimer > 0) { clickEmptyTimer--; }
+		if (overheating > 0) { overheating--; }
 		reduceInaccuracy = false;
 	}
 	
@@ -92,7 +96,8 @@ public class Weapon implements HasDesc, Serializable {
 		w.sword = !PatentBlaster.DEMO && allowMelee && !w.homing && !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && r.nextInt(10) == 0;
 		w.flamethrower = allowMelee && !w.homing && !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && !w.sword && w.element == Element.FIRE && r.nextInt(6) == 0;
 		w.knockback = false;
-		w.bouncing = !w.flamethrower && !w.sticky && !w.sword && !w.homing && !w.swarm && r.nextInt(8) == 0;
+		w.bouncing = !w.flamethrower && !w.sticky && !w.sword && !w.homing && !w.swarm && r.nextInt(12) == 0;
+		w.overheats = !w.flamethrower && !w.shotgun && !w.swarm && !w.homing && !w.sword && w.reload < PatentBlaster.FPS && r.nextInt(12) == 0;
 		
 		if (w.homing) { w.reload = w.reload * 3 / 2; dmg *= 0.8; w.shotLife = w.shotLife * 3 / 2; }
 		if (w.swarm) { dmg /= 8; w.shotSize = w.shotSize / 4 + 1; w.numBullets = 8; }
@@ -106,6 +111,9 @@ public class Weapon implements HasDesc, Serializable {
 		if (w.bouncing) {
 			dmg *= 0.8;
 			w.shotLife *= 1.5;
+		}
+		if (w.overheats) {
+			dmg *= 1.6;
 		}
 		w.tint = w.element.tint;
 		w.name = Names.pick(r);
@@ -194,6 +202,11 @@ public class Weapon implements HasDesc, Serializable {
 		}
 		if (bouncing) {
 			sb.append(is).append("Bouncing.\n");
+		}
+		if (overheating > reload * Creature.OVERHEATING_START_MULT) {
+			sb.append(is).append("[RED]Overheated![]\n");
+		} else if (overheats) {
+			sb.append(is).append("Overheats.\n");
 		}
 		if (homing) {
 			if (swarm) {

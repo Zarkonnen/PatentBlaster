@@ -93,7 +93,11 @@ public class Shot extends Entity {
 		gravityMult = 0;
 		double dtx = tx - x, dty = ty - y;
 		double angle = Math.atan2(dty, dtx);
-		angle += (l.r.nextDouble() * 2 - 1) * (w.reduceInaccuracy ? w.jitter / 3 : w.jitter);
+		double jitter = (w.reduceInaccuracy ? w.jitter / 3 : w.jitter);
+		if (w.overheating > w.reload * Creature.OVERHEATING_START_MULT) {
+			jitter += (w.overheating * 1.0 / w.reload - Creature.OVERHEATING_START_MULT) * Creature.JITTER_PER_OVERHEAT;
+		}
+		angle += (l.r.nextDouble() * 2 - 1) * jitter;
 		dx = w.shotSpeed * Math.cos(angle);
 		dy = w.shotSpeed * Math.sin(angle);
 		lifeLeft = w.shotLife;

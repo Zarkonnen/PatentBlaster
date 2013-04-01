@@ -142,12 +142,23 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 			@Override
 			public boolean useful(Creature c) { return c.totalVamp() < 1.0; }
 		},
-		FLY(9, new Clr(200, 255, 200), 50) {
+		FLY(9, new Clr(200, 255, 200), 30) {
 			@Override
 			public void make(Item it, int power) {
 				it.fly = true;
 				if (power > 9) {
 					it.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(9)));
+				}
+			}
+			@Override
+			public boolean useful(Creature c) { return !c.canFly(); }
+		},
+		CLOAKING(13, new Clr(60, 55, 50), 20) {
+			@Override
+			public void make(Item it, int power) {
+				it.cloaking = true;
+				if (power > 13) {
+					it.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(13)));
 				}
 			}
 			@Override
@@ -189,16 +200,17 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 	public int shieldReloadTime = 300;
 	public double eating = 0;
 	public boolean resurrect;
+	public boolean cloaking;
 	public int creatureHPBonus = 0;
 	public long seed;
 	
 	public Item makeTwin() {
-		return new Item(name, type, power, imgIndex, img, largeImg, tint, resistance, resistanceVs, hpRegen, fly, hover, shield, vampireMult, givesInfo, resurrect, seed);
+		return new Item(name, type, power, imgIndex, img, largeImg, tint, resistance, resistanceVs, hpRegen, fly, hover, shield, vampireMult, givesInfo, resurrect, cloaking, seed);
 	}
 
 	public Item() {}
 	
-	public Item(String name, Type type, int power, int imgIndex, Img img, Img largeImg, Clr tint, double resistance, Element resistanceVs, double hpRegen, boolean fly, boolean hover, boolean shield, double vampireMult, boolean givesInfo, boolean resurrect, long seed) {
+	public Item(String name, Type type, int power, int imgIndex, Img img, Img largeImg, Clr tint, double resistance, Element resistanceVs, double hpRegen, boolean fly, boolean hover, boolean shield, double vampireMult, boolean givesInfo, boolean resurrect, boolean cloaking, long seed) {
 		this.name = name;
 		this.type = type;
 		this.power = power;
@@ -215,6 +227,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 		this.vampireMult = vampireMult;
 		this.givesInfo = givesInfo;
 		this.resurrect = resurrect;
+		this.cloaking = cloaking;
 		this.seed = seed;
 	}
 	
@@ -358,6 +371,9 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 				}
 			}
 		}
+		if (cloaking) {
+			sb.append(is).append("Turns wearer invisible\n");
+		}
 		sb.append("[]");
 		return sb.toString();
 	}
@@ -385,6 +401,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 		it.resurrect = resurrect;
 		it.creatureHPBonus = creatureHPBonus / 4;
 		it.hover = hover;
+		it.cloaking = cloaking;
 		return it;
 	}
 	
@@ -411,6 +428,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 		it.resurrect = resurrect;
 		it.creatureHPBonus = creatureHPBonus * 4;
 		it.hover = hover;
+		it.cloaking = cloaking;
 		return it;
 	}
 
@@ -427,6 +445,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 				hpRegen == it.hpRegen &&
 				resistance == it.resistance &&
 				resistanceVs == it.resistanceVs &&
-				vampireMult == it.vampireMult;
+				vampireMult == it.vampireMult &&
+				cloaking == it.cloaking;
 	}
 }

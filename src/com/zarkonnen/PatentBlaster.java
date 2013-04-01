@@ -1419,7 +1419,7 @@ public class PatentBlaster implements Game {
 				
 				if (l.power < 2) {
 					for (Creature c : l.monsters) {
-						if (c.ticksInView > FPS * 5) {
+						if (c.ticksInView > FPS * 5 && c.ticksInView < FPS * 10 && !c.isInvisible()) {
 							Pt sz = d.textSize("Shoot me!", FOUNT);
 							d.text(textBGTint + "Shoot me!", FOUNT, scrollX + c.x + c.w / 2 - sz.x / 2, scrollY + c.y - sz.y);
 						}
@@ -1482,8 +1482,13 @@ public class PatentBlaster implements Game {
 				tooFar = dist > l.player.weapon.range();
 				if (!l.player.weapon.swarm && (dx != 0 || dy != 0) && !tooFar) {
 					double angle = Math.atan2(dy, dx);
-					d.rect(recC, l.player.gunX() + scrollX + Math.cos(angle + l.player.weapon.jitter) * dist - 1, l.player.gunY() + scrollY + Math.sin(angle + l.player.weapon.jitter) * dist - 1, 2, 2);
-					d.rect(recC, l.player.gunX() + scrollX + Math.cos(angle - l.player.weapon.jitter) * dist - 1, l.player.gunY() + scrollY + Math.sin(angle - l.player.weapon.jitter) * dist - 1, 2, 2);
+					double jitter = l.player.weapon.jitter;
+					Weapon w = l.player.weapon;
+					if (w.overheating > w.reload * Creature.OVERHEATING_START_MULT) {
+						jitter += (w.overheating * 1.0 / w.reload - Creature.OVERHEATING_START_MULT) * Creature.JITTER_PER_OVERHEAT;
+					}
+					d.rect(recC, l.player.gunX() + scrollX + Math.cos(angle + jitter) * dist - 1, l.player.gunY() + scrollY + Math.sin(angle + jitter) * dist - 1, 2, 2);
+					d.rect(recC, l.player.gunX() + scrollX + Math.cos(angle - jitter) * dist - 1, l.player.gunY() + scrollY + Math.sin(angle - jitter) * dist - 1, 2, 2);
 				}
 			}
 			if (tooFar) {
