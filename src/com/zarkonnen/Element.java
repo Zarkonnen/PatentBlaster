@@ -8,8 +8,8 @@ public enum Element {
 	ACID(new Clr(120, 200, 30), 1.2, 1.05, "ACID"),
 	FIRE(new Clr(255, 80, 10), 1.0, 1.0, "FIRE"),
 	ICE(new Clr(100, 100, 255), 0.85, 0.8, "ICE"),
-	CURSED(new Clr(70, 150, 120), new Clr(70, 150, 120, 127), 0.5, 1.2, "CURSED"),
-	BLESSED(new Clr(255, 255, 240), new Clr(255, 255, 240, 127), 1.0, 1.2, "BLESSED");
+	CURSED(new Clr(70, 150, 120), new Clr(70, 150, 120, 63), 0.5, 1.2, "CURSED"),
+	BLESSED(new Clr(255, 255, 230), new Clr(255, 255, 240, 63), 1.0, 1.2, "BLESSED");
 	
 	public final Clr tint;
 	public final Clr glowTint;

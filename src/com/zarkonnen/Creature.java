@@ -1226,7 +1226,7 @@ public class Creature extends Entity implements HasDesc {
 		double dmg = src.dmg * shot.dmgMultiplier;
 		int crs = Math.min(3, curses.size());
 		int bls = Math.min(3, blessings.size());
-		dmg *= (1.0 - bls * 0.3);
+		dmg *= (1.0 - bls * 0.2);
 		switch (src.element) {
 			case CURSED:
 				dmg *= (1 + crs * 0.5);
@@ -1606,6 +1606,11 @@ public class Creature extends Entity implements HasDesc {
 		return desc(textTint, 0);
 	}
 	
+	static final String[] N_CE = { "", "Twice ", "Thrice "};
+	static final String nce(int amt) {
+		return N_CE[Math.min(3, amt) - 1];
+	}
+	
 	public String desc(Clr textTint, int numNums) {
 		StringBuilder sb = new StringBuilder();
 		if (resistance != null) {
@@ -1625,6 +1630,12 @@ public class Creature extends Entity implements HasDesc {
 		}
 		if (totalVamp() > 0) {
 			sb.append(round(totalVamp() * 100)).append("% of damage gained as HP\n");
+		}
+		if (!curses.isEmpty()) {
+			sb.append("[").append(Element.CURSED.tint).append("]").append(nce(curses.size())).append("Cursed[]: Taking ").append(round(curses.size() * 20)).append("% extra damage\n");
+		}
+		if (!blessings.isEmpty()) {
+			sb.append("[").append(Element.BLESSED.tint).append("]").append(nce(blessings.size())).append("Blessed[]: Taking ").append(round(blessings.size() * 20)).append("% less damage\n");
 		}
 		sb.append("Speed: ").append(round(totalSpeed() * PatentBlaster.FPS)).append(" px/sec\n");
 		//sb.append("Move mode: ").append(realMoveMode().name()).append("\n");
