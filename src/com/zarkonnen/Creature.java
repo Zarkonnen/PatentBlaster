@@ -343,15 +343,6 @@ public class Creature extends Entity implements HasDesc {
 		if (onFire > 0 && (l.tick / 8) % 2 == 0) {
 			t = Element.FIRE.tint;
 		}
-		if (PatentBlaster.lowGraphics) {
-			if (frozen > 0) {
-				t = FROZEN_CLR;
-			}
-			if (shield > 0) {
-				int amt = 100 + ((l.tick / 5) % 2) * 35 + shield;
-				t = new Clr(amt, amt, amt);
-			}
-		}
 		
 		double imgW = w / PatentBlaster.IMG_W[imgIndex];
 		double imgH = h / PatentBlaster.IMG_H[imgIndex];
@@ -394,13 +385,11 @@ public class Creature extends Entity implements HasDesc {
 			s.draw(d, l, scrollX + x + delta, scrollY + y);
 		}
 		
-		if (!PatentBlaster.lowGraphics) {
-			if (frozen > 0) {
-				d.rect(FROZEN_CUBE_CLR, scrollX + x - w / 10, scrollY + y - h / 10, w + w / 5, h + h / 5, angle);
-			}
-			if (shield > 0) {
-				d.rect(new Clr(255, 255, 255, shield), scrollX + x - w / 10, scrollY + y - h / 10, w + w / 5, h + h / 5, angle);
-			}
+		if (frozen > 0) {
+			d.rect(FROZEN_CUBE_CLR, scrollX + x - w / 10, scrollY + y - h / 10, w + w / 5, h + h / 5, angle);
+		}
+		if (shield > 0) {
+			d.rect(new Clr(255, 255, 255, shield), scrollX + x - w / 10, scrollY + y - h / 10, w + w / 5, h + h / 5, angle);
 		}
 		
 		String text = null;
@@ -839,14 +828,10 @@ public class Creature extends Entity implements HasDesc {
 					break;
 				case CANTER:
 					gravityMult = 1;
-					if (PatentBlaster.lowGraphics) {
-						angle = 0;
+					if (relCycle < 0.5) {
+						angle = (-3 + 6 * 2 * relCycle) * Math.PI / 180;
 					} else {
-						if (relCycle < 0.5) {
-							angle = (-3 + 6 * 2 * relCycle) * Math.PI / 180;
-						} else {
-							angle = (3 - 6 * 2 * (relCycle - 0.5)) * Math.PI / 180;
-						}
+						angle = (3 - 6 * 2 * (relCycle - 0.5)) * Math.PI / 180;
 					}
 					break;
 				case FLY:

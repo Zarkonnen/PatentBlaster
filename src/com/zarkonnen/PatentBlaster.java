@@ -195,7 +195,6 @@ public class PatentBlaster implements Game {
 	ArrayList<ScreenMode> availableModes = new ArrayList<ScreenMode>();
 	ScreenMode chosenMode = null;
 	ScreenMode hoverMode = null;
-	public static boolean lowGraphics = false;
 	boolean showFPS = false;
 	String menuHover = "FISHCAKES";
 	boolean showCredits;
@@ -285,7 +284,7 @@ public class PatentBlaster implements Game {
 		}
 	}
 	
-	public static int shotDivider() { return lowGraphics ? 4 : 1; }
+	public static int shotDivider() { return 1; }
 	
 	static String introTxt = "Patent Blaster! Click to proceed.";
 	
@@ -788,7 +787,7 @@ public class PatentBlaster implements Game {
 		Draw d = new Draw(f);
 		ScreenMode sm = f.mode();
 		d.rect(Clr.DARK_GREY, 0, 0, sm.width, sm.height);
-		String textBGTint = !lowGraphics ? "[bg=00000099]" : "[bg=222222]";
+		String textBGTint = "[bg=00000099]";
 		if (chosenMode == null) {
 			//start("Screen Mode Chooser");
 			d.text("Choose a screen mode.", FOUNT, 100, 100);
@@ -821,13 +820,9 @@ public class PatentBlaster implements Game {
 			splashDrawn = true;
 		} else if (settings) {
 			//start("Settings");
-			if (lowGraphics) {
-				d.rect(PAPER, 0, 0, sm.width, sm.height);
-			} else {
-				for (int y = 0; y < sm.width; y += 600) {
-					for (int x = 0; x < sm.height; x += 600) {
-						d.blit(paper, x, y);
-					}
+			for (int y = 0; y < sm.width; y += 600) {
+				for (int x = 0; x < sm.height; x += 600) {
+					d.blit(paper, x, y);
 				}
 			}
 			
@@ -979,13 +974,9 @@ public class PatentBlaster implements Game {
 			});
 		} else if (mainMenu) {
 			//start("Main Menu");
-			if (lowGraphics) {
-				d.rect(PAPER, 0, 0, sm.width, sm.height);
-			} else {
-				for (int y = 0; y < sm.width; y += 600) {
-					for (int x = 0; x < sm.height; x += 600) {
-						d.blit(paper, x, y);
-					}
+			for (int y = 0; y < sm.width; y += 600) {
+				for (int x = 0; x < sm.height; x += 600) {
+					d.blit(paper, x, y);
 				}
 			}
 			
@@ -1152,13 +1143,9 @@ public class PatentBlaster implements Game {
 			//start("Setup");
 			int spacing = 24;
 
-			if (lowGraphics) {
-				d.rect(PAPER, 0, 0, sm.width, sm.height);
-			} else {
-				for (int y = 0; y < sm.width; y += 600) {
-					for (int x = 0; x < sm.height; x += 600) {
-						d.blit(paper, x, y);
-					}
+			for (int y = 0; y < sm.width; y += 600) {
+				for (int x = 0; x < sm.height; x += 600) {
+					d.blit(paper, x, y);
 				}
 			}
 			if (setupCreatures.isEmpty()) {
@@ -1236,13 +1223,9 @@ public class PatentBlaster implements Game {
 		} else if (!l.shopItems.isEmpty()) {
 			//start("Shop");
 			int spacing = 24;
-			if (lowGraphics) {
-				d.rect(PAPER, 0, 0, sm.width, sm.height);
-			} else {
-				for (int y = 0; y < sm.width; y += 600) {
-					for (int x = 0; x < sm.height; x += 600) {
-						d.blit(paper, x, y);
-					}
+			for (int y = 0; y < sm.width; y += 600) {
+				for (int x = 0; x < sm.height; x += 600) {
+					d.blit(paper, x, y);
 				}
 			}
 			
@@ -1399,9 +1382,9 @@ public class PatentBlaster implements Game {
 				g.draw(d, l, 0, 0);
 			}
 			//endStart("Blood");
-			if (!lowGraphics && l.player.hp <= 0) {
+			if (l.player.hp <= 0) {
 				d.rect(DEAD, 0, 0, sm.width, sm.height);
-			} else if (!lowGraphics && l.player.hp < l.player.totalMaxHP() / 8) {
+			} else if (l.player.hp < l.player.totalMaxHP() / 8) {
 				d.rect(DYING, 0, 0, sm.width, sm.height);
 			}
 			/*if (l.tick < 1000) {
