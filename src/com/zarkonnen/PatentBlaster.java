@@ -49,7 +49,7 @@ import javax.swing.JOptionPane;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
-public class PatentBlaster implements Game {
+public class PatentBlaster implements Game, MusicCallback {
 	public static final String version = "1.0.1";
 	
 	public static final boolean DEMO = false;
@@ -172,6 +172,8 @@ public class PatentBlaster implements Game {
 		e.runUntil(Condition.ALWAYS);
 	}
 	
+	public static final String[] MUSICS = { "DST-1990", "DST-4Tran", "DST-ClubNight", "DST-CreepAlong", "DST-Cv-X", "DST-AngryMod" };
+	
 	Hooks h = new Hooks();
 	Hooks pastH;
 	double scrollX = 0;
@@ -211,6 +213,7 @@ public class PatentBlaster implements Game {
 	int gamesPlayed = 0;
 	int nothingInViewTicks = 0;
 	boolean thingsToRight = false;
+	boolean musicPlaying = false;
 	
 	// Some images
 	Img rightarrow = new Img("rightarrow");
@@ -373,13 +376,19 @@ public class PatentBlaster implements Game {
 			screened = true;
 			in.setCursorVisible(false);
 			cooldown += 10;
-			if (musicVolume > 0) {
-				in.playMusic(Level.MUSICS[0], musicVolume * 1.0 / 9, new MusicCallback() {
+		}
+		
+		if (tick > 1 && !musicPlaying) {
+			if (PatentBlaster.musicVolume > 0) {
+				musicPlaying = true;
+				if (PatentBlaster.musicVolume > 0) {
+					in.playMusic(MUSICS[(int) (System.currentTimeMillis() % MUSICS.length)], PatentBlaster.musicVolume * 1.0 / 9, new MusicCallback() {
 					@Override
 					public void run(String music, double volume) {
 						musicStarted = true;
 					}
-				}, null);
+				}, this);
+				}
 			} else {
 				musicStarted = true;
 			}
@@ -933,9 +942,7 @@ public class PatentBlaster implements Game {
 					@Override
 					public void run(Input in, Pt p, Type type) {
 						in.stopMusic();
-						if (ii != 0/* && ii != musicVolume*/) {
-							in.playMusic(Level.MUSICS[0], ii * 1.0 / 9, null, null);
-						}
+						musicPlaying = false;
 						musicVolume = ii;
 						savePrefs();
 					}
@@ -1664,5 +1671,10 @@ public class PatentBlaster implements Game {
 			// Ignore.
 		}
 		if (l != null) { setup = false; }
+	}
+	
+	@Override
+	public void run(String music, double volume) {
+		musicPlaying = false;
 	}
 }

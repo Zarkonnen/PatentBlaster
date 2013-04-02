@@ -1509,7 +1509,7 @@ public class Creature extends Entity implements HasDesc {
 			c.absorber = true;
 			c.hp *= 0.85;
 		}
-		if (!player && !c.jar && r.nextInt(8) == 0) {
+		if (!player && !c.jar && r.nextInt(15) == 0) {
 			c.sleepy = true;
 			c.asleep = true;
 			c.hp *= 2;

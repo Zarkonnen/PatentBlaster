@@ -1,8 +1,6 @@
 package com.zarkonnen;
 
 import com.zarkonnen.catengine.Input;
-import com.zarkonnen.catengine.MusicCallback;
-import com.zarkonnen.catengine.util.Clr;
 import com.zarkonnen.catengine.util.ScreenMode;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,7 +10,7 @@ import java.util.LinkedList;
 import java.util.Random;
 //import static com.zarkonnen.catengine.util.SpikeProfiler.*;
 
-public class Level implements MusicCallback, Serializable {
+public class Level implements Serializable {
 	public static final int GRID_SIZE = 60;
 	public static final double G = 0.2;
 	public static final double MAX_SPEED = 20;
@@ -34,7 +32,6 @@ public class Level implements MusicCallback, Serializable {
 	public Random r;
 	public Creature boss;
 	public ArrayList<SoundRequest> soundRequests = new ArrayList<SoundRequest>();
-	public String music;
 	public transient boolean musicPlaying = false;
 	public int power;
 	public int shotsFired = 0;
@@ -52,7 +49,6 @@ public class Level implements MusicCallback, Serializable {
 	public LinkedList<Goodie> goodiesBeingTaken = new LinkedList<Goodie>();
 	public boolean[] window = new boolean[LVL_W * GRID_SIZE / 512 + 2];
 	
-	public static final String[] MUSICS = { "DST-1990", "DST-4Tran", "DST-ClubNight", "DST-CreepAlong", "DST-Cv-X", "DST-AngryMod" };
 	public static final int[] BACKGROUND_HS = {406, 452, 512, 512, 256, 308};
 	public static final int NUM_BACKGROUNDS = 6;
 	
@@ -62,7 +58,6 @@ public class Level implements MusicCallback, Serializable {
 		r = new Random(seed);
 		boolean hasBarrels = power > 1 && r.nextBoolean();
 		Barrel.Type bType = Barrel.Type.available()[r.nextInt(Barrel.Type.available().length)];
-		music = MUSICS[r.nextInt(MUSICS.length)];
 		background = r.nextInt(NUM_BACKGROUNDS);
 		backgroundH = background > -1 ? BACKGROUND_HS[background] : 512;
 		
@@ -163,12 +158,6 @@ public class Level implements MusicCallback, Serializable {
 		for (Iterator<Integer> it = bbqVictims.iterator(); it.hasNext();) {
 			if (it.next() + PatentBlaster.FPS < tick) {
 				it.remove();
-			}
-		}
-		if (tick > 1 && !musicPlaying) {
-			musicPlaying = true;
-			if (PatentBlaster.musicVolume > 0) {
-				in.playMusic(music, PatentBlaster.musicVolume * 1.0 / 9, null, this);
 			}
 		}
 		try {
@@ -562,10 +551,5 @@ public class Level implements MusicCallback, Serializable {
 			}
 		}
 		return false;
-	}
-
-	@Override
-	public void run(String music, double volume) {
-		musicPlaying = false;
 	}
 }
