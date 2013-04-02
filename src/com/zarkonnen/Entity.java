@@ -37,4 +37,8 @@ public abstract class Entity implements Serializable {
 			d.rect(tint, x + scrollX, y + scrollY, w, h);
 		}
 	}
+	
+	void floatText(Level l, String text) {
+		l.texts.add(new FloatingText(text, x + w / 2, y));
+	}
 }

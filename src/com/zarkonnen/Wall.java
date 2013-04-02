@@ -14,13 +14,24 @@ public class Wall extends Entity {
 		ignoresWalls = true;
 	}
 	
+	public boolean isCollidedWith = true;
 	public boolean destructible;
-	public int initialHP;
-	public int hp;
+	public double initialHP;
+	public double hp;
 	
-	public void doDamage(Level l, Shot s) {
+	public void takeDamage(Level l, Shot s) {
 		if (!destructible) { return; }
 		if (s.weapon == null) { return; }
+		if (hp <= 0) { return; }
 		hp -= s.weapon.dmg * s.dmgMultiplier;
+	}
+	
+	public void smash(Level l) {
+		for (int gy = 0; gy < h; gy += 10) {
+			for (int gx = 0; gx < w; gx += 10) {
+				Shot s = new Shot(tint, 10, 10, false, 30 + l.r.nextInt(60), x + gx, y + gy, l.r.nextDouble() - 0.5, l.r.nextDouble() - 0.5, 1.0, null, false, false, false, x + gx, y + gy, 0);
+				l.shotsToAdd.add(s);
+			}
+		}
 	}
 }

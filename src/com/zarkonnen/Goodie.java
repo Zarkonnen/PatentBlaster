@@ -17,7 +17,7 @@ public class Goodie extends Entity {
 		age++;
 	}
 	
-	private Goodie(Creature from) {
+	private Goodie(Entity from) {
 		x = from.x + from.w / 2 - GOODIE_SIZE / 2;
 		y = from.h < GOODIE_SIZE - 1 ? (from.y - GOODIE_SIZE + from.h - 0.001) : (from.y + from.h / 2 - GOODIE_SIZE / 2);
 		w = GOODIE_SIZE;
@@ -27,14 +27,14 @@ public class Goodie extends Entity {
 		gravityMult = 1;
 	}
 
-	public Goodie(Creature from, Item item) {
+	public Goodie(Entity from, Item item) {
 		this(from);
 		this.item = item;
 		img = item.img;
 		tint = item.tint;
 	}
 
-	public Goodie(Creature from, Weapon weapon) {
+	public Goodie(Entity from, Weapon weapon) {
 		this(from);
 		this.weapon = weapon;
 		img = weapon.img;

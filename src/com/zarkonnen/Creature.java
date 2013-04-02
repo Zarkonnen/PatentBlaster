@@ -162,6 +162,8 @@ public class Creature extends Entity implements HasDesc {
 	public int xDir = 0;
 	public int ticksSinceDirChange = 1000;
 	
+	public boolean hasSeenCrate = false;
+	
 	public static final int MIN_DIR_CHANGE_WAIT = 20;
 	
 	public LinkedList<Integer> curses = new LinkedList<Integer>();
@@ -405,6 +407,7 @@ public class Creature extends Entity implements HasDesc {
 		if (crs > 0) {
 			text = CURSES[crs - 1];
 		}
+		//text = "" + (int) (dx * 100) + "/" + (int) (totalSpeed() * 100); // qqDPS
 		if (text != null) {
 			Pt sz = d.textSize(text, PatentBlaster.FOUNT);
 			d.text(text, PatentBlaster.FOUNT, x + w / 2 - sz.x / 2 + scrollX, y - sz.y + scrollY);

@@ -178,6 +178,8 @@ public class PatentBlaster implements Game, MusicCallback {
 	Hooks pastH;
 	double scrollX = 0;
 	double scrollY = 0;
+	int bgScrollX = 0;
+	int bgScrollY = 0;
 	static Level l;
 	Pt curs = new Pt(0, 0);
 	Pt lastCurs = new Pt(0, 0);
@@ -215,6 +217,7 @@ public class PatentBlaster implements Game, MusicCallback {
 	boolean thingsToRight = false;
 	boolean musicPlaying = false;
 	String currentMusic = MUSICS[0];
+	public static int gameTicks = 0;
 	
 	// Some images
 	Img rightarrow = new Img("rightarrow");
@@ -325,11 +328,18 @@ public class PatentBlaster implements Game, MusicCallback {
 		//frameDone(12);
 	}
 	
+	static int lastMs;
+	
 	public void doInput(Input in) {
 		if (splashDrawn) {
 			Preload.preload(in);
 		}
 		tick++;
+		if (tick % 120 == 0) {
+			lastMs = in.msDelta();
+		} else {
+			lastMs = Math.max(lastMs, in.msDelta());
+		}
 		//start("Input Processing");
 		if (in.keyDown("ESCAPE") || in.keyDown("ESC") || in.keyDown("⎋")) {
 			if (settings && cooldown == 0) {
@@ -353,7 +363,7 @@ public class PatentBlaster implements Game, MusicCallback {
 		}
 		
 		if (!System.getProperty("os.name").toLowerCase().matches(".*[iu]n[ui]x.*")) {
-			chosenMode = new ScreenMode(1024, 768, true);
+			chosenMode = new ScreenMode(1024, 768, true); // qqDPS
 		}
 		if (chosenMode == null) {
 			if (availableModes.isEmpty()) {
@@ -460,6 +470,8 @@ public class PatentBlaster implements Game, MusicCallback {
 			return;
 		}
 		
+		gameTicks++;
+		
 		if (!l.shopItems.isEmpty()) {
 			info = "";
 			hit(in);
@@ -496,6 +508,7 @@ public class PatentBlaster implements Game, MusicCallback {
 				setup = true;
 				nextLvlTime = 0;
 				cooldown += difficultyLevel == DifficultyLevel.EASY ? 100 : 30;
+				gameTicks = 0;
 				return;
 			}
 		} else if (l.won()) {
@@ -506,6 +519,7 @@ public class PatentBlaster implements Game, MusicCallback {
 				l.player.explode(l);
 				nextLvlTime = 0;
 				l.texts.add(new FloatingText("KILLED BY THE DEMO LIMIT", l.player.x + l.player.w / 2, l.player.y));
+				gameTicks = 0;
 				return;
 			}
 			nextLvlTime++;
@@ -624,12 +638,12 @@ public class PatentBlaster implements Game, MusicCallback {
 					l.player.dx = 0;
 				}
 				if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (l.player.slipperiness == 0 || Math.abs(l.player.dx) < 0.5) && (in.keyDown(key("LEFT")) || in.keyDown(key("A")))) {
-					l.player.dx = -(l.player.ticksSinceSide < Creature.AIR_STEERING ? Math.min(2.5, l.player.totalSpeed()) : l.player.totalSpeed());
+					l.player.dx = -(l.player.ticksSinceSide < Creature.AIR_STEERING && l.player.ticksSinceBottom < 2 ? Math.min(2.5, l.player.totalSpeed()) : l.player.totalSpeed());
 					//l.player.flipped = false;
 					l.movedLeft = true;
 				}
 				if (l.player.ticksSinceBottom < Creature.AIR_STEERING && (l.player.slipperiness == 0 || Math.abs(l.player.dx) < 0.5) && (in.keyDown(key("RIGHT")) || in.keyDown(key("D")))) {
-					l.player.dx = l.player.ticksSinceSide < Creature.AIR_STEERING ? Math.min(2.5, l.player.totalSpeed()) : l.player.totalSpeed();
+					l.player.dx = l.player.ticksSinceSide < Creature.AIR_STEERING && l.player.ticksSinceBottom < 2 ? Math.min(2.5, l.player.totalSpeed()) : l.player.totalSpeed();
 					//l.player.flipped = true;
 					l.movedRight = true;
 				}
@@ -738,6 +752,9 @@ public class PatentBlaster implements Game, MusicCallback {
 		ScreenMode sm = in.mode();
 		scrollX = sm.width / 2 - l.player.x - l.player.w / 2;
 		scrollY = sm.height * 2 / 3 - l.player.y - l.player.h / 2;
+		int newBGScrollX = (int) scrollX, newBGScrollY = (int) scrollY;
+		bgScrollX = Math.abs(bgScrollX - newBGScrollX) > 1 ? newBGScrollX : bgScrollX;
+		bgScrollY = Math.abs(bgScrollY - newBGScrollY) > 1 ? newBGScrollY : bgScrollY;
 		for (Goodie g : l.goodiesBeingTaken) {
 			goodiePos(g, sm);
 		}
@@ -1326,8 +1343,8 @@ public class PatentBlaster implements Game, MusicCallback {
 					int winIndex = 0;
 					for (int x = 0; x < (Level.LVL_W) * Level.GRID_SIZE; x += l.backgroundW) {
 						if (winYIndex == WIN_Y_INDEX[l.background] && l.window[winIndex++]) {
-							d.blit(landscape, x + (int) scrollX, y + (int) scrollY);
-							d.blit(backdropWindowImgs[l.background], x + (int) scrollX, y + (int) scrollY);
+							d.blit(landscape, x + bgScrollX, y + bgScrollY);
+							d.blit(backdropWindowImgs[l.background], x + bgScrollX, y + bgScrollY);
 						}
 					}
 					winYIndex++;
@@ -1339,7 +1356,7 @@ public class PatentBlaster implements Game, MusicCallback {
 						if (winYIndex == WIN_Y_INDEX[l.background] && l.window[winIndex++]) {
 							// Nothing
 						} else {
-							d.blit(backdropImgs[l.background], x + (int) scrollX, y + (int) scrollY);
+							d.blit(backdropImgs[l.background], x + bgScrollX, y + bgScrollY);
 						}
 					}
 					winYIndex++;
@@ -1441,6 +1458,7 @@ public class PatentBlaster implements Game, MusicCallback {
 		//endStart("FPS");
 		if (showFPS) {
 			d.text(f.fps() + " FPS", FOUNT, sm.width - 100, 40);
+			d.text(lastMs + " ms", FOUNT, sm.width - 100, 70);
 		}
 		
 		//d.text(timeSinceGC++ + " since GC", FOUNT, sm.width - 200, 70);

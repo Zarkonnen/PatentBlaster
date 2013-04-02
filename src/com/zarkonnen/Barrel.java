@@ -7,6 +7,7 @@ import java.util.Random;
 
 public class Barrel extends Wall {
 	public static final Clr GLUE_TINT = new Clr(220, 220, 190);
+	public static final Clr MEAT_TINT = new Clr(167, 82, 66);
 	public static enum Type {
 		OIL(4, "squelch", false) {
 			final Clr TINT = new Clr(10, 5, 0);
@@ -124,10 +125,9 @@ public class Barrel extends Wall {
 			}
 		},
 		HORSE_MEAT(9, "squelch", true) {
-			final Clr TINT = new Clr(167, 82, 66);
 			@Override
 			public Shot makeShot(Level l, Barrel b, double x, double y) {
-				Shot s = new Shot(TINT, chunkSize, chunkSize, false, 3000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 4 - 2, l.r.nextDouble() * 4 - 2, 1.0, b.meatSource, false, false, false, x, y, 0);
+				Shot s = new Shot(MEAT_TINT, chunkSize, chunkSize, false, 3000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 4 - 2, l.r.nextDouble() * 4 - 2, 1.0, b.meatSource, false, false, false, x, y, 0);
 				s.friction = 0.985;
 				return s;
 			}
@@ -227,10 +227,10 @@ public class Barrel extends Wall {
 	}
 	
 	@Override
-	public void doDamage(Level l, Shot s) {
-		super.doDamage(l, s);
+	public void takeDamage(Level l, Shot s) {
+		super.takeDamage(l, s);
 		if (s.weapon == null) { return; }
-		if (hp < 0) {
+		if (hp <= 0) {
 			explode(l);
 			killMe = true;
 		} else {

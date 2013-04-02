@@ -74,13 +74,14 @@ public class Level implements Serializable {
 			}
 		}
 		
-		for (int i = 0; i < 12; i++) {
+		/*for (int i = 0; i < 12; i++) {
 			walls.add(new Wall(
 					GRID_SIZE * 3 + r.nextInt(GRID_SIZE * (LVL_W - 7)),
 					GRID_SIZE * 3 + r.nextInt((GRID_SIZE * (LVL_H - 5))),
 					GRID_SIZE + r.nextInt(GRID_SIZE * 3),
 					(int) (MAX_SPEED * 1.5)));
-		}
+		}*/
+		FurnitureStore.furnish(this, 12);
 		
 		for (int i = 0; i < window.length; i++) {
 			window[i] = r.nextInt(20) == 0;
@@ -400,6 +401,12 @@ public class Level implements Serializable {
 		while (!physics(e, 1.0)) {
 			// Do nuffink.
 		}
+		if (e.y < GRID_SIZE + 10) {
+			e.y = GRID_SIZE * 8;
+			while (!physics(e, 1.0)) {
+				// Do nuffink.
+			}
+		}
 	}
 		
 	public boolean physics(Entity e, double amt) {
@@ -421,12 +428,12 @@ public class Level implements Serializable {
 			e.y += e.dy * stepAmt;
 			
 			for (Wall w : walls) {
-				if (w != e && e.x + e.w > w.x && e.y + e.h > w.y && e.x < w.x + w.w && e.y < w.y + w.h) {
+				if (w != e && w.isCollidedWith && e.x + e.w > w.x && e.y + e.h > w.y && e.x < w.x + w.w && e.y < w.y + w.h) {
 					collided = true;
 					if (e.popOnWorldHit) {
 						e.killMe = true;
 						if (e instanceof Shot) {
-							w.doDamage(this, (Shot) e);
+							w.takeDamage(this, (Shot) e);
 							if (w.killMe) {
 								walls.remove(w);
 							}
@@ -437,7 +444,7 @@ public class Level implements Serializable {
 					double dy = (e.y + e.h / 2 > w.y + w.h / 2) ? e.y - w.y - w.h : e.y + e.h - w.y;
 					if (Math.abs(dx) < Math.abs(dy)) {
 						e.x -= dx;
-						e.dx *= e.bounciness;
+						e.dx *= -e.bounciness;
 						e.numBounces++;
 						e.ticksSinceSide = 0;
 						e.ticksSinceBottom = 0;
@@ -528,17 +535,19 @@ public class Level implements Serializable {
 						//soundRequests.add(new SoundRequest("BBQ", s.x + s.w / 2, s.y + s.h / 2, 1.0));
 					}
 				}
-				if (preHP > 0 && c.hp <= 0 && s.numBounces == 1) {
-					texts.add(new FloatingText("TRICK SHOT", s.x + s.w / 2, s.y));
-				}
-				if (s.numBounces == 2) {
-					texts.add(new FloatingText("DOUBLE TRICK SHOT", s.x + s.w / 2, s.y));
-				}
-				if (s.numBounces == 3) {
-					texts.add(new FloatingText("TRIPLE TRICK SHOT", s.x + s.w / 2, s.y));
-				}
-				if (s.numBounces > 3) {
-					texts.add(new FloatingText(s.numBounces + "X TRICK SHOT!", s.x + s.w / 2, s.y));
+				if (s.dmgMultiplier == 1) {
+					if (preHP > 0 && c.hp <= 0 && s.numBounces == 1) {
+						texts.add(new FloatingText("TRICK SHOT", s.x + s.w / 2, s.y));
+					}
+					if (s.numBounces == 2) {
+						texts.add(new FloatingText("DOUBLE TRICK SHOT", s.x + s.w / 2, s.y));
+					}
+					if (s.numBounces == 3) {
+						texts.add(new FloatingText("TRIPLE TRICK SHOT", s.x + s.w / 2, s.y));
+					}
+					if (s.numBounces > 3) {
+						texts.add(new FloatingText(s.numBounces + "X TRICK SHOT!", s.x + s.w / 2, s.y));
+					}
 				}
 			}
 			if (!s.remains && !s.weapon.sword && (c.massive || !s.weapon.penetrates() || s.weapon.homing)) {
