@@ -229,6 +229,7 @@ public class Barrel extends Wall {
 	@Override
 	public void doDamage(Level l, Shot s) {
 		super.doDamage(l, s);
+		if (s.weapon == null) { return; }
 		if (hp < 0) {
 			explode(l);
 			killMe = true;

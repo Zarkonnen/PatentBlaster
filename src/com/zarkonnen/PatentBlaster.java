@@ -214,6 +214,7 @@ public class PatentBlaster implements Game, MusicCallback {
 	int nothingInViewTicks = 0;
 	boolean thingsToRight = false;
 	boolean musicPlaying = false;
+	String currentMusic = MUSICS[0];
 	
 	// Some images
 	Img rightarrow = new Img("rightarrow");
@@ -382,12 +383,15 @@ public class PatentBlaster implements Game, MusicCallback {
 			if (PatentBlaster.musicVolume > 0) {
 				musicPlaying = true;
 				if (PatentBlaster.musicVolume > 0) {
-					in.playMusic(MUSICS[(int) (System.currentTimeMillis() % MUSICS.length)], PatentBlaster.musicVolume * 1.0 / 9, new MusicCallback() {
-					@Override
-					public void run(String music, double volume) {
-						musicStarted = true;
+					if (currentMusic == null) {
+						currentMusic = MUSICS[(int) (System.currentTimeMillis() % MUSICS.length)];
 					}
-				}, this);
+					in.playMusic(currentMusic, PatentBlaster.musicVolume * 1.0 / 9, new MusicCallback() {
+						@Override
+						public void run(String music, double volume) {
+							musicStarted = true;
+						}
+					}, this);
 				}
 			} else {
 				musicStarted = true;
@@ -1291,6 +1295,10 @@ public class PatentBlaster implements Game, MusicCallback {
 							l.player.weapon.reloadLeft = 10;
 							l.player.weapon.clickEmptyTimer = 12;
 							l.shopItems.clear();
+							cooldown = 10;
+							in.stopMusic();
+							musicPlaying = false;
+							currentMusic = null;
 						}
 					});
 				}

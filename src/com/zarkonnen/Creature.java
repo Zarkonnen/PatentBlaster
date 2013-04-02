@@ -321,8 +321,12 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public void jump() {
-		dy = -totalSpeed() * 0.2 - HOP_BONUS * (getStickiness() > totalMaxHP() / 4 ? 0.1 : 1);
-		jumpElongate = maxPress;
+		if (realMoveMode() == MoveMode.FLY) {
+			dy = -totalSpeed();
+		} else {
+			dy = -totalSpeed() * 0.2 - HOP_BONUS * (getStickiness() > totalMaxHP() / 4 ? 0.1 : 1);
+			jumpElongate = maxPress;
+		}
 	}
 	
 	@Override
@@ -965,17 +969,15 @@ public class Creature extends Entity implements HasDesc {
 							double vsvxt = weapon.reloadLeft != 0 || fleeing ? -1 : validShootVectorXTarget(l);
 							if (vsvxt != -1) {
 								dx = vsvxt > x ? totalSpeed() : -totalSpeed();
-								if (rmm == MoveMode.CANTER || rmm == MoveMode.SLIDE || rmm == MoveMode.HOP) {
+								/*if (rmm == MoveMode.CANTER || rmm == MoveMode.SLIDE || rmm == MoveMode.HOP) {
 									jump();
-								}
+								}*/
+								jump();
 							} else if (((charges && explodes) || far || fleeing || thief)) {
-								if (vsvxt != -1) {
-									xpd = x - vsvxt;
-								}
 								dx = 0;
 								dy = 0;
 								double ts = totalSpeed();
-								if ((rmm == MoveMode.CANTER || rmm == MoveMode.SLIDE || rmm == MoveMode.HOP) &&
+								if (/*(rmm == MoveMode.CANTER || rmm == MoveMode.SLIDE || rmm == MoveMode.HOP) &&*/
 										((y + h - l.player.y - l.player.h) > 1 || hasObstacle(l, xpd)))
 								{
 									jump();
@@ -1158,7 +1160,9 @@ public class Creature extends Entity implements HasDesc {
 		} else if (realMoveMode() == MoveMode.FLY && !playerControlled) {
 			dx = 0.96 * originalDx + 0.04 * dx;
 			dy = 0.96 * originalDy + 0.04 * dy;
-			flipped = dx > 0;
+			if (Math.abs(dx) > 0.2) {
+				flipped = dx > 0;
+			}
 		} else {
 			int currentXDir = dx < 0 ? -1 : dx > 0 ? 1 : 0;
 			if (currentXDir != xDir && !playerControlled && ticksSinceDirChange < MIN_DIR_CHANGE_WAIT) {
