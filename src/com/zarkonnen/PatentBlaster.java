@@ -41,6 +41,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -521,7 +522,25 @@ public class PatentBlaster implements Game, MusicCallback {
 				return;
 			}
 			nextLvlTime++;
-			if (nextLvlTime >= 140) {
+			if (nextLvlTime == 10) {
+				for (Iterator<Wall> it = l.walls.iterator(); it.hasNext();) {
+					Wall w = it.next();
+					if (w.isFloor) {
+						w.smash(l);
+						it.remove();
+					} else {
+						if (!w.isMainWall) {
+							w.gravityMult = 1.0;
+							w.isCollidedWith = false;
+						}
+					}
+					l.soundRequests.add(new SoundRequest("shatter", l.player.x + l.player.w / 2, l.player.y + l.player.h, 1.0));
+				}
+			}
+			if (nextLvlTime >= 10) {
+				l.player.enforcedFalling = true;
+			}
+			if (nextLvlTime >= 207) {
 				l.player.newThing = null;
 				l = new Level(System.currentTimeMillis(), l.power + 1, l.player);
 				l.player.heal();
@@ -1474,6 +1493,11 @@ public class PatentBlaster implements Game, MusicCallback {
 			Pt sz = d.textSize(key("F") + " to toggle flight mode", FOUNT);
 			d.text("[bg=00000099]" + key("F") + " to toggle flight mode", FOUNT, sm.width / 2 - sz.x / 2, sm.height * 2 / 3 - FOUNT.lineHeight / 2 - 50);
 		}
+		
+		if (nextLvlTime > 80) {
+			d.rect(new Clr(0, 0, 0, (nextLvlTime - 80) * 2), 0, 0, sm.width, sm.height);
+		}
+		
 		if (hideCurs < 3 || mainMenu || setup || splash || !l.shopItems.isEmpty()) {
 			//endStart("Cursor");
 			Clr recC = Clr.RED;

@@ -22,6 +22,7 @@ public abstract class Entity implements Serializable {
 	public boolean ignoresWalls = false;
 	public double bounciness = 0.15;
 	public int numBounces = 0;
+	public int speedLimit = 20;
 	
 	public double bottomPressSpeedMult = 10.0;
 	public int bottomInflateAmount = 1;

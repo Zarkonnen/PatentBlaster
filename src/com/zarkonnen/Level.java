@@ -13,7 +13,6 @@ import java.util.Random;
 public class Level implements Serializable {
 	public static final int GRID_SIZE = 60;
 	public static final double G = 0.2;
-	public static final double MAX_SPEED = 20;
 	public static final double PHYSICS_STEP = 0.5;
 	public static final int LVL_W = 50;
 	public static final int LVL_H = 15;
@@ -61,10 +60,10 @@ public class Level implements Serializable {
 		background = r.nextInt(NUM_BACKGROUNDS);
 		backgroundH = background > -1 ? BACKGROUND_HS[background] : 512;
 		
-		walls.add(new Wall(0, 0, GRID_SIZE * LVL_W, GRID_SIZE));
-		walls.add(new Wall(0, GRID_SIZE * LVL_H - GRID_SIZE, GRID_SIZE * LVL_W, GRID_SIZE));
-		walls.add(new Wall(0, GRID_SIZE, GRID_SIZE, GRID_SIZE * LVL_H - GRID_SIZE * 2));
-		walls.add(new Wall(GRID_SIZE * LVL_W - GRID_SIZE, GRID_SIZE, GRID_SIZE, GRID_SIZE * LVL_H - GRID_SIZE * 2));
+		walls.add(new Wall(0, 0, GRID_SIZE * LVL_W, GRID_SIZE).mainWall());
+		walls.add(new Wall(0, GRID_SIZE * LVL_H - GRID_SIZE, GRID_SIZE * LVL_W, GRID_SIZE).floor());
+		walls.add(new Wall(0, GRID_SIZE, GRID_SIZE, GRID_SIZE * LVL_H - GRID_SIZE * 2).mainWall());
+		walls.add(new Wall(GRID_SIZE * LVL_W - GRID_SIZE, GRID_SIZE, GRID_SIZE, GRID_SIZE * LVL_H - GRID_SIZE * 2).mainWall());
 		
 		if (hasBarrels) {
 			for (int i = 0; i < 10; i++) {
@@ -441,8 +440,8 @@ public class Level implements Serializable {
 	}
 		
 	public boolean physics(Entity e, double amt) {
-		e.dx = e.dx > MAX_SPEED ? MAX_SPEED : e.dx < -MAX_SPEED ? -MAX_SPEED : e.dx;
-		e.dy = e.dy > MAX_SPEED ? MAX_SPEED : e.dy < -MAX_SPEED ? -MAX_SPEED : e.dy;
+		e.dx = e.dx > e.speedLimit ? e.speedLimit : e.dx < -e.speedLimit ? -e.speedLimit : e.dx;
+		e.dy = e.dy > e.speedLimit ? e.speedLimit : e.dy < -e.speedLimit ? -e.speedLimit : e.dy;
 		if (!e.collides || e.ignoresWalls) {
 			e.dy += e.gravityMult * G * amt;
 			e.x += e.dx * amt;

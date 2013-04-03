@@ -172,6 +172,7 @@ public class Creature extends Entity implements HasDesc {
 	public static final String[] BLESSED = { "[" + Element.BLESSED.tint + "]BLESSED", "[" + Element.BLESSED.tint + "]TWICE BLESSED", "[" + Element.BLESSED.tint + "]THRICE BLESSED" };
 	public static final String[] CURSES = { "[" + Element.CURSED.tint + "]CURSED", "[" + Element.CURSED.tint + "]TWICE CURSED", "[" + Element.CURSED.tint + "]THRICE CURSED" };
 	public static final int SLEEP_TIMEOUT = PatentBlaster.FPS * 5;
+	public boolean enforcedFalling;
 		
 	public Pt targetIntersect(Level l, double fromX, double fromY, double shotSpeed, int shotLife) {
 		Creature sim = new Creature();
@@ -1199,6 +1200,7 @@ public class Creature extends Entity implements HasDesc {
 			y += h - newH;
 			h = newH;
 		}
+		if (enforcedFalling) { gravityMult = 1.5; speedLimit = 40; } else { speedLimit = 20; }
 	}
 	
 	public Shot shoot(double tx, double ty, Level l) {
@@ -1770,6 +1772,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 
 	void heal() {
+		enforcedFalling = false;
 		killMe = false;
 		dx = 0;
 		dy = 0;

@@ -8,6 +8,7 @@ public class Crate extends Wall {
 		super(x, y, FurnitureStore.CRATE.w, FurnitureStore.CRATE.h);
 		tint = FurnitureStore.DEFAULT;
 		destructible = true;
+		floor();
 		
 		int roll = l.r.nextInt(10);
 		if (roll <= 1) {

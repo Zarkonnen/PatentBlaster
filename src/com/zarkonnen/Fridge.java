@@ -14,6 +14,7 @@ public class Fridge extends EmitterWall {
 		destructible = true;
 		weapon.shotSpeed *= 0.15;
 		weapon.shotLife *= 0.3;
+		floor();
 	}
 	
 	@Override

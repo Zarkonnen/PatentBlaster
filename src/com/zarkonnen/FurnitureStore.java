@@ -24,7 +24,7 @@ public enum FurnitureStore {
 			return new Fridge(l, x, y, w, h);
 		}
 	},
-	/*TABLE(Location.FLOOR, 180, 90, 0),
+	TABLE(Location.FLOOR, 180, 90, 0),
 	CANDLE_TABLE(Location.FLOOR, 90, 130, 40) {
 		@Override
 		public void assemble(Level l, int x, int y) {
@@ -35,24 +35,24 @@ public enum FurnitureStore {
 	FOUNTAIN(Location.FLOOR, 120, 120, 0) {
 		@Override
 		public void assemble(Level l, int x, int y) {
-			l.walls.add(new Wall(x, y + 60, 120, 60));
+			l.walls.add(new Wall(x, y + 60, 120, 60).floor());
 			l.walls.add(new Fountainhead(x + 60, y, l.power, Element.ICE, Clr.BLUE));
 		}
 	},
 	HOLY_FOUNTAIN(Location.FLOOR, 120, 120, 0) {
 		@Override
 		public void assemble(Level l, int x, int y) {
-			l.walls.add(new Wall(x, y + 60, 120, 60));
+			l.walls.add(new Wall(x, y + 60, 120, 60).floor());
 			l.walls.add(new Fountainhead(x + 60, y, l.power, Element.BLESSED, Element.BLESSED.tint));
 		}
 	},
 	UNHOLY_FOUNTAIN(Location.FLOOR, 120, 120, 0) {
 		@Override
 		public void assemble(Level l, int x, int y) {
-			l.walls.add(new Wall(x, y + 60, 120, 60));
+			l.walls.add(new Wall(x, y + 60, 120, 60).floor());
 			l.walls.add(new Fountainhead(x + 60, y, l.power, Element.CURSED, Element.CURSED.tint));
 		}
-	},*/
+	},
 	SHELF(Location.WALL, 120, 25, 0),
 	BOOKSHELF(Location.WALL, 120, 50, 0) {
 		@Override
@@ -87,7 +87,7 @@ public enum FurnitureStore {
 				super.draw(d, l, scrollX, scrollY);
 				d.text(name(), PatentBlaster.FOUNT, x + scrollX, y + scrollY);
 			}
-		};
+		}.floor();
 		wall.tint = DEFAULT;
 		return wall;
 	}
