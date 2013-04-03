@@ -9,9 +9,9 @@ public enum FurnitureStore {
 		public Wall build(Level l, int x, int y) {
 			return new Crate(l, x, y);
 		}
-	},/*
+	},
 	DRESSER(Location.FLOOR, 100, 90, 0),
-	WARDROBE(Location.FLOOR, 70, 140, 0),*/
+	WARDROBE(Location.FLOOR, 70, 140, 0),
 	FRIDGE(Location.FLOOR, 75, 120, 0) {
 		@Override
 		public Wall build(Level l, int x, int y) {
@@ -54,6 +54,7 @@ public enum FurnitureStore {
 		}
 	},
 	SHELF(Location.WALL, 120, 25, 0),
+	PLATFORM(Location.WALL, 400, 30, 0),
 	BOOKSHELF(Location.WALL, 120, 50, 25) {
 		@Override
 		public void assemble(Level l, int x, int y) {
@@ -72,7 +73,17 @@ public enum FurnitureStore {
 			l.walls.add(new EvilBook(x + l.r.nextInt(80) + 10, y + 45, l));
 		}
 	},
-	//DOGSHELF(Location.WALL, 120, 50, 0),
+	DOGSHELF(Location.WALL, 120, 65, 40) {
+		@Override
+		public void assemble(Level l, int x, int y) {
+			SHELF.assemble(l, x, y + 40);
+			int start = 5 + l.r.nextInt(30);
+			while (start < 80) {
+				l.walls.add(new ChinaDog(x + start, y + 40));
+				start += 33 + l.r.nextInt(30);
+			}
+		}
+	},
 	/*BEESHELF(Location.WALL, 120, 90, 0),
 	ACIDSHELF(Location.WALL, 120, 90, 0),
 	MEDISHELF(Location.WALL, 120, 90, 0),

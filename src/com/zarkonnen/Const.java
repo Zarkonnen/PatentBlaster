@@ -6,7 +6,7 @@ public class Const {
 	}
 	
 	public static final double BASE_BARREL_HP = 10;
-	public static final double BASE_HP = 10;
+	public static final double BASE_HP = 8;
 	public static final double BASE_HP_BONUS = BASE_HP * 0.35;
 	public static final double BASE_DMG = 3;
 	public static final double BASE_REGEN = 0.04 * BASE_HP / PatentBlaster.FPS; // 4% / second
