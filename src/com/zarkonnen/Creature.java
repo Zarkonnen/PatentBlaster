@@ -1280,13 +1280,13 @@ public class Creature extends Entity implements HasDesc {
 		double dmg = src.dmg * shot.dmgMultiplier;
 		int crs = Math.min(3, curses.size());
 		int bls = Math.min(3, blessings.size());
-		dmg *= (1.0 - bls * 0.2);
+		dmg *= (1.0 - bls * 0.25);
 		switch (src.element) {
 			case CURSED:
-				dmg *= (1 + crs * 0.5);
+				dmg *= (1 + crs * 0.75);
 				break;
 			default:
-				dmg *= (1 + crs * 0.2);
+				dmg *= (1 + crs * 0.3);
 				break;
 		}
 		if (jar) {
@@ -1700,10 +1700,10 @@ public class Creature extends Entity implements HasDesc {
 			sb.append(round(totalVamp() * 100)).append("% of damage gained as HP\n");
 		}
 		if (!curses.isEmpty()) {
-			sb.append("[").append(Element.CURSED.tint).append("]").append(nce(curses.size())).append("Cursed[]: Taking ").append(round(curses.size() * 20)).append("% extra damage\n");
+			sb.append("[").append(Element.CURSED.tint).append("]").append(nce(curses.size())).append("Cursed[]: Taking ").append(round(curses.size() * 30)).append("% extra damage\n");
 		}
 		if (!blessings.isEmpty()) {
-			sb.append("[").append(Element.BLESSED.tint).append("]").append(nce(blessings.size())).append("Blessed[]: Taking ").append(round(blessings.size() * 20)).append("% less damage\n");
+			sb.append("[").append(Element.BLESSED.tint).append("]").append(nce(blessings.size())).append("Blessed[]: Taking ").append(round(blessings.size() * 25)).append("% less damage\n");
 		}
 		sb.append("Speed: ").append(round(totalSpeed() * PatentBlaster.FPS)).append(" px/sec\n");
 		//sb.append("Move mode: ").append(realMoveMode().name()).append("\n");

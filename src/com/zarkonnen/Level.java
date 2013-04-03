@@ -407,6 +407,8 @@ public class Level implements Serializable {
 				// Do nuffink.
 			}
 		}
+		e.dx = 0;
+		e.dy = 0;
 	}
 		
 	public boolean physics(Entity e, double amt) {

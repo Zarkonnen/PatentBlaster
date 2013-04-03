@@ -24,21 +24,49 @@ public enum FurnitureStore {
 			return new Fridge(l, x, y, w, h);
 		}
 	},
-	TABLE(Location.FLOOR, 180, 90, 0),
+	/*TABLE(Location.FLOOR, 180, 90, 0),
 	CANDLE_TABLE(Location.FLOOR, 90, 130, 40) {
 		@Override
 		public void assemble(Level l, int x, int y) {
 			TABLE.assemble(l, x, y + 40);
 			l.walls.add(new Candle( x + 10 + l.r.nextInt(w - 20), y + 20, l.power));
 		}
-	},/*
-	FOUNTAIN(Location.FLOOR, 120, 120, 0),
-	HOLY_FOUNTAIN(Location.FLOOR, 120, 120, 0),
-	UNHOLY_FOUNTAIN(Location.FLOOR, 120, 120, 0),
+	},
+	FOUNTAIN(Location.FLOOR, 120, 120, 0) {
+		@Override
+		public void assemble(Level l, int x, int y) {
+			l.walls.add(new Wall(x, y + 60, 120, 60));
+			l.walls.add(new Fountainhead(x + 60, y, l.power, Element.ICE, Clr.BLUE));
+		}
+	},
+	HOLY_FOUNTAIN(Location.FLOOR, 120, 120, 0) {
+		@Override
+		public void assemble(Level l, int x, int y) {
+			l.walls.add(new Wall(x, y + 60, 120, 60));
+			l.walls.add(new Fountainhead(x + 60, y, l.power, Element.BLESSED, Element.BLESSED.tint));
+		}
+	},
+	UNHOLY_FOUNTAIN(Location.FLOOR, 120, 120, 0) {
+		@Override
+		public void assemble(Level l, int x, int y) {
+			l.walls.add(new Wall(x, y + 60, 120, 60));
+			l.walls.add(new Fountainhead(x + 60, y, l.power, Element.CURSED, Element.CURSED.tint));
+		}
+	},*/
 	SHELF(Location.WALL, 120, 25, 0),
-	BOOKSHELF(Location.WALL, 120, 50, 0),
-	DOGSHELF(Location.WALL, 120, 50, 0),
-	BEESHELF(Location.WALL, 120, 90, 0),
+	BOOKSHELF(Location.WALL, 120, 50, 0) {
+		@Override
+		public void assemble(Level l, int x, int y) {
+			SHELF.assemble(l, x, y + 25);
+			int books = 2 + l.r.nextInt(5);
+			int bookStart = 5 + l.r.nextInt(20);
+			for (int i = 0; i < books; i++) {
+				l.walls.add(new Book(x + bookStart + i * 15, y + 25, l));
+			}
+		}
+	},
+	//DOGSHELF(Location.WALL, 120, 50, 0),
+	/*BEESHELF(Location.WALL, 120, 90, 0),
 	ACIDSHELF(Location.WALL, 120, 90, 0),
 	MEDISHELF(Location.WALL, 120, 90, 0),
 	TORCH(Location.WALL, 8, 20, 0),
