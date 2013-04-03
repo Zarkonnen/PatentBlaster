@@ -397,6 +397,35 @@ public class Level implements Serializable {
 	
 	public final void drop(Entity e) {
 		e.y = GRID_SIZE + 10;
+		e.dx = 0;
+		e.dy = 0;
+		while (true) {
+			e.y += 30;
+			for (Wall w : walls) {
+				if (e != w &&
+					e.x < w.x + w.w &&
+					e.x + e.w > w.x &&
+					e.y < w.y + w.h &&
+					e.y + e.h > w.y)
+				{
+					lp: while (true) {
+						for (Wall w2 : walls) {
+							if (e != w &&
+								e.x < w2.x + w2.w &&
+								e.x + e.w > w2.x &&
+								e.y < w2.y + w2.h &&
+								e.y + e.h > w2.y)
+							{
+								e.y -= 1;
+								continue lp;
+							}
+						}
+						return;
+					}
+				}
+			}
+		}
+		/*e.y = GRID_SIZE + 10;
 		e.dy = 2;
 		while (!physics(e, 1.0)) {
 			// Do nuffink.
@@ -408,7 +437,7 @@ public class Level implements Serializable {
 			}
 		}
 		e.dx = 0;
-		e.dy = 0;
+		e.dy = 0;*/
 	}
 		
 	public boolean physics(Entity e, double amt) {
@@ -429,7 +458,8 @@ public class Level implements Serializable {
 			e.x += e.dx * stepAmt * slipperBonus;
 			e.y += e.dy * stepAmt;
 			
-			for (Wall w : walls) {
+			for (int wi = 0; wi < walls.size(); wi++) {
+				Wall w = walls.get(wi);
 				if (w != e && w.isCollidedWith && e.x + e.w > w.x && e.y + e.h > w.y && e.x < w.x + w.w && e.y < w.y + w.h) {
 					collided = true;
 					if (e.popOnWorldHit) {
