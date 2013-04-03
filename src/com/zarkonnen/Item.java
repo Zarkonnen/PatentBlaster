@@ -162,7 +162,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 				}
 			}
 			@Override
-			public boolean useful(Creature c) { return !c.canFly(); }
+			public boolean useful(Creature c) { return !c.canCloak(); }
 		};
 		// etc.
 		
