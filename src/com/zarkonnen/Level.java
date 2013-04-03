@@ -246,7 +246,7 @@ public class Level implements Serializable {
 				if (s.killMe && !kill && s.hoverer != null) {
 					s.hoverer.dy = -0.7;
 					s.hoverer.y -= 2.5;
-					s.hoverer.ticksSinceBottom = 0;
+					s.hoverer.ticksSinceBottomOrSide = 0;
 				}
 				if ((s.age < 2 || s.killMe) && s.weapon != null && s.weapon.element == Element.FIRE) {
 					for (Iterator<Shot> fit = flammables.iterator(); fit.hasNext();) {
@@ -479,14 +479,14 @@ public class Level implements Serializable {
 						e.dx *= -e.bounciness;
 						e.numBounces++;
 						e.ticksSinceSide = 0;
-						e.ticksSinceBottom = 0;
+						e.ticksSinceBottomOrSide = 0;
 						if (dx < 0) {
 							e.leftPress += e.pressAmount;
 						} else {
 							e.rightPress += e.pressAmount;
 						}
 					} else {
-						if (dy > 0) { e.ticksSinceBottom = 0; }
+						if (dy > 0) { e.ticksSinceBottomOrSide = 0; e.ticksSinceBottom = 0; }
 						e.y -= dy;
 						e.dy *= -e.bounciness;
 						e.numBounces++;
@@ -495,6 +495,7 @@ public class Level implements Serializable {
 			}
 		}
 		
+		e.ticksSinceBottomOrSide++;
 		e.ticksSinceBottom++;
 		e.ticksSinceSide++;
 		e.leftPress = Math.min(e.maxPress, Math.max(0, e.leftPress - e.inflateAmount));

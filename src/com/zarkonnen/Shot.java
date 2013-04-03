@@ -234,7 +234,7 @@ public class Shot extends Entity {
 	@Override
 	public void tick(Level l) {
 		age++;
-		if (ticksSinceBottom < 2) {
+		if (ticksSinceBottomOrSide < 2) {
 			dx *= friction;
 			dy *= friction;
 		}

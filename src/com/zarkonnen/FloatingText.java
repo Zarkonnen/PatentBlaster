@@ -4,7 +4,8 @@ import com.zarkonnen.catengine.Draw;
 import com.zarkonnen.catengine.util.Pt;
 
 public class FloatingText extends Entity {
-	public String text;
+	public final String text;
+	public final String altText;
 	public int life = PatentBlaster.FPS * 2;
 
 	public FloatingText(String text, double x, double y) {
@@ -14,6 +15,7 @@ public class FloatingText extends Entity {
 		this.gravityMult = -0.3;
 		this.dy = -0.4;
 		this.collides = false;
+		this.altText = "[ffaaaa]" + text;
 	}
 	
 	@Override
@@ -32,6 +34,6 @@ public class FloatingText extends Entity {
 			w = sz.x;
 			h = sz.y;
 		}
-		d.text(((l.tick / 10) % 2 == 0 ? "[ffaaaa]" : "") + text, PatentBlaster.FOUNT, x + scrollX, y + scrollY);
+		d.text((l.tick / 10) % 2 == 0 ? altText : text, PatentBlaster.FOUNT, x + scrollX, y + scrollY);
 	}
 }

@@ -12,6 +12,7 @@ public abstract class Entity implements Serializable {
 	public boolean popOnWorldHit = false;
 	public boolean killMe = false;
 	public double gravityMult = 1;
+	public int ticksSinceBottomOrSide = 0;
 	public int ticksSinceBottom = 0;
 	public int ticksSinceSide = 10000;
 	public int leftPress = 0;

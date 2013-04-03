@@ -251,7 +251,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public double totalHPRegen() {
-		return baseHPRegen() * (ticksSinceHit < 5 ? 0 : ticksSinceHit > PatentBlaster.FPS * 5 ? 100 : 1);
+		return baseHPRegen() * (ticksSinceHit < 5 ? 0 : ticksSinceHit > PatentBlaster.FPS * 7 ? 40 : 1);
 	}
 	
 	public MoveMode realMoveMode() {
@@ -843,11 +843,11 @@ public class Creature extends Entity implements HasDesc {
 					break;
 				case FLY:
 					gravityMult = 0;
-					ticksSinceBottom = 0;
+					ticksSinceBottomOrSide = 0;
 					break;
 				case HOP:
 					gravityMult = 1;
-					if (animCycle == 0 && ticksSinceBottom < AIR_STEERING) {
+					if (animCycle == 0 && ticksSinceBottomOrSide < AIR_STEERING) {
 						jump();
 					}
 					break;
@@ -949,7 +949,7 @@ public class Creature extends Entity implements HasDesc {
 					boolean yFar = Math.abs(ypd) > (h / 2 + l.player.h / 2 + farBonus);
 					fuse = explodes && Math.abs(xpd) < (w / 2 + l.player.w / 2 + 160);
 					hoverPowerOff = false;
-					if (ticksSinceBottom < AIR_STEERING && dodges && l.player.weapon.reloadLeft != 0 && l.player.weapon.reloadLeft >= l.player.weapon.reload - PatentBlaster.FPS) {
+					if (ticksSinceBottomOrSide < AIR_STEERING && dodges && l.player.weapon.reloadLeft != 0 && l.player.weapon.reloadLeft >= l.player.weapon.reload - PatentBlaster.FPS) {
 						switch (rmm) {
 							case CANTER:
 							case HOP:
@@ -968,21 +968,16 @@ public class Creature extends Entity implements HasDesc {
 								break;
 						}
 					} else {
-						if (ticksSinceBottom < AIR_STEERING) {
+						double ts = totalSpeed();
+						if (ticksSinceBottomOrSide < AIR_STEERING) {
 							double vsvxt = weapon.reloadLeft != 0 || fleeing ? -1 : validShootVectorXTarget(l);
 							if (vsvxt != -1) {
 								dx = vsvxt > x ? totalSpeed() : -totalSpeed();
-								/*if (rmm == MoveMode.CANTER || rmm == MoveMode.SLIDE || rmm == MoveMode.HOP) {
-									jump();
-								}*/
 								jump();
 							} else if (((charges && explodes) || far || fleeing || thief)) {
 								dx = 0;
 								dy = 0;
-								double ts = totalSpeed();
-								if (/*(rmm == MoveMode.CANTER || rmm == MoveMode.SLIDE || rmm == MoveMode.HOP) &&*/
-										((y + h - l.player.y - l.player.h) > 1 || hasObstacle(l, xpd)))
-								{
+								if ((y + h - l.player.y - l.player.h) > 1 || hasObstacle(l, xpd)) {
 									jump();
 									if (xpd > 0) {
 										dx = -ts;
@@ -1000,20 +995,20 @@ public class Creature extends Entity implements HasDesc {
 									} else {
 										flyerHysteresis = 100;
 									}
-									if (rmm == MoveMode.FLY) {
-										if (Math.abs(ypd + (charges && !xFar ? 0 : ABOVE_PREF + flyHeightBonus)) > ts + h) {
-											if (ypd + (charges && !xFar ? 0 : ABOVE_PREF + flyHeightBonus) > 0) {
-												dy = -ts;
-											} else {
-												dy = ts;
-											}
-										}
-									}
 								}
 							} else {
 								// Match player xpos exactly.
 								if (!fleeing && (rmm == MoveMode.FLY || rmm == MoveMode.HOVER) && l.player.totalSpeed() <= totalSpeed()) {
 									dx = l.player.dx;
+								}
+							}
+						}
+						if (rmm == MoveMode.FLY) {
+							if (Math.abs(ypd + (charges && !xFar ? 0 : ABOVE_PREF + flyHeightBonus)) > ts + h) {
+								if (ypd + (charges && !xFar ? 0 : ABOVE_PREF + flyHeightBonus) > 0) {
+									dy = -ts;
+								} else {
+									dy = ts;
 								}
 							}
 						}
