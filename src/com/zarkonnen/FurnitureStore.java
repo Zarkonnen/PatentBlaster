@@ -54,7 +54,7 @@ public enum FurnitureStore {
 		}
 	},
 	SHELF(Location.WALL, 120, 25, 0),
-	BOOKSHELF(Location.WALL, 120, 50, 0) {
+	BOOKSHELF(Location.WALL, 120, 50, 25) {
 		@Override
 		public void assemble(Level l, int x, int y) {
 			SHELF.assemble(l, x, y + 25);
@@ -63,6 +63,13 @@ public enum FurnitureStore {
 			for (int i = 0; i < books; i++) {
 				l.walls.add(new Book(x + bookStart + i * 15, y + 25, l));
 			}
+		}
+	},
+	EVIL_BOOKSHELF(Location.WALL, 120, 70, 45) {
+		@Override
+		public void assemble(Level l, int x, int y) {
+			SHELF.assemble(l, x, y + 45);
+			l.walls.add(new EvilBook(x + l.r.nextInt(80) + 10, y + 45, l));
 		}
 	},
 	//DOGSHELF(Location.WALL, 120, 50, 0),

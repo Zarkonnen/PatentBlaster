@@ -519,6 +519,7 @@ public class PatentBlaster implements Game, MusicCallback {
 				nextLvlTime = 0;
 				l.texts.add(new FloatingText("KILLED BY THE DEMO LIMIT", l.player.x + l.player.w / 2, l.player.y));
 				gameTicks = 0;
+				info = "";
 				return;
 			}
 			nextLvlTime++;
@@ -558,6 +559,7 @@ public class PatentBlaster implements Game, MusicCallback {
 					takenTypes.add(it.type);
 					l.shopItems.add(it);
 				}
+				info = "";
 				autoSave();
 			}
 		}
