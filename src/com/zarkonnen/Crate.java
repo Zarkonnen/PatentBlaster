@@ -21,7 +21,7 @@ public class Crate extends Wall {
 	
 	@Override
 	public void tick(Level l) {
-		if (!l.player.hasSeenCrate && Math.abs(l.player.x + l.player.w / 2 - x - w / 2) < 512) {
+		if (!l.player.hasSeenCrate && Math.abs(l.player.x + l.player.w / 2 - x - w / 2) < 400) {
 			l.player.hasSeenCrate = true;
 			floatText(l, "Seconds Until Crate: " + PatentBlaster.round(PatentBlaster.gameTicks * 1.0 / PatentBlaster.FPS, 2) + "!");
 		}

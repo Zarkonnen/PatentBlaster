@@ -10,8 +10,8 @@ public enum FurnitureStore {
 			return new Crate(l, x, y);
 		}
 	},
-	DRESSER(Location.FLOOR, 100, 90, 0),
-	WARDROBE(Location.FLOOR, 70, 140, 0),
+	/*DRESSER(Location.FLOOR, 100, 90, 0),
+	WARDROBE(Location.FLOOR, 70, 140, 0),*/
 	FRIDGE(Location.FLOOR, 75, 120, 0) {
 		@Override
 		public Wall build(Level l, int x, int y) {
@@ -24,7 +24,7 @@ public enum FurnitureStore {
 			return new Fridge(l, x, y, w, h);
 		}
 	},
-	TABLE(Location.FLOOR, 180, 90, 0),
+	/*TABLE(Location.FLOOR, 180, 90, 0),
 	CANDLE_TABLE(Location.FLOOR, 90, 130, 40) {
 		@Override
 		public void assemble(Level l, int x, int y) {
@@ -52,9 +52,9 @@ public enum FurnitureStore {
 			l.walls.add(new Wall(x, y + 60, 120, 60).floor());
 			l.walls.add(new Fountainhead(x + 60, y, l.power, Element.CURSED, Element.CURSED.tint));
 		}
-	},
+	},*/
 	SHELF(Location.WALL, 120, 25, 0),
-	PLATFORM(Location.WALL, 400, 30, 0),
+	/*PLATFORM(Location.WALL, 400, 30, 0),
 	BOOKSHELF(Location.WALL, 120, 50, 25) {
 		@Override
 		public void assemble(Level l, int x, int y) {
@@ -84,14 +84,33 @@ public enum FurnitureStore {
 			}
 		}
 	},
-	/*BEESHELF(Location.WALL, 120, 90, 0),
-	ACIDSHELF(Location.WALL, 120, 90, 0),
-	MEDISHELF(Location.WALL, 120, 90, 0),
-	TORCH(Location.WALL, 8, 20, 0),
+	BEESHELF(Location.WALL, 120, 125, 0) {
+		@Override
+		public void assemble(Level l, int x, int y) {
+			SHELF.assemble(l, x, y + 100);
+			l.walls.add(new BeeJar(x + l.r.nextInt(10) + 5, y + 100, l.power));
+		}
+	},*/
+	ACIDSHELF(Location.WALL, 120, 90, 0) {
+		@Override
+		public void assemble(Level l, int x, int y) {
+			SHELF.assemble(l, x, y + 30);
+			l.walls.add(new Bottle(x + l.r.nextInt(90) + 5, y + 30, l.power, 0.2, null));
+		}
+	},
+	MEDISHELF(Location.WALL, 120, 90, 0) {
+		@Override
+		public void assemble(Level l, int x, int y) {
+			SHELF.assemble(l, x, y + 30);
+			l.walls.add(new Bottle(x + l.r.nextInt(90) + 5, y + 30, l.power, -0.8, HEAL));
+		}
+	},
+	/*TORCH(Location.WALL, 8, 20, 0),
 	CHANDELIER(Location.CEILING, 240, 240),
 	LEAK(Location.CEILING, 20, 10),
 	ACID_LEAK(Location.CEILING, 20, 10)*/;
 		
+	public static final Clr HEAL = new Clr(200, 255, 200);
 	public static final Clr DEFAULT = new Clr(70, 50, 20);
 		
 	public void assemble(Level l, int x, int y) {

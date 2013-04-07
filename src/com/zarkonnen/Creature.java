@@ -1252,6 +1252,13 @@ public class Creature extends Entity implements HasDesc {
 	public int takeDamage(Level l, Shot shot) {
 		if (hp <= 0) { return 0; }
 		Weapon src = shot.weapon;
+		if (src.dmg < 0) {
+			hp -= shot.dmgMultiplier * src.dmg;
+			if (hp > totalMaxHP()) {
+				hp = totalMaxHP();
+			}
+			return 0;
+		}
 		if (shot.dmgMultiplier == 1) {
 			switch (src.element) {
 				case CURSED:

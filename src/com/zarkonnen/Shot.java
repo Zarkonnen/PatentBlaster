@@ -47,10 +47,14 @@ public class Shot extends Entity {
 	
 	@Override
 	public void draw(Draw d, Level l, double scrollX, double scrollY) {
+		Clr t = tint;
+		if (weapon != null && weapon.element == Element.ACID && shooter != null && shooter != l.player && frozenAmt == 0 && (l.tick / 8) % 2 == 0) {
+			t = ACID_ALT;
+		}
 		if (glowTint != null) {
 			d.rect(glowTint, x - w / 2 + scrollX, y - h / 2 + + scrollY, w * 2, h * 2);
 		}
-		d.rect(tint, x + scrollX, y + scrollY, w, h);
+		d.rect(t, x + scrollX, y + scrollY, w, h);
 	}
 	
 	public Shot(Level l, Creature hoverer) {
@@ -148,6 +152,8 @@ public class Shot extends Entity {
 		if (p.weapon.penetrates()) {
 			immune = new ArrayList<Creature>();
 		}
+		collides = p.collides;
+		ignoresWalls = p.ignoresWalls;
 		freeAgent = p.freeAgent;
 		weapon = p.weapon;
 		shooter = p.shooter;
@@ -391,6 +397,23 @@ public class Shot extends Entity {
 					}
 				}
 			}
+			if ((target == null || target.hp <= 0) && freeAgent) {
+				// Acquire target!
+				double minDistSq = 0;
+				target = null;
+				for (Creature c : l.monsters) {
+					double distSq = (c.x - x) * (c.x - x) + (c.y - y) * (c.y - y);
+					if (target == null || distSq < minDistSq) {
+						target = c;
+						minDistSq = distSq;
+					}
+				}
+				Creature c = l.player;
+				double distSq = (c.x - x) * (c.x - x) + (c.y - y) * (c.y - y);
+				if (target == null || distSq < minDistSq) {
+					target = c;
+				}
+			}
 			if (target != null && target.hp > 0) {
 				double tdx = target.x + target.w / 2 - x - w / 2;
 				double tdy = target.y + target.h / 2 - y - h / 2;
@@ -403,9 +426,6 @@ public class Shot extends Entity {
 					dy = dy * weapon.shotSpeed / total;
 				}
 			}
-		}
-		if (weapon != null && weapon.element == Element.ACID && shooter != null && shooter != l.player && frozenAmt == 0) {
-			tint = (l.tick / 8) % 2 == 0 ? ACID_ALT : Element.ACID.tint;
 		}
 	}
 	
