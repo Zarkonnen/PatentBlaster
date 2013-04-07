@@ -1403,7 +1403,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public double totalVamp() {
-		double e = 0;
+		double e = weapon.vamp;
 		for (Item it : items) {
 			e += it.vampireMult;
 		}

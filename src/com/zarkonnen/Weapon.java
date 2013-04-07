@@ -46,6 +46,7 @@ public class Weapon implements HasDesc, Serializable {
 	public boolean flamethrower;
 	public boolean bouncing;
 	public boolean overheats;
+	public double vamp;
 	public int numBullets = 1;
 	public String name;
 	public long seed;
@@ -93,11 +94,35 @@ public class Weapon implements HasDesc, Serializable {
 		w.sticky = !PatentBlaster.DEMO && w.element == Element.ACID && r.nextInt(12) == 0;
 		w.scattershot = !PatentBlaster.DEMO && !w.homing && !w.swarm && !w.shotgun && r.nextInt(w.sticky ? 3 : 10) == 0;
 		w.grenade = !w.homing && !w.swarm && !w.shotgun && !w.scattershot && r.nextInt(8) == 0;
-		w.sword = !PatentBlaster.DEMO && allowMelee && !w.homing && !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && r.nextInt(10) == 0;
+		w.sword = !PatentBlaster.DEMO && allowMelee && !w.homing && !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && r.nextInt(16) == 0;
 		w.flamethrower = allowMelee && !w.homing && !w.swarm && !w.shotgun && !w.scattershot && !w.grenade && !w.sword && w.element == Element.FIRE && r.nextInt(6) == 0;
 		w.knockback = false;
 		w.bouncing = !w.flamethrower && !w.sticky && !w.sword && !w.homing && !w.swarm && r.nextInt(12) == 0;
 		w.overheats = !w.flamethrower && !w.shotgun && !w.swarm && !w.homing && !w.sword && w.reload < PatentBlaster.FPS && r.nextInt(12) == 0;
+		if (r.nextInt(20) == 0) {
+			switch (r.nextInt(5)) {
+				case 0:
+					w.vamp = 0.05;
+					dmg *= 0.8;
+					break;
+				case 1:
+					w.vamp = 0.1;
+					dmg *= 0.7;
+					break;
+				case 2:
+					w.vamp = 0.25;
+					dmg *= 0.5;
+					break;
+				case 3:
+					w.vamp = 0.5;
+					dmg *= 0.4;
+					break;
+				case 4:
+					w.vamp = 1.0;
+					dmg *= 0.25;
+					break;
+			}
+		}
 		
 		if (w.homing) { w.reload = w.reload * 3 / 2; dmg *= 0.8; w.shotLife = w.shotLife * 3 / 2; }
 		if (w.swarm) { dmg /= 8; w.shotSize = w.shotSize / 4 + 1; w.numBullets = 8; }
@@ -179,6 +204,9 @@ public class Weapon implements HasDesc, Serializable {
 		sb.append(is).append(round(shotSpeed * PatentBlaster.FPS));
 		sb.append(" px/sec shot speed, ").append(round(range())).append(" px range\n");
 		sb.append(accuracy().length() == 0 ? "" : is).append(accuracy());
+		if (vamp > 0) {
+			sb.append(is).append("Steal ").append(round(vamp * 100)).append("% of damage done\n");
+		}
 		if (knockback) {
 			sb.append(is).append("Knockback.\n");
 		}
@@ -246,6 +274,7 @@ public class Weapon implements HasDesc, Serializable {
 		hash = 19 * hash + (this.flamethrower ? 1 : 0);
 		hash = 19 * hash + this.numBullets;
 		hash = 19 * hash + (this.name != null ? this.name.hashCode() : 0);
+		hash = 19 * hash + (int) (Double.doubleToLongBits(this.vamp) ^ (Double.doubleToLongBits(this.vamp) >>> 32));
 		hash = 19 * hash + (int) (this.seed ^ (this.seed >>> 32));
 		return hash;
 	}
@@ -284,6 +313,9 @@ public class Weapon implements HasDesc, Serializable {
 			return false;
 		}
 		if (Double.doubleToLongBits(this.shotSize) != Double.doubleToLongBits(other.shotSize)) {
+			return false;
+		}
+		if (Double.doubleToLongBits(this.vamp) != Double.doubleToLongBits(other.vamp)) {
 			return false;
 		}
 		if (this.knockback != other.knockback) {
@@ -350,6 +382,7 @@ public class Weapon implements HasDesc, Serializable {
 		t.grenade = grenade;
 		t.sword = sword;
 		t.flamethrower = flamethrower;
+		t.vamp = vamp;
 		return t;
 	}
 	
@@ -375,17 +408,18 @@ public class Weapon implements HasDesc, Serializable {
 		t.grenade = grenade;
 		t.sword = sword;
 		t.flamethrower = flamethrower;
+		t.vamp = vamp;
 		return t;
 	}
 	
 
 	public Weapon makeTwin() {
-		return new Weapon(imgIndex, img, largeImg, tint, element, dmg, reload, reloadLeft, shotSpeed, jitter, shotSize, knockback, shotLife, homing, swarm, shotgun, scattershot, sticky, grenade, sword, flamethrower, numBullets, name, seed);
+		return new Weapon(imgIndex, img, largeImg, tint, element, dmg, reload, reloadLeft, shotSpeed, jitter, shotSize, knockback, shotLife, homing, swarm, shotgun, scattershot, sticky, grenade, sword, flamethrower, numBullets, name, vamp, seed);
 	}
 	
 	public Weapon() {}
 
-	public Weapon(int imgIndex, Img img, Img largeImg, Clr tint, Element element, double dmg, int reload, int reloadLeft, double shotSpeed, double jitter, double shotSize, boolean knockback, int shotLife, boolean homing, boolean swarm, boolean shotgun, boolean scattershot, boolean sticky, boolean grenade, boolean sword, boolean flamethrower, int numBullets, String name, long seed) {
+	public Weapon(int imgIndex, Img img, Img largeImg, Clr tint, Element element, double dmg, int reload, int reloadLeft, double shotSpeed, double jitter, double shotSize, boolean knockback, int shotLife, boolean homing, boolean swarm, boolean shotgun, boolean scattershot, boolean sticky, boolean grenade, boolean sword, boolean flamethrower, int numBullets, String name, double vamp, long seed) {
 		this.imgIndex = imgIndex;
 		this.img = img;
 		this.largeImg = largeImg;
@@ -409,6 +443,7 @@ public class Weapon implements HasDesc, Serializable {
 		this.flamethrower = flamethrower;
 		this.name = name;
 		this.seed = seed;
+		this.vamp = vamp;
 		this.numBullets = numBullets;
 	}
 }

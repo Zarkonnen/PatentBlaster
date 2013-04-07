@@ -131,7 +131,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 			@Override
 			public boolean useful(Creature c) { return c.totalEating() < 1.0; }
 		},
-		VAMPIRE(7, new Clr(100, 0, 100), 30) {
+		VAMPIRE(7, new Clr(100, 0, 100), 0) {
 			@Override
 			public void make(Item it, int power) {
 				it.vampireMult = Math.min(1.0, power * 0.02);
@@ -322,7 +322,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 			}
 		}
 		if (givesInfo) {
-			sb.append("  ").append("Shows enemy hit points\n");
+			sb.append(is).append("Shows enemy hit points\n");
 		}
 		if (shield) {
 			sb.append(is).append("Energy shield\n");
