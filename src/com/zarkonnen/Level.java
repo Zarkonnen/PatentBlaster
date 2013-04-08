@@ -80,7 +80,7 @@ public class Level implements Serializable {
 					GRID_SIZE + r.nextInt(GRID_SIZE * 3),
 					(int) (MAX_SPEED * 1.5)));
 		}*/
-		FurnitureStore.furnish(this, 12);
+		FurnitureStore.furnish(this, 15, 8, 6);
 		
 		for (int i = 0; i < window.length; i++) {
 			window[i] = r.nextInt(20) == 0;

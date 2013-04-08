@@ -15,7 +15,6 @@ public class BeeJar extends EmitterWall {
 		tint = GLASS;
 		destructible = true;
 		weapon.shotLife = 20;
-		weapon.dmg *= 0.25;
 	}
 	
 	@Override

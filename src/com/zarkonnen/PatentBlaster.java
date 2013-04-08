@@ -364,7 +364,7 @@ public class PatentBlaster implements Game, MusicCallback {
 		}
 		
 		if (!System.getProperty("os.name").toLowerCase().matches(".*[iu]n[ui]x.*")) {
-			chosenMode = new ScreenMode(1024, 768, true); // qqDPS
+			chosenMode = new ScreenMode(1024, 768, false); // qqDPS
 		}
 		if (chosenMode == null) {
 			if (availableModes.isEmpty()) {
