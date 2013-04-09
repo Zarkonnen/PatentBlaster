@@ -657,12 +657,12 @@ public class PatentBlaster implements Game, MusicCallback {
 					l.player.dx = 0;
 				}
 				if (l.player.ticksSinceBottomOrSide < Creature.AIR_STEERING && (l.player.slipperiness == 0 || Math.abs(l.player.dx) < 0.5) && (in.keyDown(key("LEFT")) || in.keyDown(key("A")))) {
-					l.player.dx = -(l.player.ticksSinceSide < Creature.AIR_STEERING && l.player.ticksSinceBottom < 2 ? Math.min(2.5, l.player.totalSpeed()) : l.player.totalSpeed());
+					l.player.dx = -(l.player.ticksSinceSide < Creature.AIR_STEERING && l.player.ticksSinceBottom > 2 ? Math.min(2.5, l.player.totalSpeed()) : l.player.totalSpeed());
 					//l.player.flipped = false;
 					l.movedLeft = true;
 				}
 				if (l.player.ticksSinceBottomOrSide < Creature.AIR_STEERING && (l.player.slipperiness == 0 || Math.abs(l.player.dx) < 0.5) && (in.keyDown(key("RIGHT")) || in.keyDown(key("D")))) {
-					l.player.dx = l.player.ticksSinceSide < Creature.AIR_STEERING && l.player.ticksSinceBottom < 2 ? Math.min(2.5, l.player.totalSpeed()) : l.player.totalSpeed();
+					l.player.dx = l.player.ticksSinceSide < Creature.AIR_STEERING && l.player.ticksSinceBottom > 2 ? Math.min(2.5, l.player.totalSpeed()) : l.player.totalSpeed();
 					//l.player.flipped = true;
 					l.movedRight = true;
 				}

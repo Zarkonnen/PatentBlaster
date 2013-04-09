@@ -261,7 +261,9 @@ public enum FurnitureStore {
 		}
 		for (PlacedFurniture f : pf) {
 			if (f.type.hasPlatform) {
-				accessible.add(new Rectangle(f.x - JUMP_W, f.y + f.type.platformY - JUMP_H, f.type.w + JUMP_W * 2, up ? (f.type.platformY + JUMP_H + 25) : 5000));
+				//accessible.add(new Rectangle(f.x - JUMP_W, f.y + f.type.platformY - JUMP_H, f.type.w + JUMP_W * 2, up ? (f.type.platformY + JUMP_H + 25) : 5000));
+				accessible.add(new Rectangle(f.x - JUMP_W, f.y + f.type.platformY - JUMP_H, JUMP_W, up ? (f.type.platformY + JUMP_H + 25) : 5000));
+				accessible.add(new Rectangle(f.x + f.type.w, f.y + f.type.platformY - JUMP_H, JUMP_W, up ? (f.type.platformY + JUMP_H + 25) : 5000));
 			}
 		}
 		Rectangle platform = new Rectangle(x, y + fs.platformY, fs.w, 10);

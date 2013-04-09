@@ -35,15 +35,19 @@ public class BeeJar extends EmitterWall {
 			b.lifeLeft = 500;
 			if (b.x > x + 90) {
 				b.dx *= -1;
+				b.x = x + 90;
 			}
 			if (b.x < x + 10) {
 				b.dx *= -1;
+				b.x = x + 10;
 			}
 			if (b.y > y + 90) {
 				b.dy *= -1;
+				b.y = y + 90;
 			}
 			if (b.y < y + 10) {
 				b.dy *= -1;
+				b.y = y + 10;
 			}
 			if (l.r.nextInt(50) == 0) {
 				double dir = l.r.nextDouble() * Math.PI * 2;
