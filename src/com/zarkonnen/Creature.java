@@ -1785,7 +1785,7 @@ public class Creature extends Entity implements HasDesc {
 		dy = 0;
 		curses.clear();
 		blessings.clear();
-		weapon.reloadLeft = 0;
+		weapon.reloadLeft = 5;
 		hp = totalMaxHP();
 		heat = 0;
 		onFire = 0;

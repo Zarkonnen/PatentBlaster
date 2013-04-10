@@ -76,7 +76,7 @@ public class PatentBlaster implements Game, MusicCallback {
 	public static final double[] IMG_SHOOT_Y = { 0.40, 0.51, 0.65, 0.47, 0.08, 0.12, 0.14, 0.50, 0.37, 0.48, 0.28, 0.27, 0.39,
 	0.11, 0.09, 0.24, 0.52, 0.28};
 	public static final double[] IMG_HAND_X  = { 0.12, 0.16, 0.14, 0.45, 0.13, 0.08, 0.50, 0.20, 0.37, 0.15, 0.50, 0.33, 0.13,
-	0.09, 0.82, 0.16, 0.18, 0.17};
+	0.09, 0.18, 0.16, 0.18, 0.17};
 	public static final double[] IMG_HAND_Y  = { 0.40, 0.48, 0.53, 0.86, 0.36, 0.49, 0.14, 0.50, 0.37, 0.48, 0.28, 0.27, 0.49,
 	0.49, 0.54, 0.67, 0.66, 0.28};
 	public static final double[] IMG_MOUTH_X = { 0.41, 0.44, 0.50, 0.10, 0.54, 0.47, 0.48, 0.20, 0.67, 0.47, 0.50, 0.19, 0.50,
@@ -219,6 +219,8 @@ public class PatentBlaster implements Game, MusicCallback {
 	boolean musicPlaying = false;
 	String currentMusic = MUSICS[0];
 	public static int gameTicks = 0;
+	
+	int setupScroll = 0;
 	
 	// Some images
 	Img rightarrow = new Img("rightarrow");
@@ -463,6 +465,18 @@ public class PatentBlaster implements Game, MusicCallback {
 				for (int i = 0; i < 4; i++) {
 					Creature c = Creature.make(System.currentTimeMillis() + i * 32980, difficultyLevel.playerLevel, NUM_IMAGES, false, true, false);
 					setupCreatures.add(c);
+				}
+				setupScroll = 0;
+			}
+			if (!setupCreatures.isEmpty()) {
+				if (curs.y < 50 || in.keyDown("UP") || in.keyDown(key("W")) || in.keyDown(key("UP"))) {
+					setupScroll += 10;
+				}
+				if (curs.y > in.mode().height - 50 || in.keyDown("DOWN") || in.keyDown(key("S")) || in.keyDown(key("DOWN"))) {
+					setupScroll -= 10;
+				}
+				if (setupScroll > 0) {
+					setupScroll = 0;
 				}
 			}
 			hit(in);
@@ -1207,7 +1221,49 @@ public class PatentBlaster implements Game, MusicCallback {
 				}
 				d.text("[BLACK]LOADING RANDOM NAMES FROM WIKIPEDIA" + dots, FOUNT, sm.width / 2 - infoP.x / 2, sm.height / 2 - infoP.y / 2);
 			} else {
-				Rect titleR = d.textSize("SELECT YOUR CREATURE", FOUNT, spacing, spacing);
+				double shift = Math.min(0, setupScroll);
+				d.text("[BLACK]SELECT YOUR CREATURE", FOUNT, spacing, spacing + shift);
+				Rect pgR = d.textSize("Page 1", FOUNT, spacing, spacing + shift);
+				d.text("[BLACK]Page 1", FOUNT, sm.width - spacing - pgR.width, spacing + shift);
+				for (final Creature setupCreature : setupCreatures) {
+					d.rect(Clr.BLACK, 0, shift + spacing + 18, sm.width * 3 / 4, 2);
+					
+					d.blit(drawingImgsLarge[setupCreature.imgIndex], setupCreature.tint, spacing, shift + 100);
+					d.text("[BLACK][default=BLACK]" + setupCreature.name().toUpperCase() + "\n\n" + setupCreature.desc(Clr.BLACK, IMG_NUMS[setupCreature.imgIndex]), FOUNT, 400 + spacing * 3, shift + 100, sm.width - spacing * 4 - 400);
+					double entryH = Math.max(400, d.textSize("[BLACK][default=BLACK]" + setupCreature.name().toUpperCase() + "\n\n" + setupCreature.desc(Clr.BLACK, IMG_NUMS[setupCreature.imgIndex]), FOUNT, 400 + spacing * 3, 100, sm.width - spacing * 5 - 400).height) + spacing * 4;
+					d.hook(0, shift + 100, sm.width, entryH, new Hook(Hook.Type.MOUSE_1) {
+						@Override
+						public void run(Input in, Pt p, Type type) {
+							if (cooldown != 0) { return; }
+								l = new Level(System.currentTimeMillis() + 10981, 1, setupCreature);
+								l.player.makePlayerAble();
+								l.player.heal();
+								l.player.weapon.reloadLeft = 10;
+								l.player.weapon.clickEmptyTimer = 12;
+								nextLvlTime = 0;
+								setupCreatures.clear();
+								setup = false;
+						}
+					});
+					shift += entryH;
+				}
+				
+				Rect backR = d.textSize("(Back to Menu)", FOUNT, spacing, spacing);
+				d.text((menuHover.equals("BACKTOMAIN") ? "[RED]" : "[GREY]") + "(Back to Menu)", FOUNT, sm.width - spacing - pgR.width - spacing - backR.width, spacing);
+				d.hook(sm.width - spacing - pgR.width - spacing - backR.width, spacing, backR.width, backR.height, new Hook(Hook.Type.MOUSE_1, Hook.Type.HOVER) {
+					@Override
+					public void run(Input in, Pt p, Hook.Type type) {
+						if (type == Hook.Type.HOVER) {
+							menuHover = "BACKTOMAIN";
+						} else {
+							setup = false;
+							mainMenu = true;
+							cooldown += 10;
+						}
+					}
+				});
+				
+				/*Rect titleR = d.textSize("SELECT YOUR CREATURE", FOUNT, spacing, spacing);
 				d.text("[BLACK]SELECT YOUR CREATURE", FOUNT, spacing, spacing);
 				d.rect(Clr.BLACK, 0, spacing + 18, sm.width * 3 / 4, 2);
 				Rect pgR = d.textSize("Page 1", FOUNT, spacing, spacing);
@@ -1227,7 +1283,6 @@ public class PatentBlaster implements Game, MusicCallback {
 						Clr t = c.tint;//!hover ? c.tint.mix(0.9, PAPER) : c.tint;
 						d.blit(drawingImgs[c.imgIndex], t, xOffset + tileX * tileW, yOffset + tileY * tileH + 35);
 						d.text("[BLACK][default=BLACK]" + c.desc(Clr.BLACK, IMG_NUMS[c.imgIndex]), SMOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH + 150, (int) (tileW - 10));
-						/*d.hook(tileR.x, tileR.y, tileR.width, tileR.height, */
 						button(d, "Select", xOffset + tileX * tileW + 100 + spacing, yOffset + tileY * tileH + 35 + 50 - 14, 0, new Hook(Hook.Type.MOUSE_1) {
 
 							@Override
@@ -1269,7 +1324,7 @@ public class PatentBlaster implements Game, MusicCallback {
 					Pt chooseR = d.textSize("CHOOSE YOUR CREATURE", GOUNT);
 					d.rect(Clr.BLACK, 0, sm.height / 2 - chooseR.y / 2 - 10, sm.width, chooseR.y + 20);
 					d.text("CHOOSE YOUR CREATURE", GOUNT, sm.width / 2 - chooseR.x / 2, sm.height / 2 - chooseR.y / 2 + 10);
-				}
+				}*/
 			}
 		} else if (!l.shopItems.isEmpty()) {
 			//start("Shop");
