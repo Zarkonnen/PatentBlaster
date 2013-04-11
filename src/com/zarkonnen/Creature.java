@@ -63,6 +63,8 @@ public class Creature extends Entity implements HasDesc {
 	public boolean cloaking;
 	public MoveMode moveMode;
 	
+	public double leftSquish, rightSquish, topSquish;
+	
 	public boolean hovered = false;
 	public boolean flown = false;
 	
@@ -351,10 +353,14 @@ public class Creature extends Entity implements HasDesc {
 			t = Element.FIRE.tint;
 		}
 		
-		double imgW = w / PatentBlaster.IMG_W[imgIndex];
-		double imgH = h / PatentBlaster.IMG_H[imgIndex];
-		double imgX = x + scrollX - imgW / 2 + w / 2;
-		double imgY = y + scrollY - imgH + h;
+		double squishedW = (1.0 - leftSquish - rightSquish) * w;
+		double squishedH = (1.0 - topSquish) * h;
+		double squishedX = x + rightSquish * w;
+		double squishedY = y + topSquish * h;
+		double imgW = squishedW / PatentBlaster.IMG_W[imgIndex];
+		double imgH = squishedH / PatentBlaster.IMG_H[imgIndex];
+		double imgX = squishedX + scrollX - imgW / 2 + w / 2;
+		double imgY = squishedY + scrollY - imgH + h;
 		
 		Img theImg = flipped ? flippedImg : img;
 		if (!jar && PatentBlaster.ANIM[imgIndex] && (l.tick % PatentBlaster.ANIM_LENGTH[imgIndex] < PatentBlaster.ANIM_B_LENGTH[imgIndex])) {
@@ -1183,22 +1189,21 @@ public class Creature extends Entity implements HasDesc {
 				}
 			}
 			
-			// Finally, adjust squish.
 			if (leftPress > 0) {
-				double newW = normalW * (1.0 - squish() * leftPress / maxPress);
-				x -= newW - w - 0.0001;
-				dx += newW - w;
-				w = newW;
+				leftSquish = squish() * leftPress / maxPress;
+				rightSquish = 0;
 			} else if (rightPress > 0) {
-				double newW = normalW * (1.0 - squish() * rightPress / maxPress);
-				dx += w - newW;
-				w = newW;
+				leftSquish = 0;
+				rightSquish = squish() * rightPress / maxPress;
 			} else {
-				w = normalW;
+				leftSquish = 0;
+				rightSquish = 0;
 			}
-			double newH = normalH * (1.0 - squish() * (bottomPress - jumpElongate) / maxPress);
-			y += h - newH;
-			h = newH;
+			topSquish = squish() * (bottomPress - jumpElongate) / maxPress;
+		} else {
+			leftSquish = 0;
+			rightSquish = 0;
+			topSquish = 0;
 		}
 		if (enforcedFalling) { gravityMult = 1.5; speedLimit = 40; } else { speedLimit = 20; }
 	}
