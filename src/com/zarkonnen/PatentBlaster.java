@@ -785,7 +785,7 @@ public class PatentBlaster implements Game, MusicCallback {
 		ScreenMode sm = in.mode();
 		scrollX = sm.width / 2 - l.player.x - l.player.w / 2;
 		scrollY = sm.height * 2 / 3 - l.player.y - l.player.h / 2;
-		int newBGScrollX = (int) scrollX, newBGScrollY = (int) scrollY;
+		int newBGScrollX = (int) (scrollX * 0.95), newBGScrollY = (int) (scrollY * 0.95);
 		bgScrollX = Math.abs(bgScrollX - newBGScrollX) > 1 ? newBGScrollX : bgScrollX;
 		bgScrollY = Math.abs(bgScrollY - newBGScrollY) > 1 ? newBGScrollY : bgScrollY;
 		for (Goodie g : l.goodiesBeingTaken) {
@@ -1263,58 +1263,6 @@ public class PatentBlaster implements Game, MusicCallback {
 					}
 				});
 				
-				/*Rect titleR = d.textSize("SELECT YOUR CREATURE", FOUNT, spacing, spacing);
-				d.text("[BLACK]SELECT YOUR CREATURE", FOUNT, spacing, spacing);
-				d.rect(Clr.BLACK, 0, spacing + 18, sm.width * 3 / 4, 2);
-				Rect pgR = d.textSize("Page 1", FOUNT, spacing, spacing);
-				d.text("[BLACK]Page 1", FOUNT, sm.width - spacing - pgR.width, spacing);
-				int yOffset = spacing * 2 + (int) titleR.height;
-				int availableH = sm.height - yOffset;
-				int xOffset = spacing * 2;
-				int availableW = sm.width - spacing;
-				int tileH = availableH / 2;
-				int tileW = availableW / 2;
-				for (int tileY = 0; tileY < 2; tileY++) {
-					for (int tileX = 0; tileX < 2; tileX++) {
-						final Creature c = setupCreatures.get(tileY * 2 + tileX);
-						Rect tileR = new Rect(xOffset + tileX * tileW, yOffset + tileY * tileH, tileW, tileH);
-						boolean hover = tileR.contains(curs);
-						d.text("[BLACK]" + c.name().toUpperCase(), FOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH);
-						Clr t = c.tint;//!hover ? c.tint.mix(0.9, PAPER) : c.tint;
-						d.blit(drawingImgs[c.imgIndex], t, xOffset + tileX * tileW, yOffset + tileY * tileH + 35);
-						d.text("[BLACK][default=BLACK]" + c.desc(Clr.BLACK, IMG_NUMS[c.imgIndex]), SMOUNT, xOffset + tileX * tileW, yOffset + tileY * tileH + 150, (int) (tileW - 10));
-						button(d, "Select", xOffset + tileX * tileW + 100 + spacing, yOffset + tileY * tileH + 35 + 50 - 14, 0, new Hook(Hook.Type.MOUSE_1) {
-
-							@Override
-							public void run(Input in, Pt p, Hook.Type type) {
-								if (cooldown != 0) { return; }
-								l = new Level(System.currentTimeMillis() + 10981, 1, c);
-								l.player.makePlayerAble();
-								l.player.heal();
-								l.player.weapon.reloadLeft = 10;
-								l.player.weapon.clickEmptyTimer = 12;
-								nextLvlTime = 0;
-								setupCreatures.clear();
-								setup = false;
-							}
-						});
-					}
-				}
-				Rect backR = d.textSize("(Back to Menu)", FOUNT, spacing, spacing);
-				d.text((menuHover.equals("BACKTOMAIN") ? "[RED]" : "[GREY]") + "(Back to Menu)", FOUNT, sm.width - spacing - pgR.width - spacing - backR.width, spacing);
-				d.hook(sm.width - spacing - pgR.width - spacing - backR.width, spacing, backR.width, backR.height, new Hook(Hook.Type.MOUSE_1, Hook.Type.HOVER) {
-					@Override
-					public void run(Input in, Pt p, Hook.Type type) {
-						if (type == Hook.Type.HOVER) {
-							menuHover = "BACKTOMAIN";
-						} else {
-							setup = false;
-							mainMenu = true;
-							cooldown += 10;
-						}
-					}
-				});
-				
 				// CYA
 				Rect cyaR = d.textSize("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, 0, 0);
 				d.text("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, sm.width - cyaR.width, sm.height - cyaR.height);
@@ -1324,7 +1272,7 @@ public class PatentBlaster implements Game, MusicCallback {
 					Pt chooseR = d.textSize("CHOOSE YOUR CREATURE", GOUNT);
 					d.rect(Clr.BLACK, 0, sm.height / 2 - chooseR.y / 2 - 10, sm.width, chooseR.y + 20);
 					d.text("CHOOSE YOUR CREATURE", GOUNT, sm.width / 2 - chooseR.x / 2, sm.height / 2 - chooseR.y / 2 + 10);
-				}*/
+				}
 			}
 		} else if (!l.shopItems.isEmpty()) {
 			//start("Shop");
@@ -1421,7 +1369,7 @@ public class PatentBlaster implements Game, MusicCallback {
 					for (int x = 0; x < (Level.LVL_W) * Level.GRID_SIZE; x += l.backgroundW) {
 						if (winYIndex == WIN_Y_INDEX[l.background] && l.window[winIndex++]) {
 							d.blit(landscape, x + bgScrollX, y + bgScrollY);
-							d.blit(backdropWindowImgs[l.background], x + bgScrollX, y + bgScrollY);
+							d.blit(backdropWindowImgs[l.background], x + bgScrollX, y + bgScrollY, l.backgroundW, l.backgroundH);
 						}
 					}
 					winYIndex++;
@@ -1433,7 +1381,7 @@ public class PatentBlaster implements Game, MusicCallback {
 						if (winYIndex == WIN_Y_INDEX[l.background] && l.window[winIndex++]) {
 							// Nothing
 						} else {
-							d.blit(backdropImgs[l.background], x + bgScrollX, y + bgScrollY);
+							d.blit(backdropImgs[l.background], x + bgScrollX, y + bgScrollY, l.backgroundW, l.backgroundH);
 						}
 					}
 					winYIndex++;
@@ -1442,8 +1390,12 @@ public class PatentBlaster implements Game, MusicCallback {
 			//endStart("Grid");
 			//endStart("Brackets");
 			// Bracket this in
+			// top
+			d.rect(Clr.DARK_GREY, scrollX - 600, scrollY - 600, Level.LVL_W * Level.GRID_SIZE + 1200, 600);
 			// bottom
 			d.rect(Clr.DARK_GREY, scrollX - 600, scrollY + Level.LVL_H * Level.GRID_SIZE, Level.LVL_W * Level.GRID_SIZE + 1200, 600);
+			// left
+			d.rect(Clr.DARK_GREY, scrollX - 600, scrollY - 600, 600, Level.LVL_H * Level.GRID_SIZE + 1200);
 			// right
 			d.rect(Clr.DARK_GREY, scrollX + Level.LVL_W * Level.GRID_SIZE, scrollY - 600, 600, Level.LVL_H * Level.GRID_SIZE + 1200);
 			//endStart("Barrels");
