@@ -611,10 +611,10 @@ public class Creature extends Entity implements HasDesc {
 				Creature tiny = makeTinyVersion(l);
 				tiny.x = x + l.r.nextDouble() * w * 0.4 + w * 0.05;
 				tiny.y = y + l.r.nextDouble() * h * 0.3 + h * 0.05;
+				tiny.heal();
 				tiny.dx = l.r.nextDouble() * 8 - 4;
 				tiny.dy = l.r.nextDouble() * 8 - 6;
-				tiny.heal();
-				tiny.knockedBack = 120;
+				tiny.knockedBack = 80;
 				tiny.weapon.reloadLeft = (int) (tiny.weapon.reload * l.r.nextDouble());
 				l.monstersToAdd.add(tiny);
 				for (Shot s : l.shots) {
@@ -1408,7 +1408,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public double totalVamp() {
-		double e = weapon.vamp;
+		double e = weapon != null ? weapon.vamp : 0;
 		for (Item it : items) {
 			e += it.vampireMult;
 		}
@@ -1618,7 +1618,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public String name() {
-		if (tint == null) { return "A Barrel"; }
+		if (tint == null) { return "The World"; }
 		String n = PatentBlaster.PRETTY_IMG_NAMES[imgIndex];
 		if (resistance != null) {
 			n = resistance.name() + "-" + n;

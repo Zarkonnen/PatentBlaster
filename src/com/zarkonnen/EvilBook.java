@@ -11,7 +11,7 @@ public class EvilBook extends Book {
 		y -= h;
 		h *= 2;
 		title = EVIL_TITLES[l.r.nextInt(EVIL_TITLES.length)];
-		weapon.dmg *= 200;
+		weapon.dmg *= 100;
 		weapon.element = Element.CURSED;
 		weapon.shotSize = 3;
 		weapon.shotSpeed *= 0.3;
