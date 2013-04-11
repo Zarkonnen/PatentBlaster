@@ -58,7 +58,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 		HP_REGEN(0, new Clr(255, 100, 100), 50) {
 			@Override
 			public void make(Item it, int power) {
-				it.hpRegen = BASE_REGEN * powerLvl(power);
+				it.regenSpeedup = (int) (2 * powerLvl(power)) + 2;
 			}
 		},
 		SPEED_MULT(2, new Clr(255, 255, 0), 100) {
@@ -83,7 +83,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 			@Override
 			public boolean useful(Creature c) { return !c.canSeeStats; }
 		},
-		RESURRECT(4, new Clr(180, 180, 255), 30) {
+		RESURRECT(4, new Clr(180, 180, 255), 35) {
 			@Override
 			public void make(Item it, int power) {
 				it.resurrect = true;
@@ -109,7 +109,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 				return shields < 3;
 			}
 		},
-		HOVER(4, new Clr(100, 127, 100), 100) {
+		HOVER(4, new Clr(100, 127, 100), 50) {
 			@Override
 			public void make(Item it, int power) {
 				it.hover = true;
@@ -120,7 +120,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 			@Override
 			public boolean useful(Creature c) { return !c.canHover(); }
 		},
-		EATING(5, Clr.RED, 50) {
+		EATING(5, Clr.RED, 40) {
 			@Override
 			public void make(Item it, int power) {
 				it.eating = Math.min(1.0 / 50, power * 0.0015);
@@ -142,7 +142,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 			@Override
 			public boolean useful(Creature c) { return c.totalVamp() < 1.0; }
 		},
-		FLY(9, new Clr(200, 255, 200), 30) {
+		FLY(9, new Clr(200, 255, 200), 25) {
 			@Override
 			public void make(Item it, int power) {
 				it.fly = true;
@@ -189,7 +189,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 	public double resistance;
 	public Element resistanceVs;
 	public double speedMult = 1;
-	public double hpRegen;
+	public int regenSpeedup;
 	public int hpBonus = 0;
 	public boolean fly;
 	public boolean hover;
@@ -205,12 +205,12 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 	public long seed;
 	
 	public Item makeTwin() {
-		return new Item(name, type, power, imgIndex, img, largeImg, tint, resistance, resistanceVs, hpRegen, fly, hover, shield, vampireMult, givesInfo, resurrect, cloaking, seed);
+		return new Item(name, type, power, imgIndex, img, largeImg, tint, resistance, resistanceVs, regenSpeedup, fly, hover, shield, vampireMult, givesInfo, resurrect, cloaking, seed);
 	}
 
 	public Item() {}
 	
-	public Item(String name, Type type, int power, int imgIndex, Img img, Img largeImg, Clr tint, double resistance, Element resistanceVs, double hpRegen, boolean fly, boolean hover, boolean shield, double vampireMult, boolean givesInfo, boolean resurrect, boolean cloaking, long seed) {
+	public Item(String name, Type type, int power, int imgIndex, Img img, Img largeImg, Clr tint, double resistance, Element resistanceVs, int regenSpeedup, boolean fly, boolean hover, boolean shield, double vampireMult, boolean givesInfo, boolean resurrect, boolean cloaking, long seed) {
 		this.name = name;
 		this.type = type;
 		this.power = power;
@@ -220,7 +220,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 		this.tint = tint;
 		this.resistance = resistance;
 		this.resistanceVs = resistanceVs;
-		this.hpRegen = hpRegen;
+		this.regenSpeedup = regenSpeedup;
 		this.fly = fly;
 		this.hover = hover;
 		this.shield = shield;
@@ -309,10 +309,10 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 				sb.append(is).append("Current speed: ").append(round(forC.totalSpeed() * PatentBlaster.FPS, 0)).append(" px/sec\n");
 			}
 		}
-		if (hpRegen != 0) {
-			sb.append(is).append(round(hpRegen * PatentBlaster.FPS, 1)).append(" HP regeneration/sec\n");
+		if (regenSpeedup != 0) {
+			sb.append(is).append("Reduces time until regeneration by ").append(round(regenSpeedup * 1.0 / PatentBlaster.FPS)).append(" sec\n");
 			if (forC != null) {
-				sb.append(is).append("Current regeneration: ").append(round(forC.baseHPRegen() * PatentBlaster.FPS, 1)).append(" HP/sec\n");
+				sb.append(is).append("Current time until regeneration: ").append(round(forC.ticksTillRegen() * 1.0 / PatentBlaster.FPS)).append(" sec\n");
 			}
 		}
 		if (hpBonus > 0) {
@@ -384,7 +384,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 		it.fly = fly;
 		it.givesInfo = givesInfo;
 		it.hpBonus = hpBonus / 4;
-		it.hpRegen = hpRegen / 4;
+		it.regenSpeedup = regenSpeedup / 4;
 		it.imgIndex = imgIndex;
 		it.img = img;
 		it.largeImg = largeImg;
@@ -411,7 +411,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 		it.fly = fly;
 		it.givesInfo = givesInfo;
 		it.hpBonus = hpBonus * 4;
-		it.hpRegen = hpRegen * 4;
+		it.regenSpeedup = regenSpeedup * 4;
 		it.imgIndex = imgIndex;
 		it.img = img;
 		it.largeImg = largeImg;
@@ -442,7 +442,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 				eating == it.eating &&
 				speedMult == it.speedMult &&
 				hpBonus == it.hpBonus &&
-				hpRegen == it.hpRegen &&
+				regenSpeedup == it.regenSpeedup &&
 				resistance == it.resistance &&
 				resistanceVs == it.resistanceVs &&
 				vampireMult == it.vampireMult &&

@@ -27,7 +27,6 @@ public class BeeJar extends EmitterWall {
 				s.dy = Math.sin(dir) * 2;
 				s.ignoresWalls = true;
 				s.freeAgent = true;
-				s.remains = true;
 				bees.add(s);
 			}
 		}

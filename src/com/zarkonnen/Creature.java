@@ -30,6 +30,8 @@ public class Creature extends Entity implements HasDesc {
 	public static final int OVERHEATING_START_MULT = 4;
 	public static final int MAX_OVERHEAT = 8;
 	public static final double JITTER_PER_OVERHEAT = 0.06;
+	public static final int BASE_REGEN_DELAY = 8 * PatentBlaster.FPS;
+	public static final int MIN_REGEN_DELAY = PatentBlaster.FPS;
 	
 	public int imgIndex;
 	public Img bImg, flippedBImg;
@@ -41,7 +43,6 @@ public class Creature extends Entity implements HasDesc {
 	public int hp;
 	public int maxHP;
 	public double speed;
-	public double hpRegen;
 	public boolean charges;
 	public boolean explodes;
 	public boolean dodges;
@@ -247,14 +248,20 @@ public class Creature extends Entity implements HasDesc {
 		return m;
 	}
 	
-	public double baseHPRegen() {
-		double reg = hpRegen;
-		for (Item it : items) { reg += it.hpRegen; }
-		return reg;
+	public int ticksTillRegen() {
+		int t = BASE_REGEN_DELAY;
+		for (Item it : items) {
+			t -= it.regenSpeedup;
+		}
+		return Math.max(MIN_REGEN_DELAY, t);
 	}
 	
 	public double totalHPRegen() {
-		return baseHPRegen() * (ticksSinceHit < 5 ? 0 : ticksSinceHit > PatentBlaster.FPS * 7 ? 40 : 1);
+		if (ticksSinceHit < ticksTillRegen()) {
+			return 0;
+		} else {
+			return totalMaxHP() * 1.0 / (PatentBlaster.FPS * 3);
+		}
 	}
 	
 	public MoveMode realMoveMode() {
@@ -452,7 +459,7 @@ public class Creature extends Entity implements HasDesc {
 			Clr c = Clr.GREEN;
 			int adjHP = Math.min(hp, tmh);
 			if (adjHP < tmh / 2) {
-				c = Clr.YELLOW;
+				c = Clr.ORANGE;
 				if (adjHP < tmh / 4) {
 					c = new Clr(255, 127, 0);
 					if (adjHP < tmh / 8) {
@@ -661,7 +668,6 @@ public class Creature extends Entity implements HasDesc {
 			t.items.add(items.get(0).makeTinyVersion());
 		}
 		t.reviens = reviens;
-		t.hpRegen = hpRegen;
 		t.resistance = resistance;
 		t.w = w / 2;
 		t.h = h / 2;
@@ -697,7 +703,6 @@ public class Creature extends Entity implements HasDesc {
 			t.items.add(items.get(0).makeGiantVersion());
 		}
 		t.reviens = reviens;
-		t.hpRegen = hpRegen;
 		t.resistance = resistance;
 		t.w = w * 2;
 		t.h = h * 2;
@@ -733,7 +738,6 @@ public class Creature extends Entity implements HasDesc {
 			t.items.add(items.get(0).makeTwin());
 		}
 		t.reviens = reviens;
-		t.hpRegen = hpRegen;
 		t.resistance = resistance;
 		t.w = w;
 		t.h = h;
@@ -753,7 +757,6 @@ public class Creature extends Entity implements HasDesc {
 	
 	public void makePlayerAble() {
 		playerControlled = true;
-		hpRegen += 0.01;
 		dropWeapon = false;
 		dropItem = false;
 	}
@@ -871,7 +874,7 @@ public class Creature extends Entity implements HasDesc {
 			weapon.tick();
 			for (Item it : items) { it.tick(l, this); }
 			ticksSinceHit++;
-			if (ticksSinceHit == PatentBlaster.FPS * 5 && this == l.player && hp <= totalMaxHP() * 0.7) {
+			if (ticksSinceHit == ticksTillRegen() && this == l.player && hp <= totalMaxHP() * 0.7) {
 				sound("regenerate", l);
 			}
 			accumulatedRegen += totalHPRegen();
@@ -1458,10 +1461,6 @@ public class Creature extends Entity implements HasDesc {
 				hp *= 0.8;
 			}
 		}
-		if (r.nextInt(10 / power + 2) == 0) {
-			c.hpRegen = BASE_REGEN * powerLvl(power);
-			hp *= 0.85;
-		}
 		if (!player &&r.nextInt(10 / power + 2) == 0) {
 			c.dodges = true;
 			hp *= 0.9;
@@ -1509,7 +1508,7 @@ public class Creature extends Entity implements HasDesc {
 			c.alwaysOnFire = true;
 			hp *= 0.9;
 		}
-		if (!player && !boss && c.hpRegen > 0 && r.nextInt(8 / power + 2) == 0) {
+		if (!player && !boss && r.nextInt(8 / power + 2) == 0) {
 			c.flees = true;
 			hp *= 0.85;
 		}
@@ -1696,17 +1695,10 @@ public class Creature extends Entity implements HasDesc {
 			sb.append("Normal");
 		}
 		sb.append(" Creature\n");
-		sb.append("HP: ").append(hp).append("/").append(totalMaxHP());
-		if (baseHPRegen() != 0) {
-			sb.append(" + ").append(round(baseHPRegen() * PatentBlaster.FPS)).append("/sec\n");
-		} else {
-			sb.append("\n");
-		}
+		sb.append("HP: ").append(hp).append("/").append(totalMaxHP()).append("\n");
+		sb.append("Regeneration starts after ").append(round(ticksTillRegen() * 1.0 / PatentBlaster.FPS)).append(" sec\n");
 		if (totalEating() > 0) {
 			sb.append("Eating flesh gives you ").append(round(totalEating() * 100 * 50)).append("% of the victim's HP\n");
-		}
-		if (totalVamp() > 0) {
-			sb.append(round(totalVamp() * 100)).append("% of damage gained as HP\n");
 		}
 		if (!curses.isEmpty()) {
 			sb.append("[").append(Element.CURSED.tint).append("]").append(nce(curses.size())).append("Cursed[]: Taking ").append(round(curses.size() * 30)).append("% extra damage\n");

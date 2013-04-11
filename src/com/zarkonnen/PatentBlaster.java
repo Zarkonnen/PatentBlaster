@@ -366,7 +366,7 @@ public class PatentBlaster implements Game, MusicCallback {
 		}
 		
 		if (!System.getProperty("os.name").toLowerCase().matches(".*[iu]n[ui]x.*")) {
-			chosenMode = new ScreenMode(1024, 768, false); // qqDPS
+			chosenMode = new ScreenMode(1024, 768, true);
 		}
 		if (chosenMode == null) {
 			if (availableModes.isEmpty()) {
@@ -1229,7 +1229,7 @@ public class PatentBlaster implements Game, MusicCallback {
 					d.rect(Clr.BLACK, 0, shift + spacing + 18, sm.width * 3 / 4, 2);
 					
 					d.blit(drawingImgsLarge[setupCreature.imgIndex], setupCreature.tint, spacing, shift + 100);
-					d.text("[BLACK][default=BLACK]" + setupCreature.name().toUpperCase() + "\n\n" + setupCreature.desc(Clr.BLACK, IMG_NUMS[setupCreature.imgIndex]), FOUNT, 400 + spacing * 3, shift + 100);//, sm.width - spacing * 4 - 400);
+					d.text("[BLACK][default=BLACK]" + setupCreature.name().toUpperCase() + "\n\n" + setupCreature.desc(Clr.BLACK, IMG_NUMS[setupCreature.imgIndex]), FOUNT, 400 + spacing * 2, shift + 100);//, sm.width - spacing * 4 - 400);
 					double entryH = Math.max(400, d.textSize("[BLACK][default=BLACK]" + setupCreature.name().toUpperCase() + "\n\n" + setupCreature.desc(Clr.BLACK, IMG_NUMS[setupCreature.imgIndex]), FOUNT, 400 + spacing * 3, 100/*, sm.width - spacing * 5 - 400*/).height) + spacing * 4;
 					d.hook(0, shift + 100, sm.width, entryH, new Hook(Hook.Type.MOUSE_1) {
 						@Override
