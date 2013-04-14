@@ -10,7 +10,7 @@ public class Torch extends EmitterWall {
 		tint = FurnitureStore.DEFAULT;
 		weapon.element = Element.FIRE;
 		weapon.tint = Element.FIRE.tint;
-		weapon.dmg *= 0.01;
+		weapon.dmg *= 0.002;
 		weapon.shotSize = 3;
 		destructible = true;
 		weapon.shotSpeed *= 0.15;

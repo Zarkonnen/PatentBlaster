@@ -11,6 +11,7 @@ public class BeeJar extends EmitterWall {
 	public BeeJar(int x, int baseline, int power) {
 		super(x, baseline - 100, 100, 100, power);
 		weapon.element = Element.FIRE;
+		weapon.dmg *= 0.45;
 		weapon.shotSize = 3;
 		tint = GLASS;
 		destructible = true;

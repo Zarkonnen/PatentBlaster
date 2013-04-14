@@ -86,7 +86,7 @@ public enum FurnitureStore {
 			}
 		}
 	},
-	BEESHELF(4, Location.WALL, 120, 150, 0) {
+	BEESHELF(2, Location.WALL, 120, 150, 0) {
 		@Override
 		public void assemble(Level l, int x, int y) {
 			SHELF.assemble(l, x, y + 125);
