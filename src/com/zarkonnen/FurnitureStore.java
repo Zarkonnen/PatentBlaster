@@ -182,6 +182,9 @@ public enum FurnitureStore {
 		}
 	}
 	
+	public static final int SPACING = 50;
+	public static final int SPACING_Y = 30;
+	
 	public static void furnish(Level l, int items, int platforms, int highPlatforms) {
 		int placed = 0;
 		ArrayList<PlacedFurniture> pf = new ArrayList<PlacedFurniture>();
@@ -226,6 +229,16 @@ public enum FurnitureStore {
 						other.x + other.w > x &&
 						other.y < y + type.h &&
 						other.y + other.h > y)
+					{
+						continue att;
+					}
+				}
+				for (PlacedFurniture other : pf) {
+					if (
+						other.x - SPACING < x + type.w &&
+						other.x + other.type.w + SPACING > x &&
+						other.y - SPACING_Y < y + type.h &&
+						other.y + other.type.h + SPACING_Y > y)
 					{
 						continue att;
 					}
