@@ -406,10 +406,10 @@ public class Creature extends Entity implements HasDesc {
 		}
 		
 		if (frozen > 0) {
-			d.rect(FROZEN_CUBE_CLR, scrollX + x - w / 10, scrollY + y - h / 10, w + w / 5, h + h / 5, angle);
+			d.rect(FROZEN_CUBE_CLR, scrollX + squishedX - squishedW / 10, scrollY + squishedY - squishedH / 10, squishedW * 1.2, squishedH * 1.2, angle);
 		}
 		if (shield > 0) {
-			d.rect(new Clr(255, 255, 255, shield), scrollX + x - w / 10, scrollY + y - h / 10, w + w / 5, h + h / 5, angle);
+			d.rect(new Clr(255, 255, 255, shield), scrollX + squishedX - squishedW / 10, scrollY + squishedY - squishedH / 10, squishedW * 1.2, squishedH * 1.2, angle);
 		}
 		
 		String text = null;
@@ -1202,7 +1202,7 @@ public class Creature extends Entity implements HasDesc {
 				leftSquish = 0;
 				rightSquish = 0;
 			}
-			topSquish = squish() * (bottomPress - jumpElongate) / maxPress;
+			topSquish = squish() * (bottomPress - jumpElongate * 0.2) / maxPress;
 		} else {
 			leftSquish = 0;
 			rightSquish = 0;

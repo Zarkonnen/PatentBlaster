@@ -38,8 +38,15 @@ public enum WallDecoType {
 	SWITCH(6, new Img("switch"), 14, 18, Level.GRID_SIZE * (Level.LVL_H - 6), Level.GRID_SIZE * (Level.LVL_H - 4)),
 	WIRE(4, null, 3, Level.GRID_SIZE * (Level.LVL_H - 2), Level.GRID_SIZE, Level.GRID_SIZE) {
 		@Override
-		public void draw(Draw d, WallDeco wd, int scrollX, int scrollY) {
+		public void draw(Draw d, WallDeco wd, int scrollX, int scrollY, Level l) {
 			d.rect(WIRE_C, wd.x + scrollX, wd.y + scrollY, w, h);
+		}
+	},
+	PORTRAIT(5, new Img("portrait"), 200, 207) {
+		@Override
+		public void draw(Draw d, WallDeco wd, int scrollX, int scrollY, Level l) {
+			super.draw(d, wd, scrollX, scrollY, l);
+			d.blit(l.boss.img, l.boss.tint, 0.6, wd.x + scrollX + 40, wd.y + scrollY + 40, 120, 120, 0);
 		}
 	}
 ;
@@ -71,7 +78,7 @@ public enum WallDecoType {
 		this.maxY = maxY;
 	}
 	
-	public void draw(Draw d, WallDeco wd, int scrollX, int scrollY) {
+	public void draw(Draw d, WallDeco wd, int scrollX, int scrollY, Level l) {
 		d.blit(img, wd.x + scrollX, wd.y + scrollY);
 	}
 }

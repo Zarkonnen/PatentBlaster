@@ -1400,7 +1400,7 @@ public class PatentBlaster implements Game, MusicCallback {
 			d.rect(Clr.DARK_GREY, scrollX + Level.LVL_W * Level.GRID_SIZE, scrollY - 600, 600, Level.LVL_H * Level.GRID_SIZE + 1200);
 			//endStart("Barrels");
 			for (WallDeco w : l.decos) {
-				w.type.draw(d, w, bgScrollX, bgScrollY);
+				w.type.draw(d, w, bgScrollX, bgScrollY, l);
 			}
 			for (Wall w : l.walls) {
 				w.draw(d, l, scrollX, scrollY);
