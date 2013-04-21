@@ -122,7 +122,7 @@ public enum FurnitureStore {
 	ACID_LEAK(5, Location.CEILING, 20, 5) {
 		@Override
 		public void assemble(Level l, int x, int y) {
-			l.walls.add(new Leak(x, y, l.power, Element.ACID, 3));
+			l.walls.add(new Leak(x, y, l.power, Element.ACID, 1));
 		}
 	};
 		
@@ -182,10 +182,53 @@ public enum FurnitureStore {
 		}
 	}
 	
+	public static class PlacedWallDeco {
+		final int x, y, w, h;
+
+		public PlacedWallDeco(int x, int y, int w, int h) {
+			this.x = x;
+			this.y = y;
+			this.w = w;
+			this.h = h;
+		}
+	}
+	
 	public static final int SPACING = 50;
 	public static final int SPACING_Y = 30;
 	
-	public static void furnish(Level l, int items, int platforms, int highPlatforms) {
+	public static final int DECO_SPACING = 30;
+	
+	public static void furnish(Level l, int wallDecos, int items, int platforms, int highPlatforms, ArrayList<PlacedWallDeco> pwds) {
+		int placedDecos = 0;
+		lp: while (placedDecos < wallDecos) {
+			int rollRange = 0;
+			for (WallDecoType wdt : WallDecoType.values()) {
+				rollRange += wdt.p;
+			}
+			int roll = l.r.nextInt(rollRange);
+			int ti = 0;
+			while (roll > WallDecoType.values()[ti].p) {
+				roll -= WallDecoType.values()[ti].p;
+				ti++;
+			}
+			WallDecoType type = WallDecoType.values()[ti];
+			int x = Level.GRID_SIZE * 2 + l.r.nextInt((Level.LVL_W - 4) * Level.GRID_SIZE - type.w);
+			int y = type.minY == type.maxY ? type.minY : type.minY + l.r.nextInt(type.maxY - type.minY);
+			for (PlacedWallDeco other : pwds) {
+				if (
+					other.x - DECO_SPACING < x + type.w &&
+					other.x + other.w + DECO_SPACING > x &&
+					other.y - DECO_SPACING < y + type.h &&
+					other.y + other.h + DECO_SPACING > y)
+				{
+					continue lp;
+				}
+			}
+			placedDecos++;
+			l.decos.add(new WallDeco(type, x, y));
+			pwds.add(new PlacedWallDeco(x, y, type.w, type.h));
+		}
+		
 		int placed = 0;
 		ArrayList<PlacedFurniture> pf = new ArrayList<PlacedFurniture>();
 		lp: while (placed < items) {
@@ -239,6 +282,16 @@ public enum FurnitureStore {
 						other.x + other.type.w + SPACING > x &&
 						other.y - SPACING_Y < y + type.h &&
 						other.y + other.type.h + SPACING_Y > y)
+					{
+						continue att;
+					}
+				}
+				for (PlacedWallDeco other : pwds) {
+					if (
+						other.x * 0.95 - DECO_SPACING < x + type.w &&
+						other.x * 0.95 + other.w + DECO_SPACING > x &&
+						other.y * 0.95 - DECO_SPACING < y + type.h &&
+						other.y * 0.95 + other.h + DECO_SPACING > y)
 					{
 						continue att;
 					}

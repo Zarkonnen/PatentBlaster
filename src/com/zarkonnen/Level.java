@@ -1,6 +1,7 @@
 package com.zarkonnen;
 
 import com.zarkonnen.catengine.Input;
+import com.zarkonnen.catengine.util.Rect;
 import com.zarkonnen.catengine.util.ScreenMode;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ public class Level implements Serializable {
 	public static final int SOLID_START = 2;
 	public static final int MAX_SOUND_REQUESTS = 4;
 	public Creature player;
+	public ArrayList<WallDeco> decos = new ArrayList<WallDeco>();
 	public ArrayList<Wall> walls = new ArrayList<Wall>();
 	public ArrayList<Creature> monsters = new ArrayList<Creature>();
 	public ArrayList<Creature> monstersToAdd = new ArrayList<Creature>();
@@ -47,6 +49,14 @@ public class Level implements Serializable {
 	public LinkedList<Integer> bbqVictims = new LinkedList<Integer>();
 	public LinkedList<Goodie> goodiesBeingTaken = new LinkedList<Goodie>();
 	public boolean[] window = new boolean[LVL_W * GRID_SIZE / 512 + 2];
+	public static final Rect[] WIN_RECTS = {
+		new Rect(200, 25, 112, 354),
+		new Rect(193, 88, 125, 125),
+		new Rect(105, 75, 300, 100),
+		new Rect(153, 153, 206, 206),
+		new Rect(18, 98, 304, 154),
+		new Rect(0, 0, 0, 0)
+	};
 	
 	public static final int[] BACKGROUND_HS = {406, 452, 512, 512, 256, 308};
 	public static final int NUM_BACKGROUNDS = 6;
@@ -73,18 +83,20 @@ public class Level implements Serializable {
 			}
 		}
 		
-		/*for (int i = 0; i < 12; i++) {
-			walls.add(new Wall(
-					GRID_SIZE * 3 + r.nextInt(GRID_SIZE * (LVL_W - 7)),
-					GRID_SIZE * 3 + r.nextInt((GRID_SIZE * (LVL_H - 5))),
-					GRID_SIZE + r.nextInt(GRID_SIZE * 3),
-					(int) (MAX_SPEED * 1.5)));
-		}*/
-		FurnitureStore.furnish(this, 15, 8, 6);
+		ArrayList<FurnitureStore.PlacedWallDeco> pwds = new ArrayList<FurnitureStore.PlacedWallDeco>();
 		
 		for (int i = 0; i < window.length; i++) {
-			window[i] = r.nextInt(20) == 0;
+			if (r.nextInt(5) == 0) {
+				window[i] = true;
+				pwds.add(new FurnitureStore.PlacedWallDeco(
+						(int) (i * backgroundW + WIN_RECTS[background].x),
+						(int) (PatentBlaster.WIN_Y_INDEX[background] * backgroundH + WIN_RECTS[background].y),
+						(int) WIN_RECTS[background].width,
+						(int) WIN_RECTS[background].height));
+			}
 		}
+		
+		FurnitureStore.furnish(this, 5, 15, 8, 6, pwds);
 		
 		int cFreq = power > 30 ? 1 : power > 15 ? 2 : 3;
 		int monsterStart = (power < 3 && PatentBlaster.difficultyLevel.ordinal() < DifficultyLevel.BRUTAL.ordinal())
