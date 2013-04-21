@@ -1433,6 +1433,9 @@ public class PatentBlaster implements Game, MusicCallback {
 			for (Goodie g : l.goodiesBeingTaken) {
 				g.draw(d, l, 0, 0);
 			}
+			for (Wall w : l.walls) {
+				w.drawGlow(d, l, scrollX, scrollY);
+			}
 			//endStart("Blood");
 			if (l.player.hp <= 0) {
 				d.rect(DEAD, 0, 0, sm.width, sm.height);

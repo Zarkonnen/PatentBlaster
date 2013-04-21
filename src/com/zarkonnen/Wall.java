@@ -1,5 +1,6 @@
 package com.zarkonnen;
 
+import com.zarkonnen.catengine.Draw;
 import com.zarkonnen.catengine.util.Clr;
 
 public class Wall extends Entity {
@@ -19,6 +20,8 @@ public class Wall extends Entity {
 	public double initialHP;
 	public double hp;
 	public boolean isFloor = false;
+	
+	public void drawGlow(Draw d, Level l, double scrollX, double scrollY) {}
 	
 	public Wall floor() { isFloor = true; return this; }
 	

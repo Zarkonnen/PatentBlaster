@@ -124,6 +124,12 @@ public enum FurnitureStore {
 		public void assemble(Level l, int x, int y) {
 			l.walls.add(new Leak(x, y, l.power, Element.ACID, 1));
 		}
+	},
+	LIGHTBULB(500, Location.CEILING, 30, 50) {
+		@Override
+		public void assemble(Level l, int x, int y) {
+			l.walls.add(new Lightbulb(x, y));
+		}
 	};
 		
 	public static final Clr HEAL = new Clr(200, 255, 200);
