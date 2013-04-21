@@ -125,7 +125,7 @@ public enum FurnitureStore {
 			l.walls.add(new Leak(x, y, l.power, Element.ACID, 1));
 		}
 	},
-	LIGHTBULB(500, Location.CEILING, 30, 50) {
+	LIGHTBULB(5, Location.CEILING, 30, 50) {
 		@Override
 		public void assemble(Level l, int x, int y) {
 			l.walls.add(new Lightbulb(x, y));
@@ -294,10 +294,10 @@ public enum FurnitureStore {
 				}
 				for (PlacedWallDeco other : pwds) {
 					if (
-						other.x * 0.95 - DECO_SPACING < x + type.w &&
-						other.x * 0.95 + other.w + DECO_SPACING > x &&
-						other.y * 0.95 - DECO_SPACING < y + type.h &&
-						other.y * 0.95 + other.h + DECO_SPACING > y)
+						other.x / 0.95 - DECO_SPACING < x + type.w &&
+						other.x / 0.95 + other.w + DECO_SPACING > x &&
+						other.y / 0.95 - DECO_SPACING < y + type.h &&
+						other.y / 0.95 + other.h + DECO_SPACING > y)
 					{
 						continue att;
 					}

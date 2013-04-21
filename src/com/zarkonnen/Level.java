@@ -414,6 +414,7 @@ public class Level implements Serializable {
 			e.y += 30;
 			for (Wall w : walls) {
 				if (e != w &&
+					w.isCollidedWith &&
 					e.x < w.x + w.w &&
 					e.x + e.w > w.x &&
 					e.y < w.y + w.h &&
