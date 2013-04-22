@@ -136,6 +136,9 @@ public class Shot extends Entity {
 			sprayProbability /= 20;
 			ignoresWalls = true;
 		}
+		if (w.sharp) {
+			ignoresWalls = true;
+		}
 		if (w.scattershot) {
 			sprayProbability /= 3;
 		}
@@ -155,7 +158,7 @@ public class Shot extends Entity {
 		}
 		collides = p.collides;
 		ignoresWalls = p.ignoresWalls;
-		if (p.weapon != null && p.weapon.sword) {
+		if (p.weapon != null && (p.weapon.sword || p.weapon.sharp)) {
 			ignoresWalls = false;
 		}
 		freeAgent = p.freeAgent;

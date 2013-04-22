@@ -1888,12 +1888,14 @@ public class Creature extends Entity implements HasDesc {
 		// Being verrrry naughty. qqDPS
 		boolean valid = true;
 		Wall obstacle = null;
-		for (Wall wall : l.walls) {
-			Rectangle2D.Double r = new Rectangle2D.Double(wall.x, wall.y, wall.w, wall.h);
-			if (r.intersectsLine(src.x, src.y, target.x, target.y)) {
-				valid = false;
-				obstacle = wall;
-				break;
+		if (!weapon.sharp) {
+			for (Wall wall : l.walls) {
+				Rectangle2D.Double r = new Rectangle2D.Double(wall.x, wall.y, wall.w, wall.h);
+				if (r.intersectsLine(src.x, src.y, target.x, target.y)) {
+					valid = false;
+					obstacle = wall;
+					break;
+				}
 			}
 		}
 		return new ShootVector(src, target, valid, obstacle);
