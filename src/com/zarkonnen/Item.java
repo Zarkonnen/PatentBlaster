@@ -55,11 +55,13 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 				it.hpBonus = (int) (BASE_HP_BONUS * powerLvl(power));
 			}
 		},
-		HP_REGEN(0, new Clr(255, 100, 100), 50) {
+		HP_REGEN(5, new Clr(255, 100, 100), 50) {
 			@Override
 			public void make(Item it, int power) {
-				it.regenSpeedup = (int) (2 * powerLvl(power)) + 2;
+				it.regenSpeedup = (int) (8 * powerLvl(power)) + 5;
 			}
+			@Override
+			public boolean useful(Creature c) { return c.ticksTillRegen() > Creature.MIN_REGEN_DELAY; }
 		},
 		SPEED_MULT(2, new Clr(255, 255, 0), 100) {
 			@Override
@@ -123,7 +125,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 		EATING(5, Clr.RED, 40) {
 			@Override
 			public void make(Item it, int power) {
-				it.eating = Math.min(1.0 / 50, power * 0.0015);
+				it.eating = Math.min(1.0 / 500, power * 0.0005);
 				if (power > 5) {
 					it.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(5)));
 				}
@@ -205,18 +207,19 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 	public long seed;
 	
 	public Item makeTwin() {
-		return new Item(name, type, power, imgIndex, img, largeImg, tint, resistance, resistanceVs, regenSpeedup, fly, hover, shield, vampireMult, givesInfo, resurrect, cloaking, seed);
+		return new Item(name, type, power, imgIndex, img, largeImg, tint, resistance, resistanceVs, regenSpeedup, fly, hover, shield, vampireMult, givesInfo, resurrect, cloaking, hpBonus, seed);
 	}
 
 	public Item() {}
 	
-	public Item(String name, Type type, int power, int imgIndex, Img img, Img largeImg, Clr tint, double resistance, Element resistanceVs, int regenSpeedup, boolean fly, boolean hover, boolean shield, double vampireMult, boolean givesInfo, boolean resurrect, boolean cloaking, long seed) {
+	public Item(String name, Type type, int power, int imgIndex, Img img, Img largeImg, Clr tint, double resistance, Element resistanceVs, int regenSpeedup, boolean fly, boolean hover, boolean shield, double vampireMult, boolean givesInfo, boolean resurrect, boolean cloaking, int hpBonus, long seed) {
 		this.name = name;
 		this.type = type;
 		this.power = power;
 		this.imgIndex = imgIndex;
 		this.img = img;
 		this.largeImg = largeImg;
+		this.hpBonus = hpBonus;
 		this.tint = tint;
 		this.resistance = resistance;
 		this.resistanceVs = resistanceVs;

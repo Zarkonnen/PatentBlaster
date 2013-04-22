@@ -44,6 +44,7 @@ public class Shot extends Entity {
 	public Weapon flammableWeapon = null;
 	public boolean remains;
 	public Clr glowTint;
+	public boolean extinguishes = false;
 	
 	@Override
 	public void draw(Draw d, Level l, double scrollX, double scrollY) {
@@ -154,6 +155,9 @@ public class Shot extends Entity {
 		}
 		collides = p.collides;
 		ignoresWalls = p.ignoresWalls;
+		if (p.weapon != null && p.weapon.sword) {
+			ignoresWalls = false;
+		}
 		freeAgent = p.freeAgent;
 		weapon = p.weapon;
 		shooter = p.shooter;

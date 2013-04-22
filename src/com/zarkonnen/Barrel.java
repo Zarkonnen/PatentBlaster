@@ -60,6 +60,7 @@ public class Barrel extends Wall {
 				s.lifeLeft = s.lifeLeft / 2 + l.r.nextInt(s.lifeLeft / 2);
 				s.sprayProbability /= 4;
 				s.bounciness = 0.7;
+				s.extinguishes = true;
 				return s;
 			}
 		},
@@ -95,6 +96,7 @@ public class Barrel extends Wall {
 				s.lifeLeft = s.lifeLeft * 5 + l.r.nextInt(s.lifeLeft * 5);
 				s.sprayProbability = 0.0001;
 				s.remains = true;
+				s.extinguishes = true;
 				return s;
 			}
 		},
@@ -121,6 +123,7 @@ public class Barrel extends Wall {
 			public Shot makeShot(Level l, Barrel b, double x, double y) {
 				Shot s = new Shot(Clr.RED, chunkSize, chunkSize, false, 3000 + l.r.nextInt(1000), x, y, l.r.nextDouble() * 2 - 1, l.r.nextDouble() * 2 - 1, 1.0, b.meatSource, false, false, false, x, y, 0);
 				s.friction = 0.998;
+				s.extinguishes = true;
 				return s;
 			}
 		},

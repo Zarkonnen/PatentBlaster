@@ -18,6 +18,9 @@ public class Leak extends EmitterWall {
 			s.dy = 0;
 			s.popOnWorldHit = false;
 			s.sprayProbability = 0;
+			if (weapon.element == Element.ICE) {
+				s.extinguishes = true;
+			}
 		}
 	}
 }

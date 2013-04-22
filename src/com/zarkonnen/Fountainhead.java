@@ -35,6 +35,9 @@ public class Fountainhead extends EmitterWall {
 			s.w = 100;
 			s.h = 2;
 			s.glowTint = null;
+			if (weapon.element == Element.ICE) {
+				s.extinguishes = true;
+			}
 		}
 	}
 }
