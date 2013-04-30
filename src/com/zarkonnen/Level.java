@@ -120,12 +120,12 @@ public class Level implements Serializable {
 		this.player = player;
 		r = new Random(seed);
 		
-		generate(r, seed);
-		
 		walls.add(new Wall(0, 0, GRID_SIZE * LVL_W, GRID_SIZE).mainWall());
 		walls.add(new Wall(0, GRID_SIZE * LVL_H - GRID_SIZE, GRID_SIZE * LVL_W, GRID_SIZE).floor());
 		walls.add(new Wall(0, GRID_SIZE, GRID_SIZE, GRID_SIZE * LVL_H - GRID_SIZE * 2).mainWall());
 		walls.add(new Wall(GRID_SIZE * LVL_W - GRID_SIZE, GRID_SIZE, GRID_SIZE, GRID_SIZE * LVL_H - GRID_SIZE * 2).mainWall());
+		
+		generate(r, seed);
 			
 		int cFreq = power > 30 ? 1 : power > 15 ? 2 : 3;
 		int monsterStart = (power < 3 && PatentBlaster.difficultyLevel.ordinal() < DifficultyLevel.BRUTAL.ordinal())
@@ -148,7 +148,7 @@ public class Level implements Serializable {
 		
 		int numBosses = (power % 20) == 10 ? 4 : 1;
 		for (int b = 0; b < numBosses; b++) {
-			boss = Creature.make(seed + 92318, power * 3 / 2 + 5, PatentBlaster.NUM_IMAGES, true, false, true);
+			boss = Creature.make(seed + 92318, power * 4 / 3 + 3, PatentBlaster.NUM_IMAGES, true, false, true);
 			if ((power % 20) == 10) {
 				boss = player.makeTinyVersion(this);
 				boss.encounterMessage = "MEET TINY YOU";

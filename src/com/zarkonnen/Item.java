@@ -207,12 +207,12 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 	public long seed;
 	
 	public Item makeTwin() {
-		return new Item(name, type, power, imgIndex, img, largeImg, tint, resistance, resistanceVs, regenSpeedup, fly, hover, shield, vampireMult, givesInfo, resurrect, cloaking, hpBonus, seed);
+		return new Item(name, type, power, imgIndex, img, largeImg, tint, resistance, resistanceVs, regenSpeedup, fly, hover, shield, vampireMult, givesInfo, resurrect, cloaking, hpBonus, speedMult, seed);
 	}
 
 	public Item() {}
 	
-	public Item(String name, Type type, int power, int imgIndex, Img img, Img largeImg, Clr tint, double resistance, Element resistanceVs, int regenSpeedup, boolean fly, boolean hover, boolean shield, double vampireMult, boolean givesInfo, boolean resurrect, boolean cloaking, int hpBonus, long seed) {
+	public Item(String name, Type type, int power, int imgIndex, Img img, Img largeImg, Clr tint, double resistance, Element resistanceVs, int regenSpeedup, boolean fly, boolean hover, boolean shield, double vampireMult, boolean givesInfo, boolean resurrect, boolean cloaking, int hpBonus, double speedMult, long seed) {
 		this.name = name;
 		this.type = type;
 		this.power = power;
@@ -231,6 +231,7 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 		this.givesInfo = givesInfo;
 		this.resurrect = resurrect;
 		this.cloaking = cloaking;
+		this.speedMult = speedMult;
 		this.seed = seed;
 	}
 	
