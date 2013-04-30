@@ -48,9 +48,28 @@ public enum WallDecoType {
 			super.draw(d, wd, scrollX, scrollY, l);
 			d.blit(l.boss.img, l.boss.tint, 0.6, wd.x + scrollX + 40, wd.y + scrollY + 40, 120, 120, 0);
 		}
-	}
+	},
+	PATENT(5, null, 43, 70) {
+		@Override
+		public void draw(Draw d, WallDeco wd, int scrollX, int scrollY, Level l) {
+			d.rect(PAPER_C, scrollX + wd.x, scrollY + wd.y, w, h);
+			//d.blit(PatentBlaster.paper, PAPER_C, scrollX + wd.x, scrollY + wd.y, w, h);
+			if (wd.img != null) {
+				d.blit(wd.img, scrollX + wd.x + 5, scrollY + wd.y + 10, w - 10, w - 10);
+			}
+			//d.text(wd.text, PatentBlaster.SMOUNT, scrollX + wd.x + 5, scrollY + wd.y + 5, w - 10);
+			
+			d.rect(PRINT_C, scrollX + wd.x + 5, scrollY + wd.y + 5, w - 10, 2);
+			
+			for (int i = 0; i < 3; i++) {
+				d.rect(PRINT_C, scrollX + wd.x + 5, scrollY + wd.y + w + 15 + i * 3, w - 10, 1);
+			}
+		}
+	},
 ;
 	
+	public static final Clr PRINT_C = new Clr(60, 60, 55);
+	public static final Clr PAPER_C = new Clr(120, 120, 110);
 	public static final Clr WIRE_C = new Clr(20, 20, 20, 80);
 	
 	public final int p;

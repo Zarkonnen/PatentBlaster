@@ -231,7 +231,13 @@ public enum FurnitureStore {
 				}
 			}
 			placedDecos++;
-			l.decos.add(new WallDeco(type, x, y));
+			WallDeco wd = new WallDeco(type, x, y);
+			if (type == WallDecoType.PATENT) {
+				NonsensePatent np = NonsensePatent.values()[l.r.nextInt(NonsensePatent.values().length)];
+				wd.img = np.img;
+				wd.text = np.text;
+			}
+			l.decos.add(wd);
 			pwds.add(new PlacedWallDeco(x, y, type.w, type.h));
 		}
 		

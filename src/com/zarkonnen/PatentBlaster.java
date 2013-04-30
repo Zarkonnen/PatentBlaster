@@ -225,7 +225,7 @@ public class PatentBlaster implements Game, MusicCallback {
 	// Some images
 	Img rightarrow = new Img("rightarrow");
 	Img leftarrow = new Img("rightarrow").flip();
-	Img paper = new Img("paper.jpg");
+	public static final Img paper = new Img("paper.jpg");
 	Img splashImg = new Img("splash.jpg");
 	Img landscape = new Img("landscape");
 		
@@ -1445,6 +1445,19 @@ public class PatentBlaster implements Game, MusicCallback {
 			/*if (l.tick < 1000) {
 				d.text(l.player.desc(), new Fount("LiberationMono18", 12, 12, 24), 20, 20);
 			}*/
+			
+			for (WallDeco wd : l.decos) {
+				if (wd.type == WallDecoType.PATENT &&
+					wd.x + bgScrollX < sm.width / 2 + 50 &&
+					wd.x + bgScrollX + WallDecoType.PATENT.w > sm.width / 2 - 50 &&
+					wd.y + bgScrollY < sm.height * 2 / 3 + 50 &&
+					wd.y + bgScrollY + WallDecoType.PATENT.h > sm.height * 2 / 3 - 50)
+				{
+					double w = d.textSize(wd.text, FOUNT).x;
+					d.text(wd.text, FOUNT, wd.x + bgScrollX + WallDecoType.PATENT.w / 2 - w / 2, wd.y + bgScrollY - FOUNT.lineHeight);
+					break;
+				}
+			}
 			
 			//endStart("X me!");
 			if (l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {

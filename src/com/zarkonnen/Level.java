@@ -1,8 +1,10 @@
 package com.zarkonnen;
 
 import com.zarkonnen.catengine.Input;
+import com.zarkonnen.catengine.util.Pt;
 import com.zarkonnen.catengine.util.Rect;
 import com.zarkonnen.catengine.util.ScreenMode;
+import com.zarkonnen.catengine.util.Utils;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,19 +63,11 @@ public class Level implements Serializable {
 	public static final int[] BACKGROUND_HS = {406, 452, 512, 512, 256, 308};
 	public static final int NUM_BACKGROUNDS = 6;
 	
-	public Level(long seed, int power, Creature player) {
-		this.power = power;
-		this.player = player;
-		r = new Random(seed);
+	private void generate(Random r, long seed) {
 		boolean hasBarrels = power > 1 && r.nextBoolean();
 		Barrel.Type bType = Barrel.Type.available()[r.nextInt(Barrel.Type.available().length)];
 		background = r.nextInt(NUM_BACKGROUNDS);
 		backgroundH = background > -1 ? BACKGROUND_HS[background] : 512;
-		
-		walls.add(new Wall(0, 0, GRID_SIZE * LVL_W, GRID_SIZE).mainWall());
-		walls.add(new Wall(0, GRID_SIZE * LVL_H - GRID_SIZE, GRID_SIZE * LVL_W, GRID_SIZE).floor());
-		walls.add(new Wall(0, GRID_SIZE, GRID_SIZE, GRID_SIZE * LVL_H - GRID_SIZE * 2).mainWall());
-		walls.add(new Wall(GRID_SIZE * LVL_W - GRID_SIZE, GRID_SIZE, GRID_SIZE, GRID_SIZE * LVL_H - GRID_SIZE * 2).mainWall());
 		
 		if (hasBarrels) {
 			for (int i = 0; i < 10; i++) {
@@ -97,7 +91,42 @@ public class Level implements Serializable {
 		}
 		
 		FurnitureStore.furnish(this, 5, 15, 8, 6, pwds);
+	}
+	
+	private void fromLayout(RoomLayout rl, long seed) {
+		background = rl.background;
+		window = rl.window;
+		for (Utils.Pair<WallDecoType, Pt> d : rl.decos) {
+			decos.add(new WallDeco(d.a, (int) d.b.x, (int) d.b.y));
+		}
+		for (Utils.Pair<NonsensePatent, Pt> p : rl.patents) {
+			WallDeco wd = new WallDeco(WallDecoType.PATENT, (int) p.b.x, (int) p.b.y);
+			wd.img = p.a.img;
+			wd.text = p.a.text;
+			decos.add(wd);
+		}
+		for (Utils.Pair<FurnitureStore, Pt> f : rl.furniture) {
+			f.a.assemble(this, (int) f.b.x, (int) f.b.y);
+		}
+		for (Utils.Pair<Barrel.Type, Pt> b : rl.barrels) {
+			Barrel barr = new Barrel(b.a, seed, power, (int) b.b.x, (int) b.b.y, r);
+			drop(barr);
+			walls.add(barr);
+		}
+	}
+	
+	public Level(long seed, int power, Creature player) {
+		this.power = power;
+		this.player = player;
+		r = new Random(seed);
 		
+		generate(r, seed);
+		
+		walls.add(new Wall(0, 0, GRID_SIZE * LVL_W, GRID_SIZE).mainWall());
+		walls.add(new Wall(0, GRID_SIZE * LVL_H - GRID_SIZE, GRID_SIZE * LVL_W, GRID_SIZE).floor());
+		walls.add(new Wall(0, GRID_SIZE, GRID_SIZE, GRID_SIZE * LVL_H - GRID_SIZE * 2).mainWall());
+		walls.add(new Wall(GRID_SIZE * LVL_W - GRID_SIZE, GRID_SIZE, GRID_SIZE, GRID_SIZE * LVL_H - GRID_SIZE * 2).mainWall());
+			
 		int cFreq = power > 30 ? 1 : power > 15 ? 2 : 3;
 		int monsterStart = (power < 3 && PatentBlaster.difficultyLevel.ordinal() < DifficultyLevel.BRUTAL.ordinal())
 				? 18 : 9;

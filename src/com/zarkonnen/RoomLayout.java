@@ -11,6 +11,7 @@ public class RoomLayout {
 	public int background;
 	public boolean[] window = new boolean[Level.LVL_W * Level.GRID_SIZE / 512 + 2];
 	public ArrayList<Utils.Pair<WallDecoType, Pt>> decos = new ArrayList<Utils.Pair<WallDecoType, Pt>>();
+	public ArrayList<Utils.Pair<NonsensePatent, Pt>> patents = new ArrayList<Utils.Pair<NonsensePatent, Pt>>();
 	public ArrayList<Utils.Pair<FurnitureStore, Pt>> furniture = new ArrayList<Utils.Pair<FurnitureStore, Pt>>();
 	public ArrayList<Utils.Pair<Barrel.Type, Pt>> barrels = new ArrayList<Utils.Pair<Barrel.Type, Pt>>();
 	
@@ -41,6 +42,9 @@ public class RoomLayout {
 		for (Utils.Pair<WallDecoType, Pt> d : decos) {
 			ln(pw, d.a.name()).ln(pw, d.b.x).ln(pw, d.b.y);
 		}
+		for (Utils.Pair<NonsensePatent, Pt> p : patents) {
+			ln(pw, p.a.name()).ln(pw, p.b.x).ln(pw, p.b.y);
+		}
 		for (Utils.Pair<FurnitureStore, Pt> f : furniture) {
 			ln(pw, f.a.name()).ln(pw, f.b.x).ln(pw, f.b.y);
 		}
@@ -68,6 +72,11 @@ public class RoomLayout {
 			try {
 				WallDecoType wdt = WallDecoType.valueOf(type);
 				rl.decos.add(new Utils.Pair<WallDecoType, Pt>(wdt, new Pt(d(r), d(r))));
+				success = true;
+			} catch (Exception e) {}
+			try {
+				NonsensePatent np = NonsensePatent.valueOf(type);
+				rl.patents.add(new Utils.Pair<NonsensePatent, Pt>(np, new Pt(d(r), d(r))));
 				success = true;
 			} catch (Exception e) {}
 			try {
