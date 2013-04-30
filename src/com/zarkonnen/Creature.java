@@ -103,7 +103,7 @@ public class Creature extends Entity implements HasDesc {
 	public boolean dropItem = false;
 	
 	public HasDesc newThing = null;
-	public int newThingTimer = 0;
+	public int newThingTimer = 100000;
 	
 	public int shootDelay = 0;
 	public int todaysShootDelay = 0;
@@ -448,7 +448,8 @@ public class Creature extends Entity implements HasDesc {
 		}*/
 	}
 	
-	public static final Clr REGEN_BAR_C = new Clr(255, 255, 255, 140);
+	public static final Clr REGEN_BAR_C = new Clr(255, 255, 255, 170);
+	public static final Clr HP_BAR_BG = new Clr(70, 70, 70);
 	
 	public void drawBars(Draw d, Level l, double scrollX, double scrollY) {
 		if (hp <= 0) { return; }
@@ -457,7 +458,6 @@ public class Creature extends Entity implements HasDesc {
 		}
 		int tmh = totalMaxHP();
 		if ((l.player.canSeeStats || this == l.player) && (hp < tmh * 0.9 || heat > tmh / 16 || -heat > tmh / 16)) {
-			//d.rect(weapon.reloadLeft == 0 ? Clr.WHITE : Clr.LIGHT_GREY, x + scrollX, y + scrollY + h - 10, w, 8);
 			Clr c = Clr.GREEN;
 			int adjHP = Math.min(hp, tmh);
 			if (adjHP < tmh / 2) {
@@ -469,17 +469,16 @@ public class Creature extends Entity implements HasDesc {
 					}
 				}
 			}
-			d.rect(c, x + scrollX, y + scrollY + h - 6, (w) * adjHP / tmh, 4);
+			d.rect(HP_BAR_BG, x + scrollX, y + scrollY + h - 6, w, 6);
+			d.rect(c, x + scrollX, y + scrollY + h - 6, (w) * adjHP / tmh, 6);
 			double regenBar = (w) * adjHP / tmh * Math.min(1, ticksSinceHit * 1.0 / ticksTillRegen());
-			d.rect(REGEN_BAR_C, x + scrollX, y + scrollY + h - 6, regenBar, 4);
+			d.rect(REGEN_BAR_C, x + scrollX, y + scrollY + h - 6, regenBar, 6);
 			
 			if (heat > tmh / 16 && heat < tmh / 4 && !fireproof() && onFire == 0) {
-				//d.rect(weapon.reloadLeft == 0 ? Clr.WHITE : Clr.LIGHT_GREY, x + scrollX, y + scrollY + h - 15, w, 6);
-				d.rect(Element.FIRE.tint, x + scrollX, y + scrollY + h - 12, (w) * (heat) * 4 / tmh, 4);
+				d.rect(Element.FIRE.tint, x + scrollX, y + scrollY + h - 12, (w) * (heat) * 4 / tmh, 6);
 			}
 			if (heat < -tmh / 16 && heat > -tmh / 4 && !iceproof() && frozen == 0) {
-				//d.rect(weapon.reloadLeft == 0 ? Clr.WHITE : Clr.LIGHT_GREY, x + scrollX, y + scrollY + h - 15, w, 6);
-				d.rect(Element.ICE.tint, x + scrollX, y + scrollY + h - 12, (w) * (- heat) * 4 / tmh, 4);
+				d.rect(Element.ICE.tint, x + scrollX, y + scrollY + h - 12, (w) * (- heat) * 4 / tmh, 6);
 			}
 		}
 	}

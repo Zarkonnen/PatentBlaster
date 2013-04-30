@@ -1589,7 +1589,7 @@ public class PatentBlaster implements Game, MusicCallback {
 					}
 					hoverWeapon = w;
 					infoFor = w;
-					info = w.desc(Clr.WHITE) + (l.player.weapons.size() > 1 && !l.shopItems.isEmpty() ? "Hit delete to delete weapon from inventory." : "");
+					info = w.desc(Clr.WHITE) + (l.player.weapons.size() > 1 && !l.shopItems.isEmpty() ? "[RED]Hit delete to delete weapon from inventory." : "");
 					infoImg = w.largeImg;
 				}
 			});

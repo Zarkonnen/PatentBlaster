@@ -12,6 +12,7 @@ public class RoomLayout {
 	public boolean[] window = new boolean[Level.LVL_W * Level.GRID_SIZE / 512 + 2];
 	public ArrayList<Utils.Pair<WallDecoType, Pt>> decos = new ArrayList<Utils.Pair<WallDecoType, Pt>>();
 	public ArrayList<Utils.Pair<FurnitureStore, Pt>> furniture = new ArrayList<Utils.Pair<FurnitureStore, Pt>>();
+	public ArrayList<Utils.Pair<Barrel.Type, Pt>> barrels = new ArrayList<Utils.Pair<Barrel.Type, Pt>>();
 	
 	RoomLayout ln(PrintWriter pw, String ln) {
 		pw.println(ln);
@@ -40,8 +41,11 @@ public class RoomLayout {
 		for (Utils.Pair<WallDecoType, Pt> d : decos) {
 			ln(pw, d.a.name()).ln(pw, d.b.x).ln(pw, d.b.y);
 		}
-		for (Utils.Pair<FurnitureStore, Pt> d : furniture) {
-			ln(pw, d.a.name()).ln(pw, d.b.x).ln(pw, d.b.y);
+		for (Utils.Pair<FurnitureStore, Pt> f : furniture) {
+			ln(pw, f.a.name()).ln(pw, f.b.x).ln(pw, f.b.y);
+		}
+		for (Utils.Pair<Barrel.Type, Pt> b : barrels) {
+			ln(pw, b.a.name()).ln(pw, b.b.x).ln(pw, b.b.y);
 		}
 	}
 	
@@ -69,6 +73,11 @@ public class RoomLayout {
 			try {
 				FurnitureStore fs = FurnitureStore.valueOf(type);
 				rl.furniture.add(new Utils.Pair<FurnitureStore, Pt>(fs, new Pt(d(r), d(r))));
+				success = true;
+			} catch (Exception e) {}
+			try {
+				Barrel.Type bt = Barrel.Type.valueOf(type);
+				rl.barrels.add(new Utils.Pair<Barrel.Type, Pt>(bt, new Pt(d(r), d(r))));
 				success = true;
 			} catch (Exception e) {}
 			if (!success) {
