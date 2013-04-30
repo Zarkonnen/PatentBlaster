@@ -6,7 +6,7 @@ import com.zarkonnen.catengine.util.Pt;
 public class Fridge extends EmitterWall {
 	public Fridge(Level l, int x, int y, int w, int h) {
 		super(x, y, w, h, l.power);
-		tint = new Clr(54, 54, 57);
+		tint = new Clr(74, 74, 77);
 		img = PatentBlaster.FURN_IMGS.get("fridge");
 		weapon.element = Element.ICE;
 		weapon.tint = Element.ICE.tint;

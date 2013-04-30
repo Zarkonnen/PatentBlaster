@@ -7,7 +7,7 @@ public class ChinaDog extends Wall {
 		super(x, baseline - 40, 30, 40);
 		hp = 1;
 		destructible = true;
-		tint = new Clr(68, 68, 72);
+		tint = new Clr(120, 120, 123);
 		img = PatentBlaster.FURN_IMGS.get("dog");
 	}
 	

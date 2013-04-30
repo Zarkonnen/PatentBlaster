@@ -21,7 +21,14 @@ public enum FurnitureStore {
 			return new Fridge(l, x, y, w, h);
 		}
 	},
-	TABLE(2, Location.FLOOR, 180, 90, 0),
+	TABLE(2, Location.FLOOR, 180, 90, 0) {
+		@Override
+		public void assemble(Level l, int x, int y) {
+			l.walls.add(new Wall(x, y, 180, 20));
+			l.walls.add(new Wall(x, y + 20, 20, 70));
+			l.walls.add(new Wall(x, y + 160, 20, 70));
+		}
+	},
 	CANDLE_TABLE(3, Location.FLOOR, 180, 130, 40) {
 		@Override
 		public void assemble(Level l, int x, int y) {
@@ -32,9 +39,9 @@ public enum FurnitureStore {
 	FOUNTAIN(5, Location.FLOOR, 120, 320, 0) {
 		@Override
 		public void assemble(Level l, int x, int y) {
-			Wall base = new Wall(x, y + 260, 120, 60).floor();
+			Wall base = new Wall(x, y + 255, 120, 65).floor();
 			base.img = PatentBlaster.FURN_IMGS.get("fountain");
-			base.imgDelta = -60;
+			base.imgDelta = -55;
 			l.walls.add(base);
 			l.walls.add(new Fountainhead(x + 60, y + 200, l.power, Element.ICE, Clr.BLUE));
 		}
@@ -42,9 +49,9 @@ public enum FurnitureStore {
 	HOLY_FOUNTAIN(3, Location.FLOOR, 120, 320, 0) {
 		@Override
 		public void assemble(Level l, int x, int y) {
-			Wall base = new Wall(x, y + 260, 120, 60).floor();
+			Wall base = new Wall(x, y + 255, 120, 65).floor();
 			base.img = PatentBlaster.FURN_IMGS.get("fountain");
-			base.imgDelta = -60;
+			base.imgDelta = -55;
 			l.walls.add(base);
 			l.walls.add(new Fountainhead(x + 60, y + 200, l.power, Element.BLESSED, Element.BLESSED.tint));
 		}
@@ -52,9 +59,9 @@ public enum FurnitureStore {
 	UNHOLY_FOUNTAIN(3, Location.FLOOR, 120, 320, 0) {
 		@Override
 		public void assemble(Level l, int x, int y) {
-			Wall base = new Wall(x, y + 260, 120, 60).floor();
+			Wall base = new Wall(x, y + 255, 120, 65).floor();
 			base.img = PatentBlaster.FURN_IMGS.get("fountain");
-			base.imgDelta = -60;
+			base.imgDelta = -55;
 			l.walls.add(base);
 			l.walls.add(new Fountainhead(x + 60, y + 200, l.power, Element.CURSED, Element.CURSED.tint));
 		}

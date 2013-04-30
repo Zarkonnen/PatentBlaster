@@ -95,6 +95,7 @@ public class PatentBlaster implements Game, MusicCallback {
 	public static final Clr PAINTING_FRAME = new Clr(70, 50, 20);
 	public static final Clr PAINTING_BG = new Clr(150, 150, 100);
 	public static final Clr RELOADING_CURSOR = new Clr(200, 200, 200);
+	public static final Clr UNWELL = new Clr(255, 100, 100, 12);
 	public static final Clr DYING = new Clr(255, 100, 100, 32);
 	public static final Clr DEAD = new Clr(255, 100, 100, 127);
 	
@@ -1451,8 +1452,10 @@ public class PatentBlaster implements Game, MusicCallback {
 			//endStart("Blood");
 			if (l.player.hp <= 0) {
 				d.rect(DEAD, 0, 0, sm.width, sm.height);
-			} else if (l.player.hp < l.player.totalMaxHP() / 8) {
+			} else if (l.player.hp < l.player.totalMaxHP() / 4) {
 				d.rect(DYING, 0, 0, sm.width, sm.height);
+			} else if (l.player.hp < l.player.totalMaxHP() / 2) {
+				d.rect(UNWELL, 0, 0, sm.width, sm.height);
 			}
 			/*if (l.tick < 1000) {
 				d.text(l.player.desc(), new Fount("LiberationMono18", 12, 12, 24), 20, 20);
