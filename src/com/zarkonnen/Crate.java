@@ -7,6 +7,7 @@ public class Crate extends Wall {
 	public Crate(Level l, int x, int y) {
 		super(x, y, FurnitureStore.CRATE.w, FurnitureStore.CRATE.h);
 		tint = FurnitureStore.DEFAULT;
+		img = PatentBlaster.FURN_IMGS.get("crate");
 		destructible = true;
 		floor();
 		

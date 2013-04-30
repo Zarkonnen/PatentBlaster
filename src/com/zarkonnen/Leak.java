@@ -7,6 +7,7 @@ public class Leak extends EmitterWall {
 		weapon.dmg *= dmgMult;
 		weapon.shotSize = 3;
 		weapon.shotLife = 1000;
+		img = PatentBlaster.FURN_IMGS.get("leak");
 	}
 	
 	@Override

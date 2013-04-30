@@ -16,6 +16,7 @@ public class Torch extends EmitterWall {
 		weapon.shotSpeed *= 0.15;
 		weapon.shotLife *= 0.3;
 		isCollidedWith = false;
+		img = PatentBlaster.FURN_IMGS.get("torch");
 	}
 	
 	@Override

@@ -1,26 +1,21 @@
 package com.zarkonnen;
 
 import com.zarkonnen.catengine.Draw;
+import com.zarkonnen.catengine.Img;
 import com.zarkonnen.catengine.util.Clr;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
 public enum FurnitureStore {
-	CRATE(4, Location.FLOOR, 80, 80, 0) {
+	CRATE(4, Location.FLOOR, 70, 70, 0) {
 		@Override
 		public Wall build(Level l, int x, int y) {
 			return new Crate(l, x, y);
 		}
 	},
-	DRESSER(2, Location.FLOOR, 100, 90, 0),
-	WARDROBE(2, Location.FLOOR, 70, 140, 0),
+	DRESSER(2, Location.FLOOR, 100, 90, 0, PatentBlaster.FURN_IMGS.get("dresser")),
+	WARDROBE(2, Location.FLOOR, 70, 140, 0, PatentBlaster.FURN_IMGS.get("wardrobe")),
 	FRIDGE(2, Location.FLOOR, 75, 120, 0) {
-		@Override
-		public Wall build(Level l, int x, int y) {
-			return new Fridge(l, x, y, w, h);
-		}
-	},
-	MINIFRIDGE(1, Location.FLOOR, 40, 50, 0) {
 		@Override
 		public Wall build(Level l, int x, int y) {
 			return new Fridge(l, x, y, w, h);
@@ -37,26 +32,35 @@ public enum FurnitureStore {
 	FOUNTAIN(5, Location.FLOOR, 120, 320, 0) {
 		@Override
 		public void assemble(Level l, int x, int y) {
-			l.walls.add(new Wall(x, y + 260, 120, 60).floor());
+			Wall base = new Wall(x, y + 260, 120, 60).floor();
+			base.img = PatentBlaster.FURN_IMGS.get("fountain");
+			base.imgDelta = -60;
+			l.walls.add(base);
 			l.walls.add(new Fountainhead(x + 60, y + 200, l.power, Element.ICE, Clr.BLUE));
 		}
 	},
 	HOLY_FOUNTAIN(3, Location.FLOOR, 120, 320, 0) {
 		@Override
 		public void assemble(Level l, int x, int y) {
-			l.walls.add(new Wall(x, y + 260, 120, 60).floor());
+			Wall base = new Wall(x, y + 260, 120, 60).floor();
+			base.img = PatentBlaster.FURN_IMGS.get("fountain");
+			base.imgDelta = -60;
+			l.walls.add(base);
 			l.walls.add(new Fountainhead(x + 60, y + 200, l.power, Element.BLESSED, Element.BLESSED.tint));
 		}
 	},
 	UNHOLY_FOUNTAIN(3, Location.FLOOR, 120, 320, 0) {
 		@Override
 		public void assemble(Level l, int x, int y) {
-			l.walls.add(new Wall(x, y + 260, 120, 60).floor());
+			Wall base = new Wall(x, y + 260, 120, 60).floor();
+			base.img = PatentBlaster.FURN_IMGS.get("fountain");
+			base.imgDelta = -60;
+			l.walls.add(base);
 			l.walls.add(new Fountainhead(x + 60, y + 200, l.power, Element.CURSED, Element.CURSED.tint));
 		}
 	},
-	SHELF(8, Location.WALL, 120, 25, 0),
-	PLATFORM(8, Location.WALL, 400, 30, 0),
+	SHELF(8, Location.WALL, 120, 25, 0, PatentBlaster.FURN_IMGS.get("shelf")),
+	PLATFORM(8, Location.WALL, 400, 30, 0, PatentBlaster.FURN_IMGS.get("platform")),
 	BOOKSHELF(8, Location.WALL, 120, 105, 80) {
 		@Override
 		public void assemble(Level l, int x, int y) {
@@ -140,17 +144,13 @@ public enum FurnitureStore {
 	}
 	
 	public Wall build(Level l, int x, int y) {
-		Wall wall = new Wall(x, y, w, h)/* {
-			@Override
-			public void draw(Draw d, Level l, double scrollX, double scrollY) {
-				super.draw(d, l, scrollX, scrollY);
-				d.text(name(), PatentBlaster.FOUNT, x + scrollX, y + scrollY);
-			}
-		}*/.floor();
+		Wall wall = new Wall(x, y, w, h).floor();
+		wall.img = img;
 		wall.tint = DEFAULT;
 		return wall;
 	}
 	
+	public final Img img;
 	public final int p;
 	public final Location location;
 	public final int w;
@@ -165,6 +165,7 @@ public enum FurnitureStore {
 		this.h = h;
 		this.hasPlatform = false;
 		this.platformY = 0;
+		this.img = null;
 	}
 	
 	private FurnitureStore(int p, Location location, int w, int h, int platformY) {
@@ -174,6 +175,27 @@ public enum FurnitureStore {
 		this.h = h;
 		this.hasPlatform = true;
 		this.platformY = platformY;
+		this.img = null;
+	}
+	
+		private FurnitureStore(int p, Location location, int w, int h, Img img) {
+		this.p = p;
+		this.location = location;
+		this.w = w;
+		this.h = h;
+		this.hasPlatform = false;
+		this.platformY = 0;
+		this.img = img;
+	}
+	
+	private FurnitureStore(int p, Location location, int w, int h, int platformY, Img img) {
+		this.p = p;
+		this.location = location;
+		this.w = w;
+		this.h = h;
+		this.hasPlatform = true;
+		this.platformY = platformY;
+		this.img = img;
 	}
 	
 	static class PlacedFurniture {

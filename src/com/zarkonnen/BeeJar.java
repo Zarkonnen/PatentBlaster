@@ -16,6 +16,8 @@ public class BeeJar extends EmitterWall {
 		tint = GLASS;
 		destructible = true;
 		weapon.shotLife = 20;
+		img = PatentBlaster.FURN_IMGS.get("beejar");
+		imgDelta = -25;
 	}
 	
 	@Override

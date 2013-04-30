@@ -11,16 +11,18 @@ public class Bottle extends EmitterWall {
 		weapon.shotSize = 3;
 		this.specialTint = specialTint;
 		destructible = true;
+		img = PatentBlaster.FURN_IMGS.get("bottle");
+		tint = BeeJar.GLASS;
 	}
 	
 	Clr specialTint;
 	
 	@Override
 	public void draw(Draw d, Level l, double scrollX, double scrollY) {
-		d.rect(BeeJar.GLASS, x + scrollX, y + scrollY, w, h);
+		d.blit(img, x + scrollX, y + scrollY - 2);
 		Clr c = specialTint;
 		if (c == null) { c = Element.ACID.tint; }
-		d.rect(c, x + scrollX + 2, y + scrollY + 5, w - 4, h - 7);
+		d.rect(c, x + scrollX + 2, y + scrollY + 5 + 9, w - 4, h - 7 - 9);
 	}
 	
 	@Override
@@ -30,7 +32,7 @@ public class Bottle extends EmitterWall {
 			killMe = true;
 			l.soundRequests.add(new SoundRequest("shatter", x + w / 2, y + h / 2, 0.6));
 			l.soundRequests.add(new SoundRequest("squelch", x + w / 2, y + h / 2, 0.6));
-			for (int y2 = 0; y2 < 25; y2 += 3) { for (int x2 = 0; x2 < 18; x2++) {
+			for (int y2 = 0; y2 < 16; y2 += 3) { for (int x2 = 0; x2 < 18; x2++) {
 				Shot shot = shoot(l, x + x2 + 2, y + y2 + 5, 100, 100);
 				double dir = 2 * Math.PI * l.r.nextDouble();
 				shot.popOnWorldHit = false;

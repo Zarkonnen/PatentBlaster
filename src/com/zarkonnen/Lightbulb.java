@@ -1,6 +1,7 @@
 package com.zarkonnen;
 
 import com.zarkonnen.catengine.Draw;
+import com.zarkonnen.catengine.Img;
 import com.zarkonnen.catengine.util.Clr;
 
 public class Lightbulb extends Wall {
@@ -14,20 +15,22 @@ public class Lightbulb extends Wall {
 	public static final Clr OFF = Clr.DARK_GREY;
 	
 	boolean on = true;
+	Img onImg = PatentBlaster.FURN_IMGS.get("litbulb");
+	Img offImg = PatentBlaster.FURN_IMGS.get("darkbulb");
 	
 	@Override
 	public void draw(Draw d, Level l, double scrollX, double scrollY) {
 		if (on = l.r.nextInt(200) != 0) {
-			d.rect(ON, x + scrollX, y + scrollY + 20, 30, 30);
+			d.blit(onImg, x + scrollX, y + scrollY + 20);
 		} else {
-			d.rect(OFF, x + scrollX, y + scrollY + 20, 30, 30);
+			d.blit(offImg, x + scrollX, y + scrollY + 20);
 		}
 	}
 	
 	@Override
 	public void drawGlow(Draw d, Level l, double scrollX, double scrollY) {
 		if (on) {
-			d.rect(GLOW, x - 100 + scrollX, y + scrollY, 230, 150);
+			d.rect(GLOW, x - 100 + scrollX, y + scrollY, 220, 140);
 		}
 	}
 }

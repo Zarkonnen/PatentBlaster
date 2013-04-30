@@ -105,6 +105,7 @@ public class PatentBlaster implements Game, MusicCallback {
 	public static final HashMap<String, Img> CREATURE_IMGS;
 	public static final HashMap<String, Img> ITEM_IMGS;
 	public static final HashMap<String, Img> LARGE_ITEM_IMGS;
+	public static final HashMap<String, Img> FURN_IMGS;
 	
 	public static Img[] drawingImgs = new Img[IMG_NAMES.length];
 	public static Img[] drawingImgsLarge = new Img[IMG_NAMES.length];
@@ -154,6 +155,17 @@ public class PatentBlaster implements Game, MusicCallback {
 			System.exit(1);
 		}
 		LARGE_ITEM_IMGS = liis;
+		
+		HashMap<String, Img> fis = null;
+		try {
+			InputStream is = PatentBlaster.class.getResourceAsStream("images/furniture.txt");
+			fis = Img.loadMap(is);
+			is.close();
+		} catch (Exception e) {
+			e.printStackTrace(ERR_STREAM);
+			System.exit(1);
+		}
+		FURN_IMGS = fis;
 		
 		for (int i = 0; i < IMG_NAMES.length; i++) {
 			drawingImgs[i] = new Img("drawings/" + IMG_NAMES[i] + "_drawing");

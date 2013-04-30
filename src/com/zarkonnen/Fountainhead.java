@@ -38,6 +38,9 @@ public class Fountainhead extends EmitterWall {
 			if (weapon.element == Element.ICE) {
 				s.extinguishes = true;
 			}
+			s.tint = INVISIBLE;
 		}
 	}
+	
+	public static final Clr INVISIBLE = new Clr(0, 0, 0, 0);
 }

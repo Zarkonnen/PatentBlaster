@@ -20,6 +20,7 @@ public class Wall extends Entity {
 	public double initialHP;
 	public double hp;
 	public boolean isFloor = false;
+	public int imgDelta;
 	
 	public void drawGlow(Draw d, Level l, double scrollX, double scrollY) {}
 	
@@ -34,6 +35,15 @@ public class Wall extends Entity {
 		if (s.weapon == null) { return; }
 		if (hp <= 0) { return; }
 		hp -= s.weapon.dmg * s.dmgMultiplier;
+	}
+	
+	@Override
+	public void draw(Draw d, Level l, double scrollX, double scrollY) {
+		if (img != null) {
+			d.blit(img, x + scrollX, y + scrollY + imgDelta);
+		} else {
+			d.rect(tint, x + scrollX, y + scrollY, w, h);
+		}
 	}
 	
 	public void smash(Level l) {
