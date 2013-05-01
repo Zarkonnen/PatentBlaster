@@ -60,8 +60,9 @@ public class RoomLayout {
 		if (i(r) > 1) {
 			throw new Exception("Version too new");
 		}
-		int nWins = i(r);
 		RoomLayout rl = new RoomLayout();
+		rl.background = i(r);
+		int nWins = i(r);
 		rl.window = new boolean[nWins];
 		for (int i = 0; i < nWins; i++) {
 			rl.window[i] = b(r);

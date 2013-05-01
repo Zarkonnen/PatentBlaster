@@ -29,6 +29,8 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -46,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.prefs.Preferences;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -253,6 +256,8 @@ public class PatentBlaster implements Game, MusicCallback {
 	boolean editorEnabled = true;
 	RoomLayout editRL;
 	Level editL;
+	File lastEDir = new File("");
+	File rlFile = null;
 	
 	// Some images
 	Img rightarrow = new Img("rightarrow");
@@ -469,6 +474,65 @@ public class PatentBlaster implements Game, MusicCallback {
 		}
 		
 		if (editRL != null) {
+			if (in.keyDown("O")) {
+				boolean fullscreen = in.mode().fullscreen;
+				if (fullscreen) {
+					in.setMode(new ScreenMode(1024, 768, false));
+				}
+				JFileChooser ch = new JFileChooser(lastEDir);
+				if (ch.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+					lastEDir = ch.getCurrentDirectory();
+					File f = ch.getSelectedFile();
+					if (f != null && f.exists() && !f.isDirectory()) {
+						BufferedReader r = null;
+						try {
+							r = new BufferedReader(new FileReader(f));
+							editRL = RoomLayout.read(r);
+							editL = new Level(editRL, System.currentTimeMillis());
+							rlFile = f;
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Can't read level file: " + e.getMessage());
+						} finally {
+							try { r.close(); } catch (Exception e) {}
+						}
+					}
+				}
+				if (fullscreen) {
+					in.setMode(new ScreenMode(1024, 768, true));
+				}
+			}
+			
+			if (in.keyDown("P")) {
+				boolean fullscreen = in.mode().fullscreen;
+				if (fullscreen) {
+					in.setMode(new ScreenMode(1024, 768, false));
+				}
+				JFileChooser ch = new JFileChooser(lastEDir);
+				ch.setSelectedFile(rlFile == null ? new File(lastEDir, "level_" + System.currentTimeMillis() % 1000 + ".txt") : rlFile);
+				if (ch.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+					lastEDir = ch.getCurrentDirectory();
+					File f = ch.getSelectedFile();
+					if (f != null && !f.isDirectory()) {
+						PrintWriter pw = null;
+						try {
+							pw = new PrintWriter(new FileWriter(f));
+							editRL.write(pw);
+							pw.flush();
+							rlFile = f;
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Can't write level file: " + e.getMessage());
+						} finally {
+							try {
+								pw.close();
+							} catch (Exception e) {}
+						}
+					}
+				}
+				if (fullscreen) {
+					in.setMode(new ScreenMode(1024, 768, true));
+				}
+			}
+			
 			if (in.keyDown(key("LEFT")) || in.keyDown(key("A"))) {
 				scrollX += 10;
 			}
@@ -997,7 +1061,7 @@ public class PatentBlaster implements Game, MusicCallback {
 			
 			HashMap<String, Hook> hs = new HashMap<String, Hook>();
 			StringBuilder tools = new StringBuilder();
-			tools.append("[bg=cccccc]");
+			tools.append("[bg=cccccc][BLACK]O to open, P to save.\nTools:\n");
 			for (final EditorTool et : EditorTool.TOOLS) {
 				if (eTool == et) {
 					tools.append("[009900]_").append(EditorTool.TOOLS.indexOf(et)).append("_").append(et.name);
@@ -1013,7 +1077,7 @@ public class PatentBlaster implements Game, MusicCallback {
 				}
 				tools.append("\n");
 			}
-			d.text(tools.toString(), SMOUNT, 0, eToolScroll, hs);
+			d.text(tools.toString(), SMOUNT, 10, 10 + eToolScroll, hs);
 			
 			d.rect(DEAD, curs.x, curs.y, eTool.w, eTool.h);
 		} else if (splash) {

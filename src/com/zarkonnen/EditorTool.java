@@ -16,8 +16,6 @@ public abstract class EditorTool {
 		this.h = h;
 	}
 	
-	
-	
 	public static final ArrayList<EditorTool> TOOLS = new ArrayList<EditorTool>();
 	
 	static {
