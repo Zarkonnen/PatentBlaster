@@ -1,4 +1,4 @@
-14
+15
 platform
 furniture
 0
@@ -83,3 +83,9 @@ furniture
 316
 20
 5
+book
+furniture
+371
+270
+30
+70

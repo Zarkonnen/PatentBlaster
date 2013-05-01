@@ -18,7 +18,7 @@ public enum NonsensePatent {
 	public final String text;
 
 	private NonsensePatent(Img img, String text) {
-		this.img = img;
+		this.img = PatentBlaster.NONPAT_IMGS.get(name());
 		this.text = text;
 	}
 }

@@ -20,11 +20,13 @@ public class Book extends EmitterWall {
 		weapon.element = Element.FIRE;
 		weapon.dmg *= 0.01;
 		weapon.shotSize = 2;
+		img = PatentBlaster.FURN_IMGS.get("book");
 	}
 	
 	@Override
 	public void draw(Draw d, Level l, double scrollX, double scrollY) {
-		super.draw(d, l, scrollX, scrollY);
+		//super.draw(d, l, scrollX, scrollY);
+		d.blit(img, tint, x + scrollX, y + scrollY, w, h);
 		d.text(title, PatentBlaster.SMOUNT, x + 4 + scrollX, y + 2 + scrollY);
 	}
 	

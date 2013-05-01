@@ -52,10 +52,10 @@ public enum WallDecoType {
 	PATENT(5, null, 43, 70) {
 		@Override
 		public void draw(Draw d, WallDeco wd, int scrollX, int scrollY, Level l) {
-			d.rect(PAPER_C, scrollX + wd.x, scrollY + wd.y, w, h);
-			//d.blit(PatentBlaster.paper, PAPER_C, scrollX + wd.x, scrollY + wd.y, w, h);
+			//d.rect(PAPER_C, scrollX + wd.x, scrollY + wd.y, w, h);
+			d.blit(PAPER, PAPER_C, scrollX + wd.x, scrollY + wd.y);
 			if (wd.img != null) {
-				d.blit(wd.img, scrollX + wd.x + 5, scrollY + wd.y + 10, w - 10, w - 10);
+				d.blit(wd.img, PAPER_C, scrollX + wd.x + 5, scrollY + wd.y + 17, w - 10, w - 10);
 			}
 			//d.text(wd.text, PatentBlaster.SMOUNT, scrollX + wd.x + 5, scrollY + wd.y + 5, w - 10);
 			
@@ -71,6 +71,7 @@ public enum WallDecoType {
 	public static final Clr PRINT_C = new Clr(60, 60, 55);
 	public static final Clr PAPER_C = new Clr(120, 120, 110);
 	public static final Clr WIRE_C = new Clr(20, 20, 20, 80);
+	public static final Img PAPER = PatentBlaster.NONPAT_IMGS.get("paper");
 	
 	public final int p;
 	public final Img img;

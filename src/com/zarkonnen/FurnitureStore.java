@@ -21,15 +21,15 @@ public enum FurnitureStore {
 			return new Fridge(l, x, y, w, h);
 		}
 	},
-	TABLE(2, Location.FLOOR, 180, 90, 0) {
+	TABLE(3, Location.FLOOR, 180, 90, 0) {
 		@Override
 		public void assemble(Level l, int x, int y) {
-			l.walls.add(new Wall(x, y, 180, 20));
-			l.walls.add(new Wall(x, y + 20, 20, 70));
-			l.walls.add(new Wall(x, y + 160, 20, 70));
+			l.walls.add(new Wall(x, y, 180, 20).tint(DEFAULT));
+			l.walls.add(new Wall(x, y + 20, 20, 70).tint(DEFAULT));
+			l.walls.add(new Wall(x + 160, y + 20, 20, 70).tint(DEFAULT));
 		}
 	},
-	CANDLE_TABLE(3, Location.FLOOR, 180, 130, 40) {
+	CANDLE_TABLE(4, Location.FLOOR, 180, 130, 40) {
 		@Override
 		public void assemble(Level l, int x, int y) {
 			TABLE.assemble(l, x, y + 40);
@@ -86,7 +86,7 @@ public enum FurnitureStore {
 			l.walls.add(new EvilBook(x + l.r.nextInt(80) + 10, y + 100, l));
 		}
 	},
-	DOGSHELF(4, Location.WALL, 120, 105, 80) {
+	DOGSHELF(2, Location.WALL, 120, 105, 80) {
 		@Override
 		public void assemble(Level l, int x, int y) {
 			SHELF.assemble(l, x, y + 80);

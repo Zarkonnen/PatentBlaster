@@ -22,6 +22,8 @@ public class Wall extends Entity {
 	public boolean isFloor = false;
 	public int imgDelta;
 	
+	public Wall tint(Clr tint) { this.tint = tint; return this; }
+	
 	public void drawGlow(Draw d, Level l, double scrollX, double scrollY) {}
 	
 	public Wall floor() { isFloor = true; return this; }
