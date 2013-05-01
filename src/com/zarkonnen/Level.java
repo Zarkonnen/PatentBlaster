@@ -95,6 +95,7 @@ public class Level implements Serializable {
 	
 	private void fromLayout(RoomLayout rl, long seed) {
 		background = rl.background;
+		backgroundH = background > -1 ? BACKGROUND_HS[background] : 512;
 		window = rl.window;
 		for (Utils.Pair<WallDecoType, Pt> d : rl.decos) {
 			decos.add(new WallDeco(d.a, (int) d.b.x, (int) d.b.y));
@@ -113,6 +114,15 @@ public class Level implements Serializable {
 			drop(barr);
 			walls.add(barr);
 		}
+	}
+	
+	public Level(RoomLayout rl, long seed) {
+		r = new Random(seed);
+		walls.add(new Wall(0, 0, GRID_SIZE * LVL_W, GRID_SIZE).mainWall());
+		walls.add(new Wall(0, GRID_SIZE * LVL_H - GRID_SIZE, GRID_SIZE * LVL_W, GRID_SIZE).floor());
+		walls.add(new Wall(0, GRID_SIZE, GRID_SIZE, GRID_SIZE * LVL_H - GRID_SIZE * 2).mainWall());
+		walls.add(new Wall(GRID_SIZE * LVL_W - GRID_SIZE, GRID_SIZE, GRID_SIZE, GRID_SIZE * LVL_H - GRID_SIZE * 2).mainWall());
+		fromLayout(rl, seed);
 	}
 	
 	public Level(long seed, int power, Creature player) {

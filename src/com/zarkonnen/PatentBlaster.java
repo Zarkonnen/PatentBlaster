@@ -247,6 +247,13 @@ public class PatentBlaster implements Game, MusicCallback {
 	
 	int setupScroll = 0;
 	
+	// Level editing
+	EditorTool eTool = EditorTool.TOOLS.get(0);
+	int eToolScroll = 0;
+	boolean editorEnabled = true;
+	RoomLayout editRL;
+	Level editL;
+	
 	// Some images
 	Img rightarrow = new Img("rightarrow");
 	Img leftarrow = new Img("rightarrow").flip();
@@ -368,9 +375,12 @@ public class PatentBlaster implements Game, MusicCallback {
 		} else {
 			lastMs = Math.max(lastMs, in.msDelta());
 		}
-		//start("Input Processing");
+		
 		if (in.keyDown("ESCAPE") || in.keyDown("ESC") || in.keyDown("⎋")) {
-			if (settings && cooldown == 0) {
+			if (editRL != null && cooldown == 0) {
+				editRL = null;
+				cooldown = 10;
+			} else if (settings && cooldown == 0) {
 				settings = false;
 				cooldown += 10;
 			} else if (mainMenu && cooldown == 0) {
@@ -455,6 +465,32 @@ public class PatentBlaster implements Game, MusicCallback {
 				splash = false;
 				cooldown += 10;
 			}
+			return;
+		}
+		
+		if (editRL != null) {
+			if (in.keyDown(key("LEFT")) || in.keyDown(key("A"))) {
+				scrollX += 10;
+			}
+			if (in.keyDown(key("RIGHT")) || in.keyDown(key("D"))) {
+				scrollX -= 10;
+			}
+			if (in.keyDown(key("W"))) {
+				scrollY += 10;
+			}
+			if (in.keyDown(key("S"))) {
+				scrollY -= 10;
+			}
+			if (in.keyDown(key("UP"))) {
+				eToolScroll += 10;
+			}
+			if (in.keyDown(key("DOWN"))) {
+				eToolScroll -= 10;
+			}
+			int newBGScrollX = (int) (scrollX * 0.95), newBGScrollY = (int) (scrollY * 0.95);
+			bgScrollX = Math.abs(bgScrollX - newBGScrollX) > 1 ? newBGScrollX : bgScrollX;
+			bgScrollY = Math.abs(bgScrollY - newBGScrollY) > 1 ? newBGScrollY : bgScrollY;
+			hit(in);
 			return;
 		}
 		
@@ -807,7 +843,7 @@ public class PatentBlaster implements Game, MusicCallback {
 		l.tick(in);
 		//end("Level Tick");
 		//start("Screen Mode and Info");
-		ScreenMode sm = in.mode();
+		final ScreenMode sm = in.mode();
 		scrollX = sm.width / 2 - l.player.x - l.player.w / 2;
 		scrollY = sm.height * 2 / 3 - l.player.y - l.player.h / 2;
 		int newBGScrollX = (int) (scrollX * 0.95), newBGScrollY = (int) (scrollY * 0.95);
@@ -878,7 +914,7 @@ public class PatentBlaster implements Game, MusicCallback {
 		GL11.glEnable(GL13.GL_MULTISAMPLE);
 		//start("Init");
 		Draw d = new Draw(f);
-		ScreenMode sm = f.mode();
+		final ScreenMode sm = f.mode();
 		d.rect(Clr.DARK_GREY, 0, 0, sm.width, sm.height);
 		if (chosenMode == null) {
 			//start("Screen Mode Chooser");
@@ -905,7 +941,82 @@ public class PatentBlaster implements Game, MusicCallback {
 			return;
 		}
 		
-		if (splash) {
+		if (editRL != null) {
+			if (editL == null) {
+				editL = new Level(editRL, System.currentTimeMillis());
+			}
+			Level myL = editL;
+			if (myL.background != -1) {
+				int winYIndex = 0;
+				for (int y = 0; y < (Level.LVL_H) * Level.GRID_SIZE; y += myL.backgroundH) {
+					int winIndex = 0;
+					for (int x = 0; x < (Level.LVL_W) * Level.GRID_SIZE; x += myL.backgroundW) {
+						if (winYIndex == WIN_Y_INDEX[myL.background] && myL.window[winIndex++]) {
+							d.blit(landscape, x + bgScrollX, y + bgScrollY);
+							d.blit(backdropWindowImgs[myL.background], x + bgScrollX, y + bgScrollY, myL.backgroundW, myL.backgroundH);
+						}
+					}
+					winYIndex++;
+				}
+				winYIndex = 0;
+				for (int y = 0; y < (Level.LVL_H) * Level.GRID_SIZE; y += myL.backgroundH) {
+					int winIndex = 0;
+					for (int x = 0; x < (Level.LVL_W) * Level.GRID_SIZE; x += myL.backgroundW) {
+						if (winYIndex == WIN_Y_INDEX[myL.background] && myL.window[winIndex++]) {
+							// Nothing
+						} else {
+							d.blit(backdropImgs[myL.background], x + bgScrollX, y + bgScrollY, myL.backgroundW, myL.backgroundH);
+						}
+					}
+					winYIndex++;
+				}
+			}
+			d.rect(Clr.DARK_GREY, scrollX - 600, scrollY - 600, Level.LVL_W * Level.GRID_SIZE + 1200, 600);
+			d.rect(Clr.DARK_GREY, scrollX - 600, scrollY + Level.LVL_H * Level.GRID_SIZE, Level.LVL_W * Level.GRID_SIZE + 1200, 600);
+			d.rect(Clr.DARK_GREY, scrollX - 600, scrollY - 600, 600, Level.LVL_H * Level.GRID_SIZE + 1200);
+			d.rect(Clr.DARK_GREY, scrollX + Level.LVL_W * Level.GRID_SIZE, scrollY - 600, 600, Level.LVL_H * Level.GRID_SIZE + 1200);
+			for (WallDeco w : myL.decos) {
+				w.type.draw(d, w, bgScrollX, bgScrollY, myL);
+			}
+			for (Wall w : myL.walls) {
+				w.draw(d, myL, scrollX, scrollY);
+			}
+			for (Wall w : myL.walls) {
+				w.drawGlow(d, myL, scrollX, scrollY);
+			}
+						
+			d.hook(0, 0, sm.width, sm.height, new Hook(Hook.Type.MOUSE_1) {
+				@Override
+				public void run(Input in, Pt p, Type type) {
+					if (cooldown > 0) { return; }
+					eTool.run((int) (p.x - scrollX), (int) (p.y - scrollY), editRL);
+					editL = new Level(editRL, System.currentTimeMillis());
+					cooldown = 10;
+				}
+			});
+			
+			HashMap<String, Hook> hs = new HashMap<String, Hook>();
+			StringBuilder tools = new StringBuilder();
+			tools.append("[bg=cccccc]");
+			for (final EditorTool et : EditorTool.TOOLS) {
+				if (eTool == et) {
+					tools.append("[009900]_").append(EditorTool.TOOLS.indexOf(et)).append("_").append(et.name);
+				} else {
+					menuItem("_" + EditorTool.TOOLS.indexOf(et) + "_" + et.name, true, tools, hs, new Hook(Hook.Type.MOUSE_1) {
+						@Override
+						public void run(Input in, Pt p, Type type) {
+							if (cooldown > 0) { return; }
+							eTool = et;
+							cooldown = 10;
+						}
+					});
+				}
+				tools.append("\n");
+			}
+			d.text(tools.toString(), SMOUNT, 0, eToolScroll, hs);
+			
+			d.rect(DEAD, curs.x, curs.y, eTool.w, eTool.h);
+		} else if (splash) {
 			//start("Splash");
 			d.blit(splashImg, 0, 0);
 			d.text("[BLACK]" + Preload.preloadStatus(), FOUNT, 220, 620);
@@ -1181,6 +1292,17 @@ public class PatentBlaster implements Game, MusicCallback {
 					}
 				});
 				menu.append("\n\n");
+				if (editorEnabled) {
+					menuItem("editor", "EDITOR", true, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
+						@Override
+						public void run(Input in, Pt p, Hook.Type type) {
+							if (cooldown > 0) { return; }
+							editRL = new RoomLayout();
+							cooldown += 10;
+						}
+					});
+					menu.append("\n\n");
+				}
 				if (DEMO) {
 					d.rect(Clr.BLACK, spacing + "EASY MEDIUM HARD ".length() * FOUNT.displayWidth, y + FOUNT.lineHeight * (hasContinue ? 10 : 8) + 8, "BRUTAL".length() * FOUNT.displayWidth, 2);
 					d.rect(Clr.BLACK, spacing + "EASY MEDIUM HARD BRUTAL ".length() * FOUNT.displayWidth, y + FOUNT.lineHeight * (hasContinue ? 10 : 8)  + 8, "IMPOSSIBLE".length() * FOUNT.displayWidth, 2);

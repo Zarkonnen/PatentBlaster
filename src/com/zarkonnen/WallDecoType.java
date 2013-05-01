@@ -46,7 +46,9 @@ public enum WallDecoType {
 		@Override
 		public void draw(Draw d, WallDeco wd, int scrollX, int scrollY, Level l) {
 			super.draw(d, wd, scrollX, scrollY, l);
-			d.blit(l.boss.img, l.boss.tint, 0.6, wd.x + scrollX + 40, wd.y + scrollY + 40, 120, 120, 0);
+			if (l.boss != null) {
+				d.blit(l.boss.img, l.boss.tint, 0.6, wd.x + scrollX + 40, wd.y + scrollY + 40, 120, 120, 0);
+			}
 		}
 	},
 	PATENT(5, null, 43, 70) {
