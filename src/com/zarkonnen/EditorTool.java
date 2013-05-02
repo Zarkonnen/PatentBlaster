@@ -8,7 +8,7 @@ public abstract class EditorTool {
 	public String name;
 	public int w;
 	public int h;
-	public abstract void run(int x, int y, RoomLayout rl);
+	public abstract void run(double scrollX, double scrollY, double cx, double cy, RoomLayout rl);
 
 	public EditorTool(String name, int w, int h) {
 		this.name = name.replace(" ", "_");
@@ -21,14 +21,14 @@ public abstract class EditorTool {
 	static {
 		TOOLS.add(new EditorTool("Cycle Background", 0, 0) {
 			@Override
-			public void run(int x, int y, RoomLayout rl) {
+			public void run(double scrollX, double scrollY, double cx, double cy, RoomLayout rl) {
 				rl.background = (rl.background + 1) % Level.NUM_BACKGROUNDS;
 			}
 		});
 		TOOLS.add(new EditorTool("Toggle Window", 0, 0) {
 			@Override
-			public void run(int x, int y, RoomLayout rl) {
-				int windex = x / 512;
+			public void run(double scrollX, double scrollY, double cx, double cy, RoomLayout rl) {
+				int windex = ((int) (-scrollX + cx)) / 512;
 				if (windex > 0 && windex < rl.window.length) {
 					rl.window[windex] = !rl.window[windex];
 				}
@@ -36,7 +36,9 @@ public abstract class EditorTool {
 		});
 		TOOLS.add(new EditorTool("Delete", 0, 0) {
 			@Override
-			public void run(int x, int y, RoomLayout rl) {
+			public void run(double scrollX, double scrollY, double cx, double cy, RoomLayout rl) {
+				int x = (int) (-scrollX + cx);
+				int y = (int) (-scrollY + cy);
 				for (Utils.Pair<FurnitureStore, Pt> f : rl.furniture) {
 					if (x >= f.b.x && y >= f.b.y && x <= f.b.x + f.a.w && y <= f.b.y + f.a.h) {
 						rl.furniture.remove(f);
@@ -49,6 +51,8 @@ public abstract class EditorTool {
 						return;
 					}
 				}
+				x = (int) (-scrollX * 0.95 + cx);
+				y = (int) (-scrollY * 0.95 + cy);
 				for (Utils.Pair<NonsensePatent, Pt> p : rl.patents) {
 					if (x >= p.b.x && y >= p.b.y && x <= p.b.x + WallDecoType.PATENT.w && y <= p.b.y + WallDecoType.PATENT.h) {
 						rl.patents.remove(p);
@@ -68,7 +72,9 @@ public abstract class EditorTool {
 			if (wdt == WallDecoType.PATENT) { continue; }
 			TOOLS.add(new EditorTool(wdt.name(), wdt.w, wdt.h) {
 				@Override
-				public void run(int x, int y, RoomLayout rl) {
+				public void run(double scrollX, double scrollY, double cx, double cy, RoomLayout rl) {
+					int x = (int) (-scrollX * 0.95 + cx);
+					int y = (int) (-scrollY * 0.95 + cy);
 					rl.decos.add(new Utils.Pair<WallDecoType, Pt>(wdt, new Pt(x * 1.0, y * 1.0)));
 				}
 			});
@@ -77,7 +83,9 @@ public abstract class EditorTool {
 		for (final Barrel.Type wdt : Barrel.Type.values()) {
 			TOOLS.add(new EditorTool(wdt.name(), 42, 60) {
 				@Override
-				public void run(int x, int y, RoomLayout rl) {
+				public void run(double scrollX, double scrollY, double cx, double cy, RoomLayout rl) {
+					int x = (int) (-scrollX + cx);
+					int y = (int) (-scrollY + cy);
 					rl.barrels.add(new Utils.Pair<Barrel.Type, Pt>(wdt, new Pt(x, y)));
 				}
 			});
@@ -86,7 +94,9 @@ public abstract class EditorTool {
 		for (final FurnitureStore fs : FurnitureStore.values()) {
 			TOOLS.add(new EditorTool(fs.name(), fs.w, fs.h) {
 				@Override
-				public void run(int x, int y, RoomLayout rl) {
+				public void run(double scrollX, double scrollY, double cx, double cy, RoomLayout rl) {
+					int x = (int) (-scrollX + cx);
+					int y = (int) (-scrollY + cy);
 					rl.furniture.add(new Utils.Pair<FurnitureStore, Pt>(fs, new Pt(x, y)));
 				}
 			});
@@ -95,7 +105,9 @@ public abstract class EditorTool {
 		for (final NonsensePatent np : NonsensePatent.values()) {
 			TOOLS.add(new EditorTool(np.name(), WallDecoType.PATENT.w, WallDecoType.PATENT.h) {
 				@Override
-				public void run(int x, int y, RoomLayout rl) {
+				public void run(double scrollX, double scrollY, double cx, double cy, RoomLayout rl) {
+					int x = (int) (-scrollX * 0.95 + cx);
+					int y = (int) (-scrollY * 0.95 + cy);
 					rl.patents.add(new Utils.Pair<NonsensePatent, Pt>(np, new Pt(x, y)));
 				}
 			});

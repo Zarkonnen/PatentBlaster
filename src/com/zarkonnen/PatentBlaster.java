@@ -1053,7 +1053,7 @@ public class PatentBlaster implements Game, MusicCallback {
 				@Override
 				public void run(Input in, Pt p, Type type) {
 					if (cooldown > 0) { return; }
-					eTool.run((int) (p.x - scrollX), (int) (p.y - scrollY), editRL);
+					eTool.run(scrollX, scrollY, p.x, p.y, editRL);
 					editL = new Level(editRL, System.currentTimeMillis());
 					cooldown = 10;
 				}
