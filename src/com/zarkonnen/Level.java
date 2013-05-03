@@ -137,6 +137,10 @@ public class Level implements Serializable {
 		
 		generate(r, seed);
 			
+		populate(seed);
+	}
+	
+	public final void populate(long seed) {
 		int cFreq = power > 30 ? 1 : power > 15 ? 2 : 3;
 		int monsterStart = (power < 3 && PatentBlaster.difficultyLevel.ordinal() < DifficultyLevel.BRUTAL.ordinal())
 				? 18 : 9;

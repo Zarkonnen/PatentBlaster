@@ -255,6 +255,7 @@ public class PatentBlaster implements Game, MusicCallback {
 	int eToolScroll = 0;
 	boolean editorEnabled = true;
 	RoomLayout editRL;
+	RoomLayout playingRL;
 	Level editL;
 	File lastEDir = new File("");
 	File rlFile = null;
@@ -383,8 +384,10 @@ public class PatentBlaster implements Game, MusicCallback {
 		
 		if (in.keyDown("ESCAPE") || in.keyDown("ESC") || in.keyDown("⎋")) {
 			if (editRL != null && cooldown == 0) {
+				mainMenu = true;
 				editRL = null;
-				cooldown = 10;
+				playingRL = null;
+				cooldown += 10;
 			} else if (settings && cooldown == 0) {
 				settings = false;
 				cooldown += 10;
@@ -397,9 +400,16 @@ public class PatentBlaster implements Game, MusicCallback {
 				}
 			} else {
 				if (cooldown == 0) {
-					autoSave();
-					mainMenu = true;
-					cooldown += 15;
+					if (playingRL != null) {
+						l = null;
+						editRL = playingRL;
+						playingRL = null;
+						cooldown += 15;
+					} else {
+						autoSave();
+						mainMenu = true;
+						cooldown += 15;
+					}
 				}
 			}
 			return;
@@ -474,7 +484,28 @@ public class PatentBlaster implements Game, MusicCallback {
 		}
 		
 		if (editRL != null) {
-			if (in.keyDown("O")) {
+			if (in.keyDown("N") && cooldown == 0) {
+				rlFile = null;
+				editRL = new RoomLayout();
+				editL = new Level(editRL, System.currentTimeMillis());
+				cooldown = 10;
+			}
+			
+			if (in.keyDown("P") && cooldown == 0) {
+				long seed = System.currentTimeMillis();
+				l = new Level(editRL, seed);
+				l.power = 1;
+				l.player = Creature.make(seed, 10, PatentBlaster.NUM_IMAGES, false, true, false);
+				l.populate(seed);
+				playingRL = editRL;
+				editRL = null;
+				mainMenu = false;
+				setup = false;
+				cooldown = 10;
+				return;
+			}
+			
+			if (in.keyDown("O") && cooldown == 0) {
 				boolean fullscreen = in.mode().fullscreen;
 				if (fullscreen) {
 					in.setMode(new ScreenMode(1024, 768, false));
@@ -502,7 +533,7 @@ public class PatentBlaster implements Game, MusicCallback {
 				}
 			}
 			
-			if (in.keyDown("P")) {
+			if (in.keyDown("E") && cooldown == 0) {
 				boolean fullscreen = in.mode().fullscreen;
 				if (fullscreen) {
 					in.setMode(new ScreenMode(1024, 768, false));
@@ -636,6 +667,13 @@ public class PatentBlaster implements Game, MusicCallback {
 		
 		if (in.keyPressed(key("SPACE"))) {
 			targetingBooped = false;
+		}
+		
+		if ((l.lost() || l.won()) && playingRL != null) {
+			l = null;
+			editRL = playingRL;
+			playingRL = null;
+			return;
 		}
 		
 		if (l.lost() && !l.player.doesResurrect()) {
@@ -1061,7 +1099,7 @@ public class PatentBlaster implements Game, MusicCallback {
 			
 			HashMap<String, Hook> hs = new HashMap<String, Hook>();
 			StringBuilder tools = new StringBuilder();
-			tools.append("[bg=cccccc][BLACK]O to open, P to save.\nTools:\n");
+			tools.append("[bg=cccccc][BLACK]O to open, E to save, N for new and P to play.\nTools:\n");
 			for (final EditorTool et : EditorTool.TOOLS) {
 				if (eTool == et) {
 					tools.append("[009900]_").append(EditorTool.TOOLS.indexOf(et)).append("_").append(et.name);
@@ -1361,6 +1399,7 @@ public class PatentBlaster implements Game, MusicCallback {
 						@Override
 						public void run(Input in, Pt p, Hook.Type type) {
 							if (cooldown > 0) { return; }
+							mainMenu = false;
 							editRL = new RoomLayout();
 							cooldown += 10;
 						}
