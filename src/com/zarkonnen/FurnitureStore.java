@@ -29,6 +29,31 @@ public enum FurnitureStore {
 			l.walls.add(new Wall(x + 160, y + 20, 20, 70).tint(DEFAULT));
 		}
 	},
+	RIGHT_CHAIR(2, Location.FLOOR, 60, 120, 0) {
+		@Override
+		public void assemble(Level l, int x, int y) {
+			l.walls.add(new Wall(x, y, 15, 120).tint(DEFAULT));
+			l.walls.add(new Wall(x + 15, y + 60, 45, 15).tint(DEFAULT));
+			l.walls.add(new Wall(x + 45, y + 75, 15, 45).tint(DEFAULT));
+		}
+	},
+	LEFT_CHAIR(2, Location.FLOOR, 60, 120, 0) {
+		@Override
+		public void assemble(Level l, int x, int y) {
+			l.walls.add(new Wall(x + 45, y, 15, 120).tint(DEFAULT));
+			l.walls.add(new Wall(x, y + 60, 45, 15).tint(DEFAULT));
+			l.walls.add(new Wall(x, y + 75, 15, 45).tint(DEFAULT));
+		}
+	},
+	BED(1, Location.FLOOR, 200, 100, 0) {
+		@Override
+		public void assemble(Level l, int x, int y) {
+			l.walls.add(new Wall(x, y + 20, 20, 80).tint(DEFAULT));
+			l.walls.add(new Wall(x + 20, y + 50, 160, 20).tint(DEFAULT));
+			l.walls.add(new Wall(x + 20, y + 35, 160, 15).tint(MATTRESS));
+			l.walls.add(new Wall(x + 180, y, 20, 100).tint(DEFAULT));
+		}
+	},
 	CANDLE_TABLE(4, Location.FLOOR, 180, 130, 40) {
 		@Override
 		public void assemble(Level l, int x, int y) {
@@ -145,6 +170,7 @@ public enum FurnitureStore {
 		
 	public static final Clr HEAL = new Clr(200, 255, 200);
 	public static final Clr DEFAULT = new Clr(70, 50, 20);
+	public static final Clr MATTRESS = new Clr(150, 152, 140);
 		
 	public void assemble(Level l, int x, int y) {
 		l.walls.add(build(l, x, y));

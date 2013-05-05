@@ -531,6 +531,7 @@ public class PatentBlaster implements Game, MusicCallback {
 				if (fullscreen) {
 					in.setMode(new ScreenMode(1024, 768, true));
 				}
+				cooldown = 10;
 			}
 			
 			if (in.keyDown("E") && cooldown == 0) {
@@ -562,6 +563,7 @@ public class PatentBlaster implements Game, MusicCallback {
 				if (fullscreen) {
 					in.setMode(new ScreenMode(1024, 768, true));
 				}
+				cooldown = 10;
 			}
 			
 			if (in.keyDown(key("LEFT")) || in.keyDown(key("A"))) {
@@ -1782,7 +1784,7 @@ public class PatentBlaster implements Game, MusicCallback {
 			//endStart("Cursor");
 			Clr recC = Clr.RED;
 			boolean tooFar = false;
-			if (!splash && !setup && !mainMenu && l != null && l.shopItems.isEmpty() && l.player.hp > 0) {
+			if (!splash && !setup && !mainMenu && editRL == null && l != null && l.shopItems.isEmpty() && l.player.hp > 0) {
 				double dx = curs.x - scrollX - l.player.gunX(), dy = curs.y - scrollY - l.player.gunY();
 				double dist = Math.sqrt(dx * dx + dy * dy);
 				if (l.player.weapon.reloadLeft == 0) {
@@ -1809,7 +1811,7 @@ public class PatentBlaster implements Game, MusicCallback {
 				d.rect(recC, curs.x - 1, curs.y - 10, 2, 20);
 				d.rect(recC, curs.x - 10, curs.y - 1, 20, 2);
 			}
-			if (!splash && !setup && !mainMenu && l != null && l.power == 1 && l.movedRight && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
+			if (!splash && !setup && !mainMenu && editRL == null && l != null && l.power == 1 && l.movedRight && l.player.hp > 0 && difficultyLevel.ordinal() < DifficultyLevel.HARD.ordinal()) {
 				//start("Shoot Hints");
 				if (l.shotsFired == 0) {
 					Pt sz = d.textSize("Mouse to aim, click to shoot\nOr press " + key("SPACE") + " to auto-aim", FOUNT);

@@ -74,21 +74,25 @@ public class RoomLayout {
 				WallDecoType wdt = WallDecoType.valueOf(type);
 				rl.decos.add(new Utils.Pair<WallDecoType, Pt>(wdt, new Pt(d(r), d(r))));
 				success = true;
+				continue;
 			} catch (Exception e) {}
 			try {
 				NonsensePatent np = NonsensePatent.valueOf(type);
 				rl.patents.add(new Utils.Pair<NonsensePatent, Pt>(np, new Pt(d(r), d(r))));
 				success = true;
+				continue;
 			} catch (Exception e) {}
 			try {
 				FurnitureStore fs = FurnitureStore.valueOf(type);
 				rl.furniture.add(new Utils.Pair<FurnitureStore, Pt>(fs, new Pt(d(r), d(r))));
 				success = true;
+				continue;
 			} catch (Exception e) {}
 			try {
 				Barrel.Type bt = Barrel.Type.valueOf(type);
 				rl.barrels.add(new Utils.Pair<Barrel.Type, Pt>(bt, new Pt(d(r), d(r))));
 				success = true;
+				continue;
 			} catch (Exception e) {}
 			if (!success) {
 				throw new Exception("Unknown type: " + type);

@@ -9,7 +9,7 @@ public class Barrel extends Wall {
 	public static final Clr GLUE_TINT = new Clr(220, 220, 190);
 	public static final Clr MEAT_TINT = new Clr(167, 82, 66);
 	public static enum Type {
-		OIL(4, "squelch", false) {
+		OILY(4, "squelch", false) {
 			final Clr TINT = new Clr(10, 5, 0);
 			@Override
 			public Shot makeShot(Level l, Barrel b, double x, double y) {
@@ -206,7 +206,7 @@ public class Barrel extends Wall {
 				weapon.element = Element.ICE;	
 				weapon.tint = Element.ICE.tint;	
 				break;
-			case OIL:
+			case OILY:
 				weapon.dmg *= 6;
 			case EXPLOSIVES:
 				weapon.element = Element.FIRE;
