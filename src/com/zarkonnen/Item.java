@@ -58,7 +58,10 @@ public class Item implements HasDesc, Comparable<Item>, Serializable {
 		HP_REGEN(5, new Clr(255, 100, 100), 50) {
 			@Override
 			public void make(Item it, int power) {
-				it.regenSpeedup = (int) (8 * powerLvl(power)) + 5;
+				it.regenSpeedup = PatentBlaster.FPS;
+				if (power > 5) {
+					it.creatureHPBonus = (int) (BASE_HP_BONUS * (powerLvl(power) - powerLvl(5)));
+				}
 			}
 			@Override
 			public boolean useful(Creature c) { return c.ticksTillRegen() > Creature.MIN_REGEN_DELAY; }

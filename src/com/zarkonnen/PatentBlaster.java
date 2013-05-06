@@ -117,6 +117,12 @@ public class PatentBlaster implements Game, MusicCallback {
 	public static Img[] backdropImgs = new Img[Level.NUM_BACKGROUNDS];
 	public static Img[] backdropWindowImgs = new Img[Level.NUM_BACKGROUNDS];
 	
+	public static final String[] DEFAULT_ROOM_NAMES = {
+		"anarchist", "butchers", "church", "dorm", "freezer", "greathall", "hall", "lab", "library", "office", "storage", "unchurch"
+	};
+	
+	public static final ArrayList<RoomLayout> roomLayouts = new ArrayList<RoomLayout>();
+	
 	public static final PrintStream ERR_STREAM;
 	
 	static {
@@ -190,6 +196,31 @@ public class PatentBlaster implements Game, MusicCallback {
 		for (int i = 0; i < Level.NUM_BACKGROUNDS; i++) {
 			backdropImgs[i] = new Img("background_" + i);
 			backdropWindowImgs[i] = new Img("background_" + i + "_window");
+		}
+	}
+	
+	static void loadRoomLayouts() {
+		if (roomLayouts.isEmpty()) {
+			for (String rn : DEFAULT_ROOM_NAMES) {
+				try {
+					BufferedReader r = new BufferedReader(new InputStreamReader(PatentBlaster.class.getResourceAsStream("rooms/" + rn + ".txt")));
+					roomLayouts.add(RoomLayout.read(r));
+					r.close();
+				} catch (Exception e) {
+					e.printStackTrace(ERR_STREAM);
+				}
+			}
+			try {
+				for (File f : new File("Extra Rooms").listFiles()) {
+					if (f.isFile()) {
+						try {
+							BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+							roomLayouts.add(RoomLayout.read(r));
+							r.close();
+						} catch (Exception e) {}
+					}
+				}
+			} catch (Exception e) {}
 		}
 	}
 			
@@ -722,7 +753,20 @@ public class PatentBlaster implements Game, MusicCallback {
 			}
 			if (nextLvlTime >= 207) {
 				l.player.newThing = null;
-				l = new Level(System.currentTimeMillis(), l.power + 1, l.player);
+				Random r = new Random(System.currentTimeMillis());
+				if (r.nextBoolean()) {
+					loadRoomLayouts();
+					long seed = System.currentTimeMillis();
+					Creature p = l.player;
+					int pow = l.power;
+					l = new Level(roomLayouts.get(r.nextInt(roomLayouts.size())), seed);
+					l.power = pow + 1;
+					l.player = p;
+					l.populate(seed);
+				} else {
+					l = new Level(System.currentTimeMillis(), l.power + 1, l.player);
+				}
+				//l = new Level(System.currentTimeMillis(), l.power + 1, l.player);
 				l.player.heal();
 				nextLvlTime = 0;
 				int attempt = 0;

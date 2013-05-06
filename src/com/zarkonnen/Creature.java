@@ -31,7 +31,7 @@ public class Creature extends Entity implements HasDesc {
 	public static final int MAX_OVERHEAT = 8;
 	public static final double JITTER_PER_OVERHEAT = 0.06;
 	public static final int BASE_REGEN_DELAY = 8 * PatentBlaster.FPS;
-	public static final int MIN_REGEN_DELAY = PatentBlaster.FPS;
+	public static final int MIN_REGEN_DELAY = 2 * PatentBlaster.FPS;
 	
 	public int imgIndex;
 	public Img bImg, flippedBImg;
