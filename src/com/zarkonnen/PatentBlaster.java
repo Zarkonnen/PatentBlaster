@@ -903,7 +903,7 @@ public class PatentBlaster implements Game, MusicCallback {
 				}
 			}
 			if (in.click() == null) { l.releasedSinceShot = true; }
-			if (in.click() != null || l.player.weapon.sword) {
+			if (in.click() != null || l.player.weapon.stick) {
 				if (l.player.weapon.reloadLeft == 0) {
 					l.player.shoot(in.cursor().x - scrollX, in.cursor().y - scrollY, l);
 					l.shotsFired++;

@@ -132,7 +132,7 @@ public class Shot extends Entity {
 		if (w.grenade) {
 			sprayProbability /= 4;
 		}
-		if (w.sword) {
+		if (w.stick) {
 			sprayProbability /= 20;
 			ignoresWalls = true;
 		}
@@ -158,7 +158,7 @@ public class Shot extends Entity {
 		}
 		collides = p.collides;
 		ignoresWalls = p.ignoresWalls;
-		if (p.weapon != null && (p.weapon.sword || p.weapon.sharp)) {
+		if (p.weapon != null && (p.weapon.stick || p.weapon.sharp)) {
 			ignoresWalls = false;
 		}
 		freeAgent = p.freeAgent;
@@ -260,7 +260,7 @@ public class Shot extends Entity {
 				tint = thawedTint;
 			}
 		}
-		if (weapon != null && shooter != null && weapon.sword && dmgMultiplier == 1) {
+		if (weapon != null && shooter != null && weapon.stick && dmgMultiplier == 1) {
 			if (shooter.hp > 0) {
 				swordpos();
 				if (shooter.lastShot != null && shooter.lastShot.age > 1) {

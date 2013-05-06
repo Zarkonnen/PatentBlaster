@@ -311,7 +311,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public double gunX() {
-		if (weapon != null && weapon.sword) {
+		if (weapon != null && weapon.stick) {
 			if (flipped) {
 				return x + w * (1 - PatentBlaster.IMG_HAND_X[imgIndex]);
 			} else {
@@ -326,7 +326,7 @@ public class Creature extends Entity implements HasDesc {
 	}
 	
 	public double gunY() {
-		if (weapon != null && weapon.sword) {
+		if (weapon != null && weapon.stick) {
 			return y + h * PatentBlaster.IMG_HAND_Y[imgIndex];
 		}
 		return y + h * PatentBlaster.IMG_SHOOT_Y[imgIndex];
@@ -1217,7 +1217,7 @@ public class Creature extends Entity implements HasDesc {
 	
 	public Shot shoot(double tx, double ty, Level l) {
 		decloaking = true;
-		if (weapon.reloadLeft == 0 && (!weapon.sword || lastShot == null || lastShot.age > 3) && !weapon.flamethrower) {
+		if (weapon.reloadLeft == 0 && (!weapon.stick || lastShot == null || lastShot.age > 3) && !weapon.flamethrower) {
 			l.soundRequests.add(new SoundRequest(weapon.element.shotSound, x + w / 2, y + h / 2, 1.0));
 		}
 		if (weapon.reloadLeft == 0 && weapon.flamethrower && flamethrowerTicks >= 60) {
@@ -1248,7 +1248,7 @@ public class Creature extends Entity implements HasDesc {
 				s.dx *= sMult;
 				s.dy *= sMult;
 			}
-			if (weapon.sword) {
+			if (weapon.stick) {
 				s.swordpos();
 			}
 			l.shotsToAdd.add(s);
@@ -1448,20 +1448,20 @@ public class Creature extends Entity implements HasDesc {
 		int sz = (boss ? 80 : 40) + r.nextInt(3) * (boss ? 20: 10);
 		
 		hp *= (1.0 * sz / (boss ? 100 : 50));
-		c.speed = Math.min(w.sword ? 100 : w.shotSpeed - 2, player ? (2.5 + r.nextDouble() * 2) : (1 + r.nextDouble() * 4));
+		c.speed = Math.min(w.stick ? 100 : w.shotSpeed - 2, player ? (2.5 + r.nextDouble() * 2) : (1 + r.nextDouble() * 4));
 		hp /= (c.speed / 2.5);
 		if (boss) {
 			c.voice = r.nextInt(PatentBlaster.NUM_VOICES);
 		}
 		c.moveMode = player || r.nextInt(3) == 0 ? MoveMode.SLIDE : MoveMode.values()[r.nextInt(MoveMode.values().length)];
-		if (c.weapon.sword) {
+		if (c.weapon.stick) {
 			c.moveMode = MoveMode.SLIDE;
 		}
 		if (c.moveMode == MoveMode.FLY) {
 			hp *= 0.8;
 			c.speed *= 1.2;
 		} else {
-			if (!player && !boss && !w.homing && !w.shotgun && !w.flamethrower && !w.sword && r.nextInt(4 / power + 4) == 0) {
+			if (!player && !boss && !w.homing && !w.shotgun && !w.flamethrower && !w.stick && r.nextInt(4 / power + 4) == 0) {
 				c.explodes = true;
 				hp *= 0.8;
 			}

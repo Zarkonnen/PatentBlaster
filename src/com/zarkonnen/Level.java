@@ -638,7 +638,7 @@ public class Level implements Serializable {
 					}
 				}
 			}
-			if (!s.remains && !s.weapon.sword && (c.massive || !s.weapon.penetrates() || s.weapon.homing)) {
+			if (!s.remains && !s.weapon.stick && (c.massive || !s.weapon.penetrates() || s.weapon.homing)) {
 				s.killMe = true;
 				return true;
 			} else {
