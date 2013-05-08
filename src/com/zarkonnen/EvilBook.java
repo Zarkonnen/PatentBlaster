@@ -5,12 +5,29 @@ import com.zarkonnen.catengine.util.Pt;
 public class EvilBook extends Book {
 	public static final String[] EVIL_TITLES = { "[000000ff88]N\nE\nC\nR\nO", "[000000ff88]U\nN\nA\nU\nS", "[000000ff88]L\nE\nN\nG", "[000000ff88]F\nU\nL\nV\nA" }; 
 	
+	int ticksSinceLastPronouncement = 0;
+	
+	public static final String[] VOICES = {
+		"mi-go",
+		"hittehelmettepol",
+		"nyarlathotep",
+		"shub-niggurath-2",
+		"yog-sototh",
+		"cthulhu",
+		"chuchichaschtli",
+		"death",
+		"shub-niggurath"
+	};
+	
+	String voice;
+	
 	public EvilBook(int x, int baseline, Level l) {
 		super(x, baseline, l);
 		w = 30;
 		y -= h;
 		h *= 2;
 		title = EVIL_TITLES[l.r.nextInt(EVIL_TITLES.length)];
+		voice = VOICES[l.r.nextInt(VOICES.length)];
 		weapon.dmg *= 100;
 		weapon.element = Element.CURSED;
 		weapon.shotSize = 3;
@@ -21,6 +38,11 @@ public class EvilBook extends Book {
 	public void tick(Level l) {
 		if (l.r.nextInt(20) == 0) {
 			shoot(l);
+		}
+		ticksSinceLastPronouncement++;
+		if (ticksSinceLastPronouncement > 200 && l.r.nextInt(500) == 0) {
+			ticksSinceLastPronouncement = 0;
+			l.soundRequests.add(new SoundRequest(voice, x + w / 2, y + w / 2, 0.5 + l.r.nextDouble() * 0.5));
 		}
 	}
 	

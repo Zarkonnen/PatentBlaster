@@ -66,6 +66,7 @@ public class BeeJar extends EmitterWall {
 		if (hp <= 0) {
 			killMe = true;
 			l.soundRequests.add(new SoundRequest("shatter", x + w / 2, y + h / 2, 1.0));
+			l.soundRequests.add(new SoundRequest("bees", x + w / 2, y + h / 2, 1.0));
 			smash(l);
 			weapon.homing = true;
 		}
