@@ -416,6 +416,10 @@ public class Level implements Serializable {
 		}
 		ScreenMode sMode = in.mode();
 		if (PatentBlaster.soundVolume > 0) {
+			/*for (SoundRequest sr : soundRequests) {
+				System.out.print(sr.sound); System.out.print(" "); System.out.print((int) (sr.volume * 1000)); System.out.print(" ");
+			}
+			System.out.println();*/
 			Collections.sort(soundRequests);
 			int played = 0;
 			for (SoundRequest sr : soundRequests) {
@@ -530,6 +534,9 @@ public class Level implements Serializable {
 					double dx = (e.x + e.w / 2 > w.x + w.w / 2) ? e.x - w.x - w.w : e.x + e.w - w.x;
 					double dy = (e.y + e.h / 2 > w.y + w.h / 2) ? e.y - w.y - w.h : e.y + e.h - w.y;
 					if (Math.abs(dx) < Math.abs(dy)) {
+						if (Math.abs(e.dx) > 6 && e.w > 3 && e.h > 3 && ((e instanceof Creature && e.leftPress == 0 && e.rightPress == 0) || (e instanceof Shot && ((Shot) e).shooter != null && ((Shot) e).dmgMultiplier == 1))) {
+							soundRequests.add(new SoundRequest("knock", e.x + e.w / 2, e.y + e.h / 2, Math.min(1, Math.abs(e.dx) / 15)));
+						}
 						e.x -= dx;
 						e.dx *= -e.bounciness;
 						e.numBounces++;
@@ -541,6 +548,9 @@ public class Level implements Serializable {
 							e.rightPress += e.pressAmount;
 						}
 					} else {
+						if (Math.abs(e.dy) > 6 && e.w > 3 && e.h > 3 && ((e instanceof Creature && e.bottomPress == 0) || (e instanceof Shot && ((Shot) e).shooter != null && ((Shot) e).dmgMultiplier == 1))) {
+							soundRequests.add(new SoundRequest("knock", e.x + e.w / 2, e.y + e.h / 2, Math.min(1, Math.abs(e.dy) / 15)));
+						}
 						if (dy > 0) { e.ticksSinceBottomOrSide = 0; e.ticksSinceBottom = 0; }
 						e.y -= dy;
 						e.dy *= -e.bounciness;

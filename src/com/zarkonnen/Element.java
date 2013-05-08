@@ -34,6 +34,6 @@ public enum Element {
 	}
 	
 	public static Element pick(Random r) {
-		return r.nextInt(25) == 0 ? CURSED : values()[r.nextInt(4)];
+		return r.nextInt(20) == 0 ? CURSED : values()[r.nextInt(4)];
 	}
 }

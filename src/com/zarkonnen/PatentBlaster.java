@@ -745,8 +745,8 @@ public class PatentBlaster implements Game, MusicCallback {
 							w.isCollidedWith = false;
 						}
 					}
-					l.soundRequests.add(new SoundRequest("shatter", l.player.x + l.player.w / 2, l.player.y + l.player.h, 1.0));
 				}
+				l.soundRequests.add(new SoundRequest("shatter", l.player.x + l.player.w / 2, l.player.y + l.player.h, 1.0));
 			}
 			if (nextLvlTime >= 10) {
 				l.player.enforcedFalling = true;

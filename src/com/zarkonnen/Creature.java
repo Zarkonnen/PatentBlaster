@@ -18,8 +18,8 @@ import java.util.ListIterator;
 
 public class Creature extends Entity implements HasDesc {
 	public static final double MAX_SPEED = 5;
-	public static final double HOP_BONUS = 1.25;
-	public static final int AIR_STEERING = 25;
+	public static final double HOP_BONUS = 0.4;
+	public static final int AIR_STEERING = 40;
 	public static final int ABOVE_PREF = Level.GRID_SIZE * 5 / 2;
 	public static final Clr JAR_CLR = new Clr(110, 90, 85);
 	public static final Clr FROZEN_CLR = new Clr(100, 110, 200);;
@@ -813,13 +813,20 @@ public class Creature extends Entity implements HasDesc {
 		if (asleep) {
 			dx = 0;
 			gravityMult = 1.0;
-			if ((l.tick + (int) x) % 40 == 0) {
+			if ((l.tick + (int) x) % 140 == 0) {
+				sound("zzz", l);
 				FloatingText ft = new FloatingText("Z", x + w / 2, y);
 				ft.dx = l.r.nextDouble() - 0.5;
 				l.texts.add(ft);
 			}
+			if ((l.tick + (int) x) % 140 == 70) {
+				sound("snore", l);
+			}
 		} else if (frozen == 0) {
 			if (decloaking && cloakAmt > 0) {
+				if (cloakAmt == CLOAK_END_FADE) {
+					sound("decloak", l);
+				}
 				cloakAmt -= 3;
 				if (cloakAmt <= 0) {
 					cloakAmt = 0;
@@ -827,6 +834,9 @@ public class Creature extends Entity implements HasDesc {
 				}
 			} else if (cloakAmt < CLOAK_END_FADE && canCloak()) {
 				cloakAmt++;
+				if (cloakAmt == CLOAK_START_FADE) {
+					sound("cloak", l);
+				}
 			}
 			if (jumpElongate > 0) {
 				jumpElongate = Math.max(0, jumpElongate - bottomInflateAmount);
@@ -1230,6 +1240,9 @@ public class Creature extends Entity implements HasDesc {
 			if (weapon.overheating > weapon.reload * MAX_OVERHEAT) {
 				weapon.overheating = weapon.reload * MAX_OVERHEAT;
 			}
+			if (weapon.overheating > weapon.reload * MAX_OVERHEAT * 0.3) {
+				sound("quench", l);
+			}
 		}
 		Shot s = null;
 		for (int i = 0; i < weapon.numBullets; i++) {
@@ -1264,7 +1277,10 @@ public class Creature extends Entity implements HasDesc {
 	public int takeDamage(Level l, Shot shot) {
 		if (hp <= 0) { return 0; }
 		Weapon src = shot.weapon;
-		if (shot.extinguishes) { onFire = 0; }
+		if (shot.extinguishes && onFire > 0) {
+			sound("quench", l);
+			onFire = 0;
+		}
 		if (src.dmg < 0) {
 			hp -= shot.dmgMultiplier * src.dmg;
 			if (hp > totalMaxHP()) {

@@ -8,18 +8,16 @@ Music by nosoapradio.us.
 
 Sound effects from freesound.org, by:
 
-  LeMudCrab
-  kasa90
-  datasoundsample
-  Chriddof
-  j1987
-  ryansnook
-  Audionautics
-  zolopher
-  themfish
-  zmb94
-  Nanashi
-
+  LeMudCrab         Daxter31
+  kasa90            daveincamas
+  datasoundsample   Q.K.
+  Chriddof          toiletrolltube
+  j1987             martats
+  ryansnook         corkscr3w
+  Audionautics      Penumbradubstep
+  zolopher          zmb94
+  themfish          Nanashi
+  
 Additional sound effects and voices by David Stark and Rachel Knowler.
 
 Additional graphics from:

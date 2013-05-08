@@ -33,7 +33,7 @@ public class Crate extends Wall {
 		super.takeDamage(l, s);
 		if (hp <= 0) {
 			killMe = true;
-			l.soundRequests.add(new SoundRequest("shatter", x + w / 2, y + h / 2, 1.0));
+			l.soundRequests.add(new SoundRequest("crunch", x + w / 2, y + h / 2, 1.0));
 			smash(l);
 			Goodie g = null;
 			if (weapon != null) {

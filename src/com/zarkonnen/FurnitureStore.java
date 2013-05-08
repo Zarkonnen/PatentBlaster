@@ -68,7 +68,7 @@ public enum FurnitureStore {
 			base.img = PatentBlaster.FURN_IMGS.get("fountain");
 			base.imgDelta = -55;
 			l.walls.add(base);
-			l.walls.add(new Fountainhead(x + 60, y + 200, l.power, Element.ICE, Clr.BLUE));
+			l.walls.add(new Fountainhead(x + 59, y + 198, l.power, Element.ICE, Clr.BLUE));
 		}
 	},
 	HOLY_FOUNTAIN(3, Location.FLOOR, 120, 320, 0) {
@@ -78,7 +78,7 @@ public enum FurnitureStore {
 			base.img = PatentBlaster.FURN_IMGS.get("fountain");
 			base.imgDelta = -55;
 			l.walls.add(base);
-			l.walls.add(new Fountainhead(x + 60, y + 200, l.power, Element.BLESSED, Element.BLESSED.tint));
+			l.walls.add(new Fountainhead(x + 59, y + 198, l.power, Element.BLESSED, Element.BLESSED.tint));
 		}
 	},
 	UNHOLY_FOUNTAIN(3, Location.FLOOR, 120, 320, 0) {
@@ -88,7 +88,7 @@ public enum FurnitureStore {
 			base.img = PatentBlaster.FURN_IMGS.get("fountain");
 			base.imgDelta = -55;
 			l.walls.add(base);
-			l.walls.add(new Fountainhead(x + 60, y + 200, l.power, Element.CURSED, Element.CURSED.tint));
+			l.walls.add(new Fountainhead(x + 59, y + 198, l.power, Element.CURSED, Element.CURSED.tint));
 		}
 	},
 	SHELF(8, Location.WALL, 120, 25, 0, PatentBlaster.FURN_IMGS.get("shelf")),

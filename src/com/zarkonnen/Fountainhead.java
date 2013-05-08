@@ -40,6 +40,9 @@ public class Fountainhead extends EmitterWall {
 			}
 			s.tint = INVISIBLE;
 		}
+		if (l.tick % (PatentBlaster.FPS + 1) == 19) {
+			l.soundRequests.add(new SoundRequest("fountain", x, y, 1));
+		}
 	}
 	
 	public static final Clr INVISIBLE = new Clr(0, 0, 0, 0);
