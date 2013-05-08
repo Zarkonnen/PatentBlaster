@@ -111,7 +111,7 @@ public class Level implements Serializable {
 		}
 		for (Utils.Pair<Barrel.Type, Pt> b : rl.barrels) {
 			Barrel barr = new Barrel(b.a, seed, power, (int) b.b.x, (int) b.b.y, r);
-			drop(barr);
+			//drop(barr);
 			walls.add(barr);
 		}
 	}
@@ -454,36 +454,40 @@ public class Level implements Serializable {
 	}
 	
 	public final void drop(Entity e) {
-		e.y = GRID_SIZE + 10;
-		e.dx = 0;
-		e.dy = 0;
-		while (true) {
-			e.y += 30;
-			for (Wall w : walls) {
-				if (e != w &&
-					w.isCollidedWith &&
-					e.x < w.x + w.w &&
-					e.x + e.w > w.x &&
-					e.y < w.y + w.h &&
-					e.y + e.h > w.y)
-				{
-					lp: while (true) {
-						for (Wall w2 : walls) {
-							if (e != w &&
-								e.x < w2.x + w2.w &&
-								e.x + e.w > w2.x &&
-								e.y < w2.y + w2.h &&
-								e.y + e.h > w2.y)
-							{
-								e.y -= 1;
-								continue lp;
+		int start = GRID_SIZE + 10;
+		outer: do {
+			e.y = start;
+			start += 10;
+			e.dx = 0;
+			e.dy = 0;
+			while (true) {
+				e.y += 30;
+				for (Wall w : walls) {
+					if (e != w &&
+						w.isCollidedWith &&
+						e.x < w.x + w.w &&
+						e.x + e.w > w.x &&
+						e.y < w.y + w.h &&
+						e.y + e.h > w.y)
+					{
+						lp: while (true) {
+							for (Wall w2 : walls) {
+								if (e != w &&
+									e.x < w2.x + w2.w &&
+									e.x + e.w > w2.x &&
+									e.y < w2.y + w2.h &&
+									e.y + e.h > w2.y)
+								{
+									e.y -= 1;
+									continue lp;
+								}
 							}
+							continue outer;
 						}
-						return;
 					}
 				}
 			}
-		}
+		} while (e.y < GRID_SIZE);
 		/*e.y = GRID_SIZE + 10;
 		e.dy = 2;
 		while (!physics(e, 1.0)) {

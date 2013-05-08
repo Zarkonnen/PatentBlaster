@@ -4,12 +4,14 @@ import com.zarkonnen.catengine.Draw;
 import com.zarkonnen.catengine.util.Clr;
 
 public class Wall extends Entity {
+	public static final Clr WALL_C = new Clr(85, 85, 85);
+	
 	public Wall(int x, int y, int w, int h) {
 		this.x = x;
 		this.y = y;
 		this.w = w;
 		this.h = h;
-		this.tint = Clr.GREY;
+		this.tint = WALL_C;
 		gravityMult = 0;
 		collides = false;
 		ignoresWalls = true;

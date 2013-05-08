@@ -1236,12 +1236,12 @@ public class Creature extends Entity implements HasDesc {
 		}
 		weapon.reloadLeft = weapon.reload;
 		if (weapon.overheats) {
+			if (weapon.overheating > weapon.reload * MAX_OVERHEAT * 0.4) {
+				sound("overheat", l);
+			}
 			weapon.overheating += weapon.reload * OVERHEAT_RELOAD_MULT;
 			if (weapon.overheating > weapon.reload * MAX_OVERHEAT) {
 				weapon.overheating = weapon.reload * MAX_OVERHEAT;
-			}
-			if (weapon.overheating > weapon.reload * MAX_OVERHEAT * 0.3) {
-				sound("quench", l);
 			}
 		}
 		Shot s = null;

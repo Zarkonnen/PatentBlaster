@@ -326,7 +326,7 @@ public enum FurnitureStore {
 					y = Level.GRID_SIZE;
 					break;
 				case WALL:
-					y = Level.GRID_SIZE * 4 + l.r.nextInt((Level.LVL_H - 6) * Level.GRID_SIZE) - 30;
+					y = Level.GRID_SIZE * 4 + l.r.nextInt((Level.LVL_H - 6) * Level.GRID_SIZE) - 40;
 					break;
 			}
 			boolean acceptable = false;

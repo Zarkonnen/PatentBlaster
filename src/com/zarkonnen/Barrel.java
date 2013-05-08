@@ -171,7 +171,9 @@ public class Barrel extends Wall {
 	@Override
 	public void draw(Draw d, Level l, double scrollX, double scrollY) {
 		super.draw(d, l, scrollX, scrollY);
-		d.text("[bg=dddd88][BLACK]" + t.name().substring(textShift, Math.min(t.name().length(), 6) + textShift).replace("_", " "), PatentBlaster.SMOUNT, x + scrollX + 1, y + scrollY + 20);
+		String n = t.name();
+		if (n.equals("OILY")) { n = "OIL"; }
+		d.text("[bg=dddd88][BLACK]" + n.substring(textShift, Math.min(n.length(), 6) + textShift).replace("_", " "), PatentBlaster.SMOUNT, x + scrollX + 1, y + scrollY + 20);
 	}
 	
 	public Barrel(Type t, long seed, int power, int x, int y, Random r) {

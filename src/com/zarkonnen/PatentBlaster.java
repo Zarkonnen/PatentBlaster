@@ -64,9 +64,9 @@ public class PatentBlaster implements Game, MusicCallback {
 	public static final int NUM_VOICES = DEMO ? 3 : 14;
 	public static final int FPS = 60;
 	public static final String ALPHABET = " qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890-=+_!?<>,.;:\"'@£$%^&*()[]{}|\\~/±";
-	public static final Fount GOUNT = new Fount("LiberationMono64", 50, 84, 50, 84, ALPHABET);
+	public static final Fount GOUNT = new Fount("LiberationMono48", 32, 60, 32, 60, ALPHABET);
 
-	public static final Fount FOUNT = new Fount("LiberationMono18", 14, 24, 12, 24, ALPHABET);
+	public static final Fount FOUNT = new Fount("LiberationMono16", 12, 21, 10, 21, ALPHABET);
 	public static final Fount SMOUNT = new Fount("Courier12", 10, 15, 7, 15, ALPHABET);
 	public static final String[] IMG_NAMES = {"boxer", "bat", "bear", "elephant", "thing", "mummy", "tongue", "eye", "brain", "robot", "head", "duck", "empty_bear", "screenhead", "crawler", "shrugger", "stick_demon", "smiler"};
 	public static final String[] PRETTY_IMG_NAMES = {"Boxer", "Bat", "Bear", "Elephant", "Brain-Thing", "Mummy", "Tongue", "Eye", "Brain", "Robot", "Head", "Duck", "Empty Bear", "Screenhead", "Crawler", "Shrugger", "Stick Demon", "Smiler"};
@@ -211,7 +211,7 @@ public class PatentBlaster implements Game, MusicCallback {
 				}
 			}
 			try {
-				for (File f : new File("Extra Rooms").listFiles()) {
+				for (File f : new File("Extra Levels").listFiles()) {
 					if (f.isFile()) {
 						try {
 							BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
@@ -294,7 +294,7 @@ public class PatentBlaster implements Game, MusicCallback {
 	// Some images
 	Img rightarrow = new Img("rightarrow");
 	Img leftarrow = new Img("rightarrow").flip();
-	public static final Img paper = new Img("paper.jpg");
+	public static final Img paper = new Img("paper");
 	Img splashImg = new Img("splash.jpg");
 	Img landscape = new Img("landscape");
 		
@@ -1145,7 +1145,7 @@ public class PatentBlaster implements Game, MusicCallback {
 			
 			HashMap<String, Hook> hs = new HashMap<String, Hook>();
 			StringBuilder tools = new StringBuilder();
-			tools.append("[bg=cccccc][BLACK]O to open, E to save, N for new and P to play.\nTools:\n");
+			tools.append("[bg=cccccc][BLACK]O to open, E to save, N for new and P to play.\nTools (Click to select, arrow keys to scroll):\n");
 			for (final EditorTool et : EditorTool.TOOLS) {
 				if (eTool == et) {
 					tools.append("[009900]_").append(EditorTool.TOOLS.indexOf(et)).append("_").append(et.name);
@@ -1163,6 +1163,8 @@ public class PatentBlaster implements Game, MusicCallback {
 			}
 			d.text(tools.toString(), SMOUNT, 10, 10 + eToolScroll, hs);
 			
+			d.text("[BLACK][bg=ff5555]Put levels into the \"Extra Levels\" folder to have the game use them.", SMOUNT, 350, 10);
+			
 			d.rect(DEAD, curs.x, curs.y, eTool.w, eTool.h);
 		} else if (splash) {
 			//start("Splash");
@@ -1171,8 +1173,8 @@ public class PatentBlaster implements Game, MusicCallback {
 			splashDrawn = true;
 		} else if (settings) {
 			//start("Settings");
-			for (int y = 0; y < sm.width; y += 600) {
-				for (int x = 0; x < sm.height; x += 600) {
+			for (int y = 0; y < sm.height; y += 300) {
+				for (int x = 0; x < sm.width; x += 300) {
 					d.blit(paper, x, y);
 				}
 			}
@@ -1323,8 +1325,8 @@ public class PatentBlaster implements Game, MusicCallback {
 			});
 		} else if (mainMenu) {
 			//start("Main Menu");
-			for (int y = 0; y < sm.width; y += 600) {
-				for (int x = 0; x < sm.height; x += 600) {
+			for (int y = 0; y < sm.height; y += 300) {
+				for (int x = 0; x < sm.width; x += 300) {
 					d.blit(paper, x, y);
 				}
 			}
@@ -1367,16 +1369,6 @@ public class PatentBlaster implements Game, MusicCallback {
 						});
 					}
 				}
-				
-				
-				// Play game                  Left        A <-
-				//                            Right       D ->
-				// Easy Medium Hard Brutal    Up          W ^
-				//                            Down        S v
-				// Credits                    Prev Weapon Q
-				//                            Next Weapon E
-				// Quit                       Music       <--->
-				//                            Sounds      <--->
 
 				if (inputMappingToDo != null) {
 					d.hook(0, 0, sm.width, sm.height, new Hook(Hook.Type.MOUSE_1) {
@@ -1456,6 +1448,11 @@ public class PatentBlaster implements Game, MusicCallback {
 					d.rect(Clr.BLACK, spacing + "EASY MEDIUM HARD ".length() * FOUNT.displayWidth, y + FOUNT.lineHeight * (hasContinue ? 10 : 8) + 8, "BRUTAL".length() * FOUNT.displayWidth, 2);
 					d.rect(Clr.BLACK, spacing + "EASY MEDIUM HARD BRUTAL ".length() * FOUNT.displayWidth, y + FOUNT.lineHeight * (hasContinue ? 10 : 8)  + 8, "IMPOSSIBLE".length() * FOUNT.displayWidth, 2);
 				}
+								
+				d.text(menu.toString(), GOUNT, spacing, y, hoox);
+				
+				menu = new StringBuilder();
+				hoox = new HashMap<String, Hook>();
 				for (final DifficultyLevel dl : DifficultyLevel.values()) {
 					menuItem("diff", dl.name(), dl == difficultyLevel, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 						@Override
@@ -1476,10 +1473,8 @@ public class PatentBlaster implements Game, MusicCallback {
 					});
 					menu.append(" ");
 				}
+				d.text(menu.toString(), FOUNT, spacing + 2, hasContinue ? 250 : 130, hoox);
 				
-				menu.append("\n\n");
-				
-				d.text(menu.toString(), FOUNT, spacing, y, hoox);
 				Rect menuR = d.textSize(menu.toString(), FOUNT, spacing, y);
 				y += menuR.height + spacing;
 				if (DEMO) {
@@ -1504,8 +1499,8 @@ public class PatentBlaster implements Game, MusicCallback {
 			//start("Setup");
 			int spacing = 24;
 
-			for (int y = 0; y < sm.width; y += 600) {
-				for (int x = 0; x < sm.height; x += 600) {
+			for (int y = 0; y < sm.height; y += 300) {
+				for (int x = 0; x < sm.width; x += 300) {
 					d.blit(paper, x, y);
 				}
 			}
@@ -1524,8 +1519,8 @@ public class PatentBlaster implements Game, MusicCallback {
 				for (final Creature setupCreature : setupCreatures) {
 					d.rect(Clr.BLACK, 0, shift + spacing + 18, sm.width * 3 / 4, 2);
 					
-					d.blit(drawingImgsLarge[setupCreature.imgIndex], setupCreature.tint, spacing, shift + 100);
-					d.text("[BLACK][default=BLACK]" + setupCreature.name().toUpperCase() + "\n\n" + setupCreature.desc(Clr.BLACK, IMG_NUMS[setupCreature.imgIndex]), FOUNT, 400 + spacing * 2, shift + 100);//, sm.width - spacing * 4 - 400);
+					d.blit(drawingImgsLarge[setupCreature.imgIndex], setupCreature.tint, spacing + 40, shift + 100);
+					d.text("[BLACK][default=BLACK]" + setupCreature.name().toUpperCase() + "\n\n" + setupCreature.desc(Clr.BLACK, IMG_NUMS[setupCreature.imgIndex]), FOUNT, 400 + spacing * 2 + 60, shift + 100);//, sm.width - spacing * 4 - 400);
 					double entryH = Math.max(400, d.textSize("[BLACK][default=BLACK]" + setupCreature.name().toUpperCase() + "\n\n" + setupCreature.desc(Clr.BLACK, IMG_NUMS[setupCreature.imgIndex]), FOUNT, 400 + spacing * 3, 100/*, sm.width - spacing * 5 - 400*/).height) + spacing * 4;
 					d.hook(0, shift + 100, sm.width, entryH, new Hook(Hook.Type.MOUSE_1) {
 						@Override
@@ -1573,8 +1568,8 @@ public class PatentBlaster implements Game, MusicCallback {
 		} else if (!l.shopItems.isEmpty()) {
 			//start("Shop");
 			int spacing = 24;
-			for (int y = 0; y < sm.width; y += 600) {
-				for (int x = 0; x < sm.height; x += 600) {
+			for (int y = 0; y < sm.height; y += 300) {
+				for (int x = 0; x < sm.width; x += 300) {
 					d.blit(paper, x, y);
 				}
 			}
