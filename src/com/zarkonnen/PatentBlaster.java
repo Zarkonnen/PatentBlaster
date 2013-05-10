@@ -118,7 +118,7 @@ public class PatentBlaster implements Game, MusicCallback {
 	public static Img[] backdropWindowImgs = new Img[Level.NUM_BACKGROUNDS];
 	
 	public static final String[] DEFAULT_ROOM_NAMES = {
-		"anarchist", "butchers", "church", "dorm", "freezer", "greathall", "hall", "lab", "library", "office", "storage", "unchurch"
+		"anarchist", "butchers", "church", "dorm", "freezer", "greathall", "hall", "lab", "library", "office", "storage", "unchurch", "cryolab", "cross", "defaced_gallery", "beelab", "fountains", "horsemeat", "apothecary", "patenteer", "evil_library", "hall_of_torches", "room"
 	};
 	
 	public static final ArrayList<RoomLayout> roomLayouts = new ArrayList<RoomLayout>();
@@ -1285,6 +1285,9 @@ public class PatentBlaster implements Game, MusicCallback {
 				menuItem("music", " " + i, musicVolume == i, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 					@Override
 					public void run(Input in, Pt p, Type type) {
+						if (musicVolume == 0) {
+							in.stopMusic();
+						} 
 						//in.stopMusic();
 						musicPlaying = false;
 						musicVolume = ii;
@@ -1819,7 +1822,7 @@ public class PatentBlaster implements Game, MusicCallback {
 			d.rect(new Clr(0, 0, 0, (nextLvlTime - 80) * 2), 0, 0, sm.width, sm.height);
 		}
 		
-		if (hideCurs < 3 || mainMenu || setup || splash || !l.shopItems.isEmpty()) {
+		if (hideCurs < 3 || mainMenu || setup || splash || (l != null && !l.shopItems.isEmpty())) {
 			//endStart("Cursor");
 			Clr recC = Clr.RED;
 			boolean tooFar = false;

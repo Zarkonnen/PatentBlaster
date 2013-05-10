@@ -1541,7 +1541,7 @@ public class Creature extends Entity implements HasDesc {
 			c.thief = true;
 			hp *= 0.8;
 		}
-		if (!player && !PatentBlaster.DEMO && !c.jar && r.nextInt((boss ? 10 : 100) / power + (boss ? 3 : 10)) == 0) {
+		if (!player && !PatentBlaster.DEMO && !c.jar && !c.reproduces && r.nextInt((boss ? 10 : 100) / power + (boss ? 3 : 10)) == 0) {
 			c.absorber = true;
 			c.hp *= 0.85;
 		}
