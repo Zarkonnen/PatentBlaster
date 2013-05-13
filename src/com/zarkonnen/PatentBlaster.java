@@ -265,7 +265,11 @@ public class PatentBlaster implements Game, MusicCallback {
 	Pair<String, Pair<String, String>> inputMappingToDo = null;
 	boolean secondaryInputMapping;
 	int newPatentTimer = 0;
+	int approvedDx = 0;
+	int approvedDy = 0;
+	double approvedRot = 0;
 	String patentText = "";
+	Img approved = new Img("approved");
 	int patentImg;
 	String patentName;
 	long patN = System.currentTimeMillis();
@@ -637,11 +641,14 @@ public class PatentBlaster implements Game, MusicCallback {
 					newPatentTimer--;
 				} else {
 					Random r = new Random(patN += 32908);
-					patentText = Trigrams.TRIGRAMS.generate(65, r);
+					patentText = Trigrams.TRIGRAMS.generate(100, r);
 					patentText = patentText.substring(0, patentText.length() - 1) + "...";
+					approvedRot = r.nextDouble() * 0.6 - 0.3;
+					approvedDx = r.nextInt(180) - 120;
+					approvedDy = r.nextInt(300) - 150;
 					patentImg = r.nextInt(NUM_IMAGES);
 					patentName = "PAT " + (patN % 10000);
-					newPatentTimer = FPS * 20;
+					newPatentTimer = FPS * 10;
 				}
 			}
 			hit(in);
@@ -1188,8 +1195,8 @@ public class PatentBlaster implements Game, MusicCallback {
 			int y = (int) (titleR.y + titleR.height + spacing * 2);
 
 			d.rect(Clr.BLACK, sm.width / 2, spacing + 18, 2, sm.height);
-			if (newPatentTimer > FPS * 19) {
-				int speed = FPS / (newPatentTimer - FPS * 19) + 1;
+			if (newPatentTimer > FPS * 9) {
+				int speed = FPS / (newPatentTimer - FPS * 9) + 1;
 				Random r = new Random(patN += (tick % speed == 0 ? 1 : 0));
 				d.text("[BLACK]PAT " + (Math.abs(r.nextInt()) % 10000), FOUNT, sm.width / 2 + spacing * 2, y);
 			} else {
@@ -1197,6 +1204,9 @@ public class PatentBlaster implements Game, MusicCallback {
 					d.text("[BLACK]" + patentName, FOUNT, sm.width / 2 + spacing * 2, y);
 					d.blit(drawingImgsLarge[patentImg], PAPER, sm.width / 2 + spacing * 2, y + 40);
 					d.text("[BLACK]" + patentText, FOUNT, sm.width / 2 + spacing * 2, y + 465, sm.width / 2 - spacing * 4);
+					if (newPatentTimer < FPS * 7) {
+						d.blit(approved, null, sm.width / 2 + spacing * 2 + 100 + approvedDx, y + 200 + approvedDy, 300, 100, approvedRot);
+					}
 					d.hook(sm.width / 2, 0, sm.width / 2, sm.height, new Hook(Type.MOUSE_1) {
 						@Override
 						public void run(Input in, Pt p, Type type) {
@@ -1352,8 +1362,8 @@ public class PatentBlaster implements Game, MusicCallback {
 				});
 			} else {
 				d.rect(Clr.BLACK, sm.width / 2, spacing + 18, 2, sm.height);
-				if (newPatentTimer > FPS * 19) {
-					int speed = FPS / (newPatentTimer - FPS * 19) + 1;
+				if (newPatentTimer > FPS * 9) {
+					int speed = FPS / (newPatentTimer - FPS * 9) + 1;
 					Random r = new Random(patN += (tick % speed == 0 ? 1 : 0));
 					d.text("[BLACK]PAT " + (Math.abs(r.nextInt()) % 10000), FOUNT, sm.width / 2 + spacing * 2, y);
 				} else {
@@ -1361,6 +1371,9 @@ public class PatentBlaster implements Game, MusicCallback {
 						d.text("[BLACK]" + patentName, FOUNT, sm.width / 2 + spacing * 2, y);
 						d.blit(drawingImgsLarge[patentImg], PAPER, sm.width / 2 + spacing * 2, y + 40);
 						d.text("[BLACK]" + patentText, FOUNT, sm.width / 2 + spacing * 2, y + 465, sm.width / 2 - spacing * 4);
+						if (newPatentTimer < FPS * 7) {
+							d.blit(approved, null, sm.width / 2 + spacing * 2 + 100, y + 200, 300, 100, approvedRot);
+						}
 						d.hook(sm.width / 2, 0, sm.width / 2, sm.height, new Hook(Type.MOUSE_1) {
 							@Override
 							public void run(Input in, Pt p, Type type) {
