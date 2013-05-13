@@ -671,8 +671,12 @@ public class PatentBlaster implements Game, MusicCallback {
 				if (curs.y > in.mode().height - 50 || in.keyDown("DOWN") || in.keyDown(key("S")) || in.keyDown(key("DOWN"))) {
 					setupScroll -= 10;
 				}
+				setupScroll += in.scrollAmount() / 8;
 				if (setupScroll > 0) {
 					setupScroll = 0;
+				}
+				if (setupScroll < -1536) {
+					setupScroll = -1536;
 				}
 			}
 			hit(in);
@@ -1570,9 +1574,13 @@ public class PatentBlaster implements Game, MusicCallback {
 					}
 				});
 				
+				// The bar of much scrolling, it lives!
+				d.rect(Clr.GREY, sm.width - 20, 10, 10, sm.height - 20);
+				d.rect(Clr.LIGHT_GREY, sm.width - 19, -setupScroll * (sm.height - 30) / 1536 + 11, 8, 8);
+				
 				// CYA
 				Rect cyaR = d.textSize("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, 0, 0);
-				d.text("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, sm.width - cyaR.width, sm.height - cyaR.height);
+				d.text("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, sm.width - cyaR.width - 20, sm.height - cyaR.height);
 				
 				if (cooldown > 20 && difficultyLevel.ordinal() < DifficultyLevel.MEDIUM.ordinal() && gamesPlayed < 2) {
 					d.rect(new Clr(0, 0, 0, 63), 0, 0, sm.width, sm.height);
