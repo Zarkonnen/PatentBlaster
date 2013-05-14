@@ -675,8 +675,8 @@ public class PatentBlaster implements Game, MusicCallback {
 				if (setupScroll > 0) {
 					setupScroll = 0;
 				}
-				if (setupScroll < -1536) {
-					setupScroll = -1536;
+				if (setupScroll < -1300) {
+					setupScroll = -1300;
 				}
 			}
 			hit(in);
@@ -1576,11 +1576,18 @@ public class PatentBlaster implements Game, MusicCallback {
 				
 				// The bar of much scrolling, it lives!
 				d.rect(Clr.GREY, sm.width - 20, 10, 10, sm.height - 20);
-				d.rect(Clr.LIGHT_GREY, sm.width - 19, -setupScroll * (sm.height - 30) / 1536 + 11, 8, 8);
+				d.rect(Clr.LIGHT_GREY, sm.width - 19, -setupScroll * (sm.height - 30) / 1300 + 11, 8, 8);
+				
+				d.hook(sm.width - 30, 0, 30, sm.height, new Hook(Hook.Type.MOUSE_1) {
+					@Override
+					public void run(Input in, Pt p, Type type) {
+						setupScroll = (int) (-(p.y - 10) * 1300 / (sm.height - 20));
+					}
+				});
 				
 				// CYA
 				Rect cyaR = d.textSize("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, 0, 0);
-				d.text("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, sm.width - cyaR.width - 20, sm.height - cyaR.height);
+				d.text("[BLACK][bg=ff5555] Item names randomly chosen from Wikipedia. ", SMOUNT, sm.width - cyaR.width - 20, sm.height - cyaR.height - 10);
 				
 				if (cooldown > 20 && difficultyLevel.ordinal() < DifficultyLevel.MEDIUM.ordinal() && gamesPlayed < 2) {
 					d.rect(new Clr(0, 0, 0, 63), 0, 0, sm.width, sm.height);
