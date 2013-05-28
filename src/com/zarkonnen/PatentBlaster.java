@@ -1376,7 +1376,7 @@ public class PatentBlaster implements Game, MusicCallback {
 						d.blit(drawingImgsLarge[patentImg], PAPER, sm.width / 2 + spacing * 2, y + 40);
 						d.text("[BLACK]" + patentText, FOUNT, sm.width / 2 + spacing * 2, y + 465, sm.width / 2 - spacing * 4);
 						if (newPatentTimer < FPS * 7) {
-							d.blit(approved, null, sm.width / 2 + spacing * 2 + 100, y + 200, 300, 100, approvedRot);
+							d.blit(approved, null, sm.width / 2 + spacing * 2 + 100 + approvedDx, y + 200 + approvedDy, 300, 100, approvedRot);
 						}
 						d.hook(sm.width / 2, 0, sm.width / 2, sm.height, new Hook(Type.MOUSE_1) {
 							@Override
