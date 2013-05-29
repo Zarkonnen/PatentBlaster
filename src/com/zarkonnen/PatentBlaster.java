@@ -406,6 +406,17 @@ public class PatentBlaster implements Game, MusicCallback {
 	
 	static int lastMs;
 	
+	
+	void quit(Input in) {
+		if (DEMO) {
+			in.setMode(new ScreenMode(1024, 768, false));
+			try {
+				Desktop.getDesktop().browse(new URI("http://www.patent-blaster.com/postDemo/"));
+			} catch (Exception e) {}
+		}
+		in.quit();
+	}
+	
 	public void doInput(Input in) {
 		if (splashDrawn) {
 			Preload.preload(in);
@@ -431,7 +442,7 @@ public class PatentBlaster implements Game, MusicCallback {
 					showCredits = false;
 					cooldown += 15;
 				} else {
-					in.quit();
+					quit(in);
 				}
 			} else {
 				if (cooldown == 0) {
@@ -1278,11 +1289,13 @@ public class PatentBlaster implements Game, MusicCallback {
 				menuItem("sound", " " + i, soundVolume == i, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 					@Override
 					public void run(Input in, Pt p, Type type) {
+						if (cooldown > 0) { return; }
 						if (ii > 0 && ii != soundVolume) {
 							in.play("squelch", 1.0, ii * 1.0 / 9, 0, 0);
 						}
 						soundVolume = ii;
 						savePrefs();
+						cooldown = 10;
 					}
 				});
 			}
@@ -1299,6 +1312,7 @@ public class PatentBlaster implements Game, MusicCallback {
 				menuItem("music", " " + i, musicVolume == i, menu, hoox, new Hook(Hook.Type.MOUSE_1) {
 					@Override
 					public void run(Input in, Pt p, Type type) {
+						if (cooldown > 0) { return; }
 						if (musicVolume == 0) {
 							in.stopMusic();
 						} 
@@ -1306,6 +1320,7 @@ public class PatentBlaster implements Game, MusicCallback {
 						musicPlaying = false;
 						musicVolume = ii;
 						savePrefs();
+						cooldown = 10;
 					}
 				});
 			}
@@ -1448,7 +1463,7 @@ public class PatentBlaster implements Game, MusicCallback {
 					@Override
 					public void run(Input in, Pt p, Hook.Type type) {
 						if (cooldown > 0) { return; }
-						in.quit();
+						quit(in);
 					}
 				});
 				menu.append("\n\n");
@@ -1465,8 +1480,8 @@ public class PatentBlaster implements Game, MusicCallback {
 					menu.append("\n\n");
 				}
 				if (DEMO) {
-					d.rect(Clr.BLACK, spacing + "EASY MEDIUM HARD ".length() * FOUNT.displayWidth, y + FOUNT.lineHeight * (hasContinue ? 10 : 8) + 8, "BRUTAL".length() * FOUNT.displayWidth, 2);
-					d.rect(Clr.BLACK, spacing + "EASY MEDIUM HARD BRUTAL ".length() * FOUNT.displayWidth, y + FOUNT.lineHeight * (hasContinue ? 10 : 8)  + 8, "IMPOSSIBLE".length() * FOUNT.displayWidth, 2);
+					d.rect(Clr.BLACK, spacing + "EASY MEDIUM HARD ".length() * FOUNT.displayWidth, y + FOUNT.lineHeight * 5, "BRUTAL".length() * FOUNT.displayWidth, 2);
+					d.rect(Clr.BLACK, spacing + "EASY MEDIUM HARD BRUTAL ".length() * FOUNT.displayWidth, y + FOUNT.lineHeight * 5, "IMPOSSIBLE".length() * FOUNT.displayWidth, 2);
 				}
 								
 				d.text(menu.toString(), GOUNT, spacing, y, hoox);
@@ -1493,7 +1508,7 @@ public class PatentBlaster implements Game, MusicCallback {
 					});
 					menu.append(" ");
 				}
-				d.text(menu.toString(), FOUNT, spacing + 2, hasContinue ? 250 : 130, hoox);
+				d.text(menu.toString(), FOUNT, spacing + 2, 155, hoox);
 				
 				Rect menuR = d.textSize(menu.toString(), FOUNT, spacing, y);
 				y += menuR.height + spacing;
