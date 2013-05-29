@@ -125,6 +125,19 @@ public class PatentBlaster implements Game, MusicCallback {
 	
 	public static final PrintStream ERR_STREAM;
 	
+	static File extraLevelsDir() {
+		File home = new File("").getAbsoluteFile();
+		while (home != null) {
+			File el = new File(home, "Extra Levels");
+			if (el.exists() && el.isDirectory()) {
+				return el;
+			}
+			home = home.getParentFile();
+		}
+		
+		return new File("Extra Levels");
+	}
+	
 	static {
 		PrintStream es = System.err;
 		try {
@@ -211,7 +224,7 @@ public class PatentBlaster implements Game, MusicCallback {
 				}
 			}
 			try {
-				for (File f : new File("Extra Levels").listFiles()) {
+				for (File f : extraLevelsDir().listFiles()) {
 					if (f.isFile()) {
 						try {
 							BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
